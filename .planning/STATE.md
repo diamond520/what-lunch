@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 6 of 6 (Weekend Recommendation)
-Plan: 1 of ? in phase 06-weekend-recommendation
+Plan: 2 of ? in phase 06-weekend-recommendation
 Status: In progress
-Last activity: 2026-02-18 — Completed 06-01-PLAN.md (weekend data foundation)
+Last activity: 2026-02-18 — Completed 06-02-PLAN.md (tabbed restaurants UI, /weekend picker page, nav link)
 Note: Phase 5 Plan 02 (deployment) still blocked on Vercel auth
 
-Progress: [█████████░] ~92%
+Progress: [█████████░] ~95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: ~2 min
-- Total execution time: ~16 min
+- Total execution time: ~18 min
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [█████████░] ~92%
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
 | 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
 | 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
-| 06-weekend-recommendation | 1 completed | ~2 min | ~2 min |
+| 06-weekend-recommendation | 2 completed | ~4 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: ~1.5 min (04-01), ~2 min (04-02), ~1 min (05-01), ~2 min (06-01)
+- Last 5 plans: ~2 min (04-02), ~1 min (05-01), ~2 min (06-01), ~2 min (06-02)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -82,6 +82,10 @@ Recent decisions affecting current work:
 - Separate WEEKEND_STORAGE_KEY ('what-lunch-weekend-restaurants'): fully independent persistence from weekday list
 - readStoredRestaurantsFromKey generic helper: parameterizes key+defaults, eliminates duplication for multi-list localStorage
 - pickRandomRestaurant throws on empty pool: fail-fast caller safety
+- RestaurantListPanel defined in same file as RestaurantsPage: simpler, only used in one place
+- showSaveToConfig prop gates save-to-config UI in shared panel: weekend tab always gets false
+- defaultNames computed from defaultRestaurants prop (not hardcoded): both panels detect defaults correctly
+- Re-roll logic lives in /weekend page component, not pickRandomRestaurant: keeps algorithm pure
 
 ### Roadmap Evolution
 
@@ -98,6 +102,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18T15:53:44Z
-Stopped at: Completed 06-01-PLAN.md — weekend data foundation (context, defaults, pickRandomRestaurant, Tabs)
+Last session: 2026-02-18T15:57:54Z
+Stopped at: Completed 06-02-PLAN.md — tabbed /restaurants page + /weekend picker + nav link
 Resume file: None

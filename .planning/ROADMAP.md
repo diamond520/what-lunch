@@ -83,10 +83,11 @@ Plans:
   3. Submitting the add form with non-numeric values for price or distance is rejected with a visible validation error
   4. User can remove any restaurant from the list and it disappears immediately
   5. Each restaurant entry shows a color-coded cuisine type tag matching the type (e.g., Chinese = one color, Japanese = another)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — Install shadcn UI components and create RestaurantContext provider shared via root layout
+- [ ] 04-02-PLAN.md — Build restaurant management page with table, add form, validation, remove, and cuisine tags
 
 ---
 
@@ -116,10 +117,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-18 |
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
-| 3. Recommendation Algorithm | 3/3 | ✓ Complete | 2026-02-18 |
-| 4. Restaurant Management | 0/TBD | Not started | - |
+| 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
+| 4. Restaurant Management | 0/2 | Not started | - |
 | 5. Picker Page and Deployment | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 3 complete*
+*Last updated: 2026-02-18 after Phase 4 planned*

@@ -81,33 +81,33 @@ Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | — | Pending |
-| FOUND-02 | — | Pending |
-| FOUND-03 | — | Pending |
-| FOUND-04 | — | Pending |
-| RECO-01 | — | Pending |
-| RECO-02 | — | Pending |
-| RECO-03 | — | Pending |
-| RECO-04 | — | Pending |
-| RECO-05 | — | Pending |
-| RECO-06 | — | Pending |
-| RECO-07 | — | Pending |
-| REST-01 | — | Pending |
-| REST-02 | — | Pending |
-| REST-03 | — | Pending |
-| REST-04 | — | Pending |
-| REST-05 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| UI-03 | — | Pending |
-| DEPLOY-01 | — | Pending |
-| DEPLOY-02 | — | Pending |
+| FOUND-01 | Phase 1 | Pending |
+| FOUND-02 | Phase 1 | Pending |
+| FOUND-03 | Phase 1 | Pending |
+| FOUND-04 | Phase 1 | Pending |
+| UI-01 | Phase 2 | Pending |
+| UI-02 | Phase 2 | Pending |
+| UI-03 | Phase 2 | Pending |
+| RECO-01 | Phase 3 | Pending |
+| RECO-02 | Phase 3 | Pending |
+| RECO-03 | Phase 3 | Pending |
+| RECO-04 | Phase 3 | Pending |
+| RECO-05 | Phase 3 | Pending |
+| RECO-07 | Phase 3 | Pending |
+| REST-01 | Phase 4 | Pending |
+| REST-02 | Phase 4 | Pending |
+| REST-03 | Phase 4 | Pending |
+| REST-04 | Phase 4 | Pending |
+| REST-05 | Phase 4 | Pending |
+| RECO-06 | Phase 5 | Pending |
+| DEPLOY-01 | Phase 5 | Pending |
+| DEPLOY-02 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap creation*

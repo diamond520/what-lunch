@@ -164,3 +164,8 @@ export function rerollSlot(plan: WeeklyPlan, slotIndex: number, pool: Restaurant
     weeklyBudget: plan.weeklyBudget,
   }
 }
+
+export function pickRandomRestaurant(pool: Restaurant[]): Restaurant {
+  if (pool.length === 0) throw new Error('Restaurant pool cannot be empty')
+  return pool[Math.floor(Math.random() * pool.length)]
+}

@@ -17,24 +17,37 @@ function renderWithContext(
     addRestaurant: (r: Restaurant) => void
     removeRestaurant: (id: string) => void
     updateRestaurant: (r: Restaurant) => void
+    addWeekendRestaurant: (r: Restaurant) => void
+    removeWeekendRestaurant: (id: string) => void
+    updateWeekendRestaurant: (r: Restaurant) => void
   }> = {},
 ) {
   const addRestaurant = overrides.addRestaurant ?? vi.fn()
   const removeRestaurant = overrides.removeRestaurant ?? vi.fn()
   const updateRestaurant = overrides.updateRestaurant ?? vi.fn()
+  const addWeekendRestaurant = overrides.addWeekendRestaurant ?? vi.fn()
+  const removeWeekendRestaurant = overrides.removeWeekendRestaurant ?? vi.fn()
+  const updateWeekendRestaurant = overrides.updateWeekendRestaurant ?? vi.fn()
 
   return {
     addRestaurant,
     removeRestaurant,
     updateRestaurant,
+    addWeekendRestaurant,
+    removeWeekendRestaurant,
+    updateWeekendRestaurant,
     ...render(
       <RestaurantContext
         value={{
           restaurants,
+          weekendRestaurants: [],
           isHydrated: true,
           addRestaurant,
           removeRestaurant,
           updateRestaurant,
+          addWeekendRestaurant,
+          removeWeekendRestaurant,
+          updateWeekendRestaurant,
         }}
       >
         <RestaurantsPage />

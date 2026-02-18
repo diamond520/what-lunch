@@ -19,3 +19,11 @@ export const DEFAULT_RESTAURANTS = [
   { id: 'id-12', name: '韓國媽媽烤肉', type: 'kr', price: 150, distance: 600, rating: 3.8 },
   { id: 'id-13', name: '涓豆腐(京站)', type: 'kr', price: 280, distance: 700, rating: 4.0 },
 ] satisfies Restaurant[]
+
+export const DEFAULT_WEEKEND_RESTAURANTS = [
+  { id: 'wknd-1', name: '鼎泰豐(信義店)', type: 'chi', price: 600, distance: 3000, rating: 4.7 },
+  { id: 'wknd-2', name: '老乾杯(信義店)', type: 'jp', price: 1500, distance: 2800, rating: 4.6 },
+  { id: 'wknd-3', name: '鬍鬚張魯肉飯', type: 'chi', price: 120, distance: 500, rating: 4.1 },
+  { id: 'wknd-4', name: '欣葉台菜(中山店)', type: 'tai', price: 500, distance: 1500, rating: 4.4 },
+  { id: 'wknd-5', name: '饗食天堂(台北館)', type: 'west', price: 800, distance: 2000, rating: 4.3 },
+] satisfies Restaurant[]

@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 6 - Weekend Recommendation
+**Current focus:** Phase 6 COMPLETE - Weekend Recommendation fully implemented and tested
 
 ## Current Position
 
 Phase: 6 of 6 (Weekend Recommendation)
-Plan: 2 of ? in phase 06-weekend-recommendation
-Status: In progress
-Last activity: 2026-02-18 — Completed 06-02-PLAN.md (tabbed restaurants UI, /weekend picker page, nav link)
+Plan: 3 of 3 in phase 06-weekend-recommendation
+Status: Phase complete
+Last activity: 2026-02-18 — Completed 06-03-PLAN.md (unit tests for pickRandomRestaurant + component tests for WeekendPage)
 Note: Phase 5 Plan 02 (deployment) still blocked on Vercel auth
 
-Progress: [█████████░] ~95%
+Progress: [██████████] 100% (all planned phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: ~2 min
-- Total execution time: ~18 min
+- Total execution time: ~19 min
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [█████████░] ~95%
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
 | 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
 | 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
-| 06-weekend-recommendation | 2 completed | ~4 min | ~2 min |
+| 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
 
 **Recent Trend:**
-- Last 5 plans: ~2 min (04-02), ~1 min (05-01), ~2 min (06-01), ~2 min (06-02)
+- Last 5 plans: ~1 min (05-01), ~2 min (06-01), ~2 min (06-02), ~1 min (06-03)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -86,6 +86,8 @@ Recent decisions affecting current work:
 - showSaveToConfig prop gates save-to-config UI in shared panel: weekend tab always gets false
 - defaultNames computed from defaultRestaurants prop (not hardcoded): both panels detect defaults correctly
 - Re-roll logic lives in /weekend page component, not pickRandomRestaurant: keeps algorithm pure
+- vitest.config.mts environment: jsdom globally — no file-level @vitest-environment comment needed in .tsx test files
+- CuisineType uses 'tai' not 'thai' — caught by tsc --noEmit in test data
 
 ### Roadmap Evolution
 
@@ -102,6 +104,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18T15:57:54Z
-Stopped at: Completed 06-02-PLAN.md — tabbed /restaurants page + /weekend picker + nav link
+Last session: 2026-02-18T16:01:24Z
+Stopped at: Completed 06-03-PLAN.md — weekend tests (pickRandomRestaurant unit tests + WeekendPage component tests)
 Resume file: None

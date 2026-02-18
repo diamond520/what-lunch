@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-18 — Roadmap created, requirements mapped to 5 phases
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-18 — Completed 01-01-PLAN.md (Next.js scaffold + shadcn/ui)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] ~10%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 5 min
+- Total execution time: 5 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-foundation | 1 completed | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: —
+- Last 5 plans: 5 min (01-01)
 - Trend: —
 
 *Updated after each plan completion*
@@ -46,18 +46,22 @@ Recent decisions affecting current work:
 - No database: Keep it simple, data is static defaults
 - Full rewrite over migration: Old codebase has tech debt, clean start is faster
 - New UI design: Old Element UI look is dated, fresh start
+- App Router (not Pages Router): Used create-next-app --app flag per plan
+- src/app/ layout: create-next-app places App Router files under src/app/ by default
+- shadcn/ui new-york style: Selected via --defaults flag
+- Tailwind v4 + shadcn/ui v3: Verified compatible — shadcn init auto-detects Tailwind v4
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- Tailwind CSS v4 has breaking changes from v3 — verify shadcn/ui compatibility at project init before starting Phase 2
 - Algorithm specification needs edge cases written as test cases before implementation in Phase 3 (minimum pool size, impossible budget behavior)
+- Tailwind v4 + shadcn/ui v3 RESOLVED: confirmed compatible in Plan 01-01
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Roadmap and STATE.md written, requirements traceability updated — ready for Phase 1 planning
+Last session: 2026-02-18T12:14:21Z
+Stopped at: Completed 01-01-PLAN.md — Next.js scaffold + shadcn/ui initialized
 Resume file: None

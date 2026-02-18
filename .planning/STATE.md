@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 3 - Recommendation Algorithm
+**Current focus:** Phase 4 - UI Components (Phase 3 complete)
 
 ## Current Position
 
-Phase: 3 of 5 (Recommendation Algorithm) - In progress
-Plan: 2 of 3 in phase 03-recommendation-algorithm (03-01, 03-02 complete)
-Status: In progress — 03-02 complete, ready for 03-03
-Last activity: 2026-02-18 — Completed 03-02-PLAN.md (generateWeeklyPlan TDD, 14 tests passing)
+Phase: 3 of 5 (Recommendation Algorithm) - COMPLETE
+Plan: 3 of 3 in phase 03-recommendation-algorithm (03-01, 03-02, 03-03 all complete)
+Status: Phase 3 complete — ready to begin Phase 4
+Last activity: 2026-02-18 — Completed 03-03-PLAN.md (rerollSlot TDD, 22 tests passing)
 
-Progress: [██████░░░░] ~60%
+Progress: [███████░░░] ~70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: ~2 min
-- Total execution time: ~10 min
+- Total execution time: ~12 min
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [██████░░░░] ~60%
 |-------|-------|-------|----------|
 | 01-foundation | 2 completed | 6 min | 3 min |
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
-| 03-recommendation-algorithm | 2 of 3 completed | ~4 min | ~2 min |
+| 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: 1 min (01-02), <1 min (02-01), ~2 min (02-02), ~2 min (03-01), ~2 min (03-02)
+- Last 5 plans: <1 min (02-01), ~2 min (02-02), ~2 min (03-01), ~2 min (03-02), ~2 min (03-03)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - environment: node for tests: recommendation algorithm is pure logic, no DOM needed
 - vite-tsconfig-paths plugin: reads existing tsconfig.json paths, no duplication
 - Future-slot budget reservation: each slot reserves cheapestPrice * futureSlots to prevent greedy overrun
+- hasCuisineViolation checks backward/forward/bridge: forward/bridge checks are no-ops during generateWeeklyPlan (next slots undefined), zero risk to existing behavior
+- pickForSlotReroll is separate from pickForSlot: reroll only needs remaining budget (no future-slot reserve)
+- rerollSlot remaining = weeklyBudget - othersCost: guarantees totalCost <= weeklyBudget after reroll
 
 ### Pending Todos
 
@@ -74,5 +77,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-02-PLAN.md — generateWeeklyPlan TDD complete, 14 tests passing, ready for 03-03
+Stopped at: Completed 03-03-PLAN.md — rerollSlot TDD complete, 22 tests passing, Phase 3 done
 Resume file: None

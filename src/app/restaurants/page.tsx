@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Save, Check } from 'lucide-react'
 import { useRestaurants } from '@/lib/restaurant-context'
+import { DEFAULT_RESTAURANTS } from '@/lib/restaurants'
 import { CUISINE_META } from '@/lib/types'
 import type { CuisineType } from '@/lib/types'
 import {
@@ -18,7 +19,7 @@ import {
 } from '@/components/ui/select'
 
 export default function RestaurantsPage() {
-  const { restaurants, addRestaurant, removeRestaurant } = useRestaurants()
+  const { restaurants, isHydrated, addRestaurant, removeRestaurant } = useRestaurants()
 
   const [name, setName] = useState('')
   const [cuisineType, setCuisineType] = useState<CuisineType>('chi')
@@ -28,6 +29,27 @@ export default function RestaurantsPage() {
   const [priceError, setPriceError] = useState('')
   const [distanceError, setDistanceError] = useState('')
   const [ratingError, setRatingError] = useState('')
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+
+  const defaultNames = new Set(DEFAULT_RESTAURANTS.map(r => r.name))
+
+  async function handleSaveToConfig(r: typeof restaurants[number]) {
+    try {
+      const res = await fetch('/api/restaurants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ restaurant: r }),
+      })
+      if (res.ok) {
+        setSavedIds(prev => new Set(prev).add(r.id))
+      } else {
+        const data = await res.json()
+        alert(data.error ?? '儲存失敗')
+      }
+    } catch {
+      alert('無法連線到 API，請確認 dev server 正在執行')
+    }
+  }
 
   function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.valueAsNumber
@@ -112,6 +134,10 @@ export default function RestaurantsPage() {
     setRatingError('')
   }
 
+  if (!isHydrated) {
+    return <div className="container mx-auto px-4 py-8"><h1 className="text-2xl font-semibold mb-6">餐廳管理</h1></div>
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
@@ -149,7 +175,21 @@ export default function RestaurantsPage() {
                 <TableCell>{r.price}</TableCell>
                 <TableCell>{r.distance}</TableCell>
                 <TableCell>{r.rating}</TableCell>
-                <TableCell>
+                <TableCell className="flex gap-1">
+                  {defaultNames.has(r.name) || savedIds.has(r.id) ? (
+                    <Button variant="ghost" size="icon" disabled title="已儲存至 config">
+                      <Check className="h-4 w-4 text-green-500" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleSaveToConfig(r)}
+                      title="儲存至 restaurants.ts"
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"

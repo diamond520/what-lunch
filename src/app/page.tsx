@@ -16,7 +16,7 @@ const BUDGET_MAX = 2000
 const BUDGET_STEP = 10
 
 export default function HomePage() {
-  const { restaurants } = useRestaurants()
+  const { restaurants, isHydrated } = useRestaurants()
   const [budget, setBudget] = useState<number>(DEFAULT_BUDGET)
   const [plan, setPlan] = useState<WeeklyPlan | null>(null)
 
@@ -28,6 +28,10 @@ export default function HomePage() {
   function handleReroll(index: number) {
     if (!plan) return
     setPlan(rerollSlot(plan, index, restaurants))
+  }
+
+  if (!isHydrated) {
+    return <div className="container mx-auto px-4 py-8"><h1 className="text-2xl font-semibold mb-6">每週午餐推薦</h1></div>
   }
 
   return (

@@ -161,10 +161,11 @@ Plans:
   4. Exclude and lock modes are mutually exclusive (toggle between them)
   5. The algorithm still respects budget and diversity constraints with filtered cuisine types
   6. If filtering leaves too few restaurants to fill 5 days, a clear warning is shown
-**Plans**: 0 plans
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 8 to break down)
+- [ ] 08-01-PLAN.md — TDD applyFilter helper and relaxDiversity option in recommend.ts
+- [ ] 08-02-PLAN.md — Cuisine filter UI on picker page with persistence and human verification
 
 ---
 
@@ -230,7 +231,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Picker Page and Deployment | 1/2 | Backlog (deployment) | - |
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
 | 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
-| 8. Cuisine Filter | 0/0 | Not planned | - |
+| 8. Cuisine Filter | 0/2 | Planned | - |
 | 9. Lunch History | 0/0 | Not planned | - |
 | 10. Share Plan | 0/0 | Not planned | - |
 | 11. Wheel Animation | 0/0 | Not planned | - |

@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
 - [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
 - [x] **Phase 6: Weekend Recommendation** - Independent weekend restaurant list, random pick page, tab switching in restaurant management
-- [ ] **Phase 7: Dark Mode** - Tailwind CSS variable theme toggle with system preference detection
+- [x] **Phase 7: Dark Mode** - Tailwind CSS variable theme toggle with system preference detection
 - [ ] **Phase 8: Cuisine Filter** - Exclude or lock specific cuisine types when generating weekly plans
 - [ ] **Phase 9: Lunch History** - Track daily lunch picks and avoid recommending recently visited restaurants
 - [ ] **Phase 10: Share Plan** - One-click copy weekly plan as formatted text for LINE/clipboard
@@ -147,7 +147,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md — Install next-themes, create ThemeProvider + ThemeToggle, wire into layout and header
+- [x] 07-01-PLAN.md — Install next-themes, create ThemeProvider + ThemeToggle, wire into layout and header
 
 ---
 
@@ -229,7 +229,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
 | 5. Picker Page and Deployment | 1/2 | Backlog (deployment) | - |
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
-| 7. Dark Mode | 0/1 | Planned | - |
+| 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
 | 8. Cuisine Filter | 0/0 | Not planned | - |
 | 9. Lunch History | 0/0 | Not planned | - |
 | 10. Share Plan | 0/0 | Not planned | - |
@@ -237,4 +237,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-19 after planning Phase 7*
+*Last updated: 2026-02-19 after Phase 7 complete*

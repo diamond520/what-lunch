@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/header'
 import { RestaurantProvider } from '@/lib/restaurant-context'
+import { ThemeProvider } from '@/components/theme-provider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,12 +26,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-TW">
+    <html lang="zh-TW" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Header />
-        <RestaurantProvider>
-          <main className="min-h-screen">{children}</main>
-        </RestaurantProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Header />
+          <RestaurantProvider>
+            <main className="min-h-screen">{children}</main>
+          </RestaurantProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -1,4 +1,5 @@
 import { NavLinks } from './nav-links'
+import { ThemeToggle } from './theme-toggle'
 
 export function Header() {
   return (
@@ -6,6 +7,9 @@ export function Header() {
       <div className="container mx-auto flex h-14 max-w-screen-2xl items-center px-4">
         <span className="mr-6 font-semibold text-foreground">What Lunch?</span>
         <NavLinks />
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   )

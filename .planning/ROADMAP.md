@@ -29,10 +29,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `Restaurant` interface and `CuisineType` union exist in a single file and are importable by any component
   3. Cuisine type labels and colors are defined once and only once — no duplicate string literals across files
   4. All 19 default restaurants are available as a typed constant importable from `lib/restaurants.ts`
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md — Scaffold Next.js 16 project with TypeScript strict mode and shadcn/ui (new-york)
+- [ ] 01-02-PLAN.md — Create lib/types.ts and lib/restaurants.ts as the single typed source of truth
 
 ---
 
@@ -110,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/2 | Not started | - |
 | 2. App Shell | 0/TBD | Not started | - |
 | 3. Recommendation Algorithm | 0/TBD | Not started | - |
 | 4. Restaurant Management | 0/TBD | Not started | - |
@@ -118,4 +119,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after initial creation*
+*Last updated: 2026-02-18 after Phase 1 planning*

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Trash2, Save, Check, Pencil, X } from 'lucide-react'
 import { useRestaurants } from '@/lib/restaurant-context'
-import { DEFAULT_RESTAURANTS } from '@/lib/restaurants'
+import { DEFAULT_RESTAURANTS, DEFAULT_WEEKEND_RESTAURANTS } from '@/lib/restaurants'
 import { CUISINE_META } from '@/lib/types'
 import type { CuisineType, Restaurant } from '@/lib/types'
 import {
@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface FormState {
   name: string
@@ -106,10 +107,23 @@ function restaurantToForm(r: Restaurant): FormState {
   }
 }
 
-export default function RestaurantsPage() {
-  const { restaurants, isHydrated, addRestaurant, removeRestaurant, updateRestaurant } =
-    useRestaurants()
+interface RestaurantListPanelProps {
+  restaurants: Restaurant[]
+  defaultRestaurants: Restaurant[]
+  addRestaurant: (r: Restaurant) => void
+  removeRestaurant: (id: string) => void
+  updateRestaurant: (r: Restaurant) => void
+  showSaveToConfig?: boolean
+}
 
+function RestaurantListPanel({
+  restaurants,
+  defaultRestaurants,
+  addRestaurant,
+  removeRestaurant,
+  updateRestaurant,
+  showSaveToConfig = false,
+}: RestaurantListPanelProps) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [errors, setErrors] = useState<FormErrors>(EMPTY_ERRORS)
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
@@ -121,7 +135,7 @@ export default function RestaurantsPage() {
   const [search, setSearch] = useState('')
   const [filterCuisine, setFilterCuisine] = useState<CuisineType | 'all'>('all')
 
-  const defaultNames = new Set(DEFAULT_RESTAURANTS.map((r) => r.name))
+  const defaultNames = new Set(defaultRestaurants.map((r) => r.name))
 
   const filteredRestaurants = restaurants.filter((r) => {
     const nameMatch = r.name.toLowerCase().includes(search.toLowerCase())
@@ -180,20 +194,10 @@ export default function RestaurantsPage() {
     setEditErrors(EMPTY_ERRORS)
   }
 
-  if (!isHydrated) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
-      </div>
-    )
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
-
+    <>
       {/* Search & Filter */}
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center gap-4 mb-4 mt-4">
         <Input
           placeholder="搜尋餐廳名稱…"
           value={search}
@@ -366,19 +370,23 @@ export default function RestaurantsPage() {
                     >
                       <Pencil className="size-4" />
                     </Button>
-                    {defaultNames.has(r.name) || savedIds.has(r.id) ? (
-                      <Button variant="ghost" size="icon" disabled title="已儲存至 config">
-                        <Check className="size-4 text-green-500" />
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleSaveToConfig(r)}
-                        title="儲存至 restaurants.ts"
-                      >
-                        <Save className="size-4" />
-                      </Button>
+                    {showSaveToConfig && (
+                      <>
+                        {defaultNames.has(r.name) || savedIds.has(r.id) ? (
+                          <Button variant="ghost" size="icon" disabled title="已儲存至 config">
+                            <Check className="size-4 text-green-500" />
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleSaveToConfig(r)}
+                            title="儲存至 restaurants.ts"
+                          >
+                            <Save className="size-4" />
+                          </Button>
+                        )}
+                      </>
                     )}
                     <Button variant="ghost" size="icon" onClick={() => removeRestaurant(r.id)}>
                       <Trash2 className="size-4" />
@@ -465,6 +473,61 @@ export default function RestaurantsPage() {
           新增
         </Button>
       </form>
+    </>
+  )
+}
+
+export default function RestaurantsPage() {
+  const {
+    restaurants,
+    weekendRestaurants,
+    isHydrated,
+    addRestaurant,
+    removeRestaurant,
+    updateRestaurant,
+    addWeekendRestaurant,
+    removeWeekendRestaurant,
+    updateWeekendRestaurant,
+  } = useRestaurants()
+
+  if (!isHydrated) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
+
+      <Tabs defaultValue="weekday">
+        <TabsList>
+          <TabsTrigger value="weekday">平日餐廳</TabsTrigger>
+          <TabsTrigger value="weekend">假日餐廳</TabsTrigger>
+        </TabsList>
+        <TabsContent value="weekday">
+          <RestaurantListPanel
+            restaurants={restaurants}
+            defaultRestaurants={DEFAULT_RESTAURANTS}
+            addRestaurant={addRestaurant}
+            removeRestaurant={removeRestaurant}
+            updateRestaurant={updateRestaurant}
+            showSaveToConfig={true}
+          />
+        </TabsContent>
+        <TabsContent value="weekend">
+          <RestaurantListPanel
+            restaurants={weekendRestaurants}
+            defaultRestaurants={DEFAULT_WEEKEND_RESTAURANTS}
+            addRestaurant={addWeekendRestaurant}
+            removeRestaurant={removeWeekendRestaurant}
+            updateRestaurant={updateWeekendRestaurant}
+            showSaveToConfig={false}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

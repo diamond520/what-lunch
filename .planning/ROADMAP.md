@@ -104,8 +104,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Build weekly lunch picker page with budget input, 5-day cards, and per-card re-roll
-- [ ] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL
+- [x] 05-01-PLAN.md — Build weekly lunch picker page with budget input, 5-day cards, and per-card re-roll
+- [ ] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL (blocked: Vercel auth)
 
 ---
 
@@ -120,8 +120,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
 | 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
 | 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
-| 5. Picker Page and Deployment | 0/2 | Not started | - |
+| 5. Picker Page and Deployment | 1/2 | In progress (deployment needs auth) | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 4 complete*
+*Last updated: 2026-02-18 after Phase 5 Plan 01 complete*

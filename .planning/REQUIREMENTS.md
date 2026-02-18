@@ -21,7 +21,7 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 - [x] **RECO-03**: Budget-aware algorithm that distributes weekly budget across 5 days
 - [x] **RECO-04**: Cuisine diversity enforcement — no more than 2 consecutive same-type restaurants
 - [x] **RECO-05**: Per-slot re-roll — swap one day's pick without regenerating the full week
-- [ ] **RECO-06**: Recommendation cards showing restaurant name, cuisine type tag, price, distance
+- [x] **RECO-06**: Recommendation cards showing restaurant name, cuisine type tag, price, distance
 - [x] **RECO-07**: Algorithm with bounded iteration (no infinite recursion) and graceful fallback
 
 ### Restaurant Management
@@ -41,7 +41,7 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 ### Deployment
 
 - [ ] **DEPLOY-01**: Static export / SSG deployment to Vercel
-- [ ] **DEPLOY-02**: Production build with no errors or warnings
+- [x] **DEPLOY-02**: Production build with no errors or warnings
 
 ## v2 Requirements
 
@@ -99,9 +99,9 @@ Updated during roadmap creation.
 | REST-03 | Phase 4 | Complete |
 | REST-04 | Phase 4 | Complete |
 | REST-05 | Phase 4 | Complete |
-| RECO-06 | Phase 5 | Pending |
+| RECO-06 | Phase 5 | Complete |
 | DEPLOY-01 | Phase 5 | Pending |
-| DEPLOY-02 | Phase 5 | Pending |
+| DEPLOY-02 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 21 total
@@ -110,4 +110,4 @@ Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 4 complete*
+*Last updated: 2026-02-18 after Phase 5 Plan 01 complete*

@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 Phase: 5 of 5 (Picker Page and Deployment) - In progress
 Plan: 1 of 2 in phase 05-picker-page-and-deployment complete (05-01 done)
-Status: In progress — 05-01 complete, 05-02 pending
+Status: App feature-complete — 05-02 deployment blocked on Vercel auth
 Last activity: 2026-02-18 — Completed 05-01-PLAN.md (weekly lunch picker page)
 
 Progress: [█████████░] ~95%
@@ -83,10 +83,11 @@ None.
 
 ### Blockers/Concerns
 
-- GitHub auth not configured — needed for Phase 5 Vercel deployment
+- Vercel CLI not authenticated — run `npx vercel login` then `npx vercel --prod` to deploy
+- Alternative: push to GitHub (`git push origin master`) and connect repo in Vercel dashboard
 
 ## Session Continuity
 
 Last session: 2026-02-18T13:45:53Z
-Stopped at: Completed 05-01-PLAN.md (weekly lunch picker page)
+Stopped at: Phase 5 Plan 01 complete — deployment blocked on Vercel auth
 Resume file: None

@@ -106,7 +106,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Build weekly lunch picker page with budget input, 5-day cards, and per-card re-roll
-- [ ] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL (blocked: Vercel auth)
+- [ ] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL (backlog: manual deploy when ready)
 
 ---
 

@@ -13,7 +13,7 @@ Phase: 6 of 6 (Weekend Recommendation)
 Plan: 3 of 3 in phase 06-weekend-recommendation
 Status: Phase complete
 Last activity: 2026-02-18 — Completed 06-03-PLAN.md (unit tests for pickRandomRestaurant + component tests for WeekendPage)
-Note: Phase 5 Plan 02 (deployment) still blocked on Vercel auth
+Note: Phase 5 Plan 02 (deployment) moved to backlog — manual deploy when ready
 
 Progress: [██████████] 100% (all planned phases complete)
 
@@ -99,8 +99,11 @@ None.
 
 ### Blockers/Concerns
 
-- Vercel CLI not authenticated — run `npx vercel login` then `npx vercel --prod` to deploy
-- Alternative: push to GitHub (`git push origin master`) and connect repo in Vercel dashboard
+None.
+
+### Backlog
+
+- Phase 5 Plan 02: Vercel deployment — `npx vercel login` then `npx vercel --prod`, or connect repo in Vercel dashboard
 
 ## Session Continuity
 

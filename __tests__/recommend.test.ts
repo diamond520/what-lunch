@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { generateWeeklyPlan, type WeeklyPlan } from '@/lib/recommend'
+import { generateWeeklyPlan, rerollSlot, type WeeklyPlan } from '@/lib/recommend'
 import { DEFAULT_RESTAURANTS } from '@/lib/restaurants'
 import type { Restaurant } from '@/lib/types'
 
@@ -104,5 +104,124 @@ describe('generateWeeklyPlan', () => {
     )
     const uniqueFirstPicks = new Set(plans.map(p => p.days[0].id))
     expect(uniqueFirstPicks.size).toBeGreaterThan(1)
+  })
+})
+
+describe('rerollSlot', () => {
+  test('only changes the target slot (middle)', () => {
+    const original = generateWeeklyPlan(DEFAULT_RESTAURANTS, 750)
+    const updated = rerollSlot(original, 2, DEFAULT_RESTAURANTS)
+    expect(updated.days[0]).toBe(original.days[0])
+    expect(updated.days[1]).toBe(original.days[1])
+    // days[2] may or may not change (random)
+    expect(updated.days[3]).toBe(original.days[3])
+    expect(updated.days[4]).toBe(original.days[4])
+  })
+
+  test('only changes the target slot (first)', () => {
+    const original = generateWeeklyPlan(DEFAULT_RESTAURANTS, 750)
+    const updated = rerollSlot(original, 0, DEFAULT_RESTAURANTS)
+    expect(updated.days[1]).toBe(original.days[1])
+    expect(updated.days[2]).toBe(original.days[2])
+    expect(updated.days[3]).toBe(original.days[3])
+    expect(updated.days[4]).toBe(original.days[4])
+  })
+
+  test('only changes the target slot (last)', () => {
+    const original = generateWeeklyPlan(DEFAULT_RESTAURANTS, 750)
+    const updated = rerollSlot(original, 4, DEFAULT_RESTAURANTS)
+    expect(updated.days[0]).toBe(original.days[0])
+    expect(updated.days[1]).toBe(original.days[1])
+    expect(updated.days[2]).toBe(original.days[2])
+    expect(updated.days[3]).toBe(original.days[3])
+  })
+
+  test('preserves budget constraint after reroll', () => {
+    const original = generateWeeklyPlan(DEFAULT_RESTAURANTS, 600)
+    const updated = rerollSlot(original, 2, DEFAULT_RESTAURANTS)
+    expect(updated.totalCost).toBeLessThanOrEqual(600)
+    expect(updated.weeklyBudget).toBe(600)
+  })
+
+  test('does not create backward cuisine violation', () => {
+    // Force slots 0,1 to be same cuisine, then reroll slot 2
+    const jp1: Restaurant = { id: 'jp1', name: 'JP1', type: 'jp', price: 80, distance: 100 }
+    const jp2: Restaurant = { id: 'jp2', name: 'JP2', type: 'jp', price: 90, distance: 100 }
+    const chi1: Restaurant = { id: 'chi1', name: 'CHI1', type: 'chi', price: 70, distance: 100 }
+    const plan: WeeklyPlan = {
+      days: [jp1, jp2, chi1, chi1, chi1],
+      totalCost: 380,
+      weeklyBudget: 1000,
+    }
+    // Pool has jp and chi options
+    const pool: Restaurant[] = [jp1, jp2, chi1,
+      { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 100 },
+    ]
+    for (let i = 0; i < 50; i++) {
+      const updated = rerollSlot(plan, 2, pool)
+      // slot 2 must not be jp (would create jp,jp,jp at 0,1,2)
+      const backwardViolation =
+        updated.days[0].type === updated.days[1].type &&
+        updated.days[1].type === updated.days[2].type
+      expect(backwardViolation, 'backward 3-consecutive violation').toBe(false)
+    }
+  })
+
+  test('does not create forward cuisine violation', () => {
+    // Force slots 3,4 to be same cuisine, then reroll slot 2
+    const jp1: Restaurant = { id: 'jp1', name: 'JP1', type: 'jp', price: 80, distance: 100 }
+    const chi1: Restaurant = { id: 'chi1', name: 'CHI1', type: 'chi', price: 70, distance: 100 }
+    const kr1: Restaurant = { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 100 }
+    const plan: WeeklyPlan = {
+      days: [chi1, kr1, chi1, jp1, jp1],
+      totalCost: 375,
+      weeklyBudget: 1000,
+    }
+    const pool: Restaurant[] = [jp1, chi1, kr1]
+    for (let i = 0; i < 50; i++) {
+      const updated = rerollSlot(plan, 2, pool)
+      // slot 2 must not be jp (would create jp,jp,jp at 2,3,4)
+      const forwardViolation =
+        updated.days[2].type === updated.days[3].type &&
+        updated.days[3].type === updated.days[4].type
+      expect(forwardViolation, 'forward 3-consecutive violation').toBe(false)
+    }
+  })
+
+  test('does not create bridge cuisine violation', () => {
+    // Force slot 1 and slot 3 to same cuisine, reroll slot 2
+    const jp1: Restaurant = { id: 'jp1', name: 'JP1', type: 'jp', price: 80, distance: 100 }
+    const chi1: Restaurant = { id: 'chi1', name: 'CHI1', type: 'chi', price: 70, distance: 100 }
+    const kr1: Restaurant = { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 100 }
+    const plan: WeeklyPlan = {
+      days: [chi1, jp1, kr1, jp1, chi1],
+      totalCost: 375,
+      weeklyBudget: 1000,
+    }
+    const pool: Restaurant[] = [jp1, chi1, kr1]
+    for (let i = 0; i < 50; i++) {
+      const updated = rerollSlot(plan, 2, pool)
+      // slot 2 must not be jp (would create jp,jp,jp at 1,2,3)
+      const bridgeViolation =
+        updated.days[1].type === updated.days[2].type &&
+        updated.days[2].type === updated.days[3].type
+      expect(bridgeViolation, 'bridge 3-consecutive violation').toBe(false)
+    }
+  })
+
+  // Statistical validation
+  test('budget and cuisine constraints hold over 100 rerolls', () => {
+    for (let i = 0; i < 100; i++) {
+      const plan = generateWeeklyPlan(DEFAULT_RESTAURANTS, 700)
+      const slot = Math.floor(Math.random() * 5)
+      const updated = rerollSlot(plan, slot, DEFAULT_RESTAURANTS)
+      expect(updated.totalCost).toBeLessThanOrEqual(700)
+      for (let j = 2; j < updated.days.length; j++) {
+        const triple =
+          updated.days[j].type === updated.days[j - 1].type &&
+          updated.days[j].type === updated.days[j - 2].type
+        expect(triple).toBe(false)
+      }
+    }
   })
 })

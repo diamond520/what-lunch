@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 4 of 5 (Restaurant Management) - Complete
-Plan: 2 of 2 in phase 04-restaurant-management complete (04-01 done, 04-02 done)
-Status: Phase complete — verified ✓ — ready for Phase 5
-Last activity: 2026-02-18 — Phase 4 verified (11/11 must-haves passed)
+Phase: 5 of 5 (Picker Page and Deployment) - In progress
+Plan: 1 of 2 in phase 05-picker-page-and-deployment complete (05-01 done)
+Status: In progress — 05-01 complete, 05-02 pending
+Last activity: 2026-02-18 — Completed 05-01-PLAN.md (weekly lunch picker page)
 
-Progress: [█████████░] ~90%
+Progress: [█████████░] ~95%
 
 ## Performance Metrics
 
@@ -31,9 +31,10 @@ Progress: [█████████░] ~90%
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
 | 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
+| 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
 
 **Recent Trend:**
-- Last 5 plans: ~2 min (03-02), ~2 min (03-03), ~1.5 min (04-01), ~2 min (04-02)
+- Last 5 plans: ~2 min (03-03), ~1.5 min (04-01), ~2 min (04-02), ~1 min (05-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - value={price ?? ''} pattern: avoids React uncontrolled->controlled warning when numeric state resets to null after form clear
 - Cuisine badge uses inline style={{ backgroundColor }} from CUISINE_META: Tailwind cannot generate dynamic class names from runtime values
 - Object.entries(CUISINE_META) cast to [CuisineType, ...][] needed because Object.entries returns string keys
+- Clear plan on budget change (setPlan(null) in onChange): prevents stale plan showing with new budget
+- Guard handlers against empty pool, NaN budget, and null plan before calling algorithm
+- key={i} for 5-day fixed-length non-reorderable list: no stable ID needed
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Phase 4 verified — proceeding to Phase 5
+Last session: 2026-02-18T13:45:53Z
+Stopped at: Completed 05-01-PLAN.md (weekly lunch picker page)
 Resume file: None

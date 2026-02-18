@@ -13,9 +13,21 @@ function hasCuisineViolation(
 ): boolean {
   const prev1 = plan[slotIndex - 1]
   const prev2 = plan[slotIndex - 2]
+  const next1 = plan[slotIndex + 1]
+  const next2 = plan[slotIndex + 2]
 
-  // Would this be the 3rd consecutive same cuisine?
+  // Backward: would this be 3rd consecutive (prev2, prev1, candidate)?
   if (prev1 && prev2 && prev1.type === candidate.type && prev2.type === candidate.type) {
+    return true
+  }
+
+  // Forward: would this start a triple (candidate, next1, next2)?
+  if (next1 && next2 && next1.type === candidate.type && next2.type === candidate.type) {
+    return true
+  }
+
+  // Bridge: would this create a triple in the middle (prev1, candidate, next1)?
+  if (prev1 && next1 && prev1.type === candidate.type && next1.type === candidate.type) {
     return true
   }
 
@@ -66,6 +78,33 @@ function pickForSlot(
   return pool.slice().sort((a, b) => a.price - b.price)[0]
 }
 
+function pickForSlotReroll(
+  pool: Restaurant[],
+  remaining: number,
+  fullPlan: Restaurant[],
+  slotIndex: number,
+): Restaurant {
+  // Filter to eligible: affordable AND no cuisine violation (using full plan for neighbor checks)
+  const eligible = pool.filter(
+    (r) =>
+      r.price <= remaining &&
+      !hasCuisineViolation(fullPlan, slotIndex, r),
+  )
+
+  if (eligible.length > 0) {
+    return eligible[Math.floor(Math.random() * eligible.length)]
+  }
+
+  // Fallback 1: relax cuisine constraint, keep budget
+  const affordable = pool
+    .filter((r) => r.price <= remaining)
+    .sort((a, b) => a.price - b.price)
+  if (affordable.length > 0) return affordable[0]
+
+  // Fallback 2: globally cheapest
+  return pool.slice().sort((a, b) => a.price - b.price)[0]
+}
+
 export function generateWeeklyPlan(
   pool: Restaurant[],
   weeklyBudget: number,
@@ -89,5 +128,27 @@ export function generateWeeklyPlan(
     days,
     totalCost: weeklyBudget - remainingBudget,
     weeklyBudget,
+  }
+}
+
+export function rerollSlot(
+  plan: WeeklyPlan,
+  slotIndex: number,
+  pool: Restaurant[],
+): WeeklyPlan {
+  // Calculate budget available for the new pick (total budget minus cost of all other days)
+  const othersCost = plan.days.reduce((sum, r, i) => i === slotIndex ? sum : sum + r.price, 0)
+  const remaining = plan.weeklyBudget - othersCost
+
+  // Pick a new restaurant for this slot using the full plan for bidirectional cuisine checking
+  const pick = pickForSlotReroll(pool, remaining, plan.days, slotIndex)
+
+  const newDays = [...plan.days]
+  newDays[slotIndex] = pick
+
+  return {
+    days: newDays,
+    totalCost: newDays.reduce((sum, r) => sum + r.price, 0),
+    weeklyBudget: plan.weeklyBudget,
   }
 }

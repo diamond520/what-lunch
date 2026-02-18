@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 5 (App Shell) - In progress
-Plan: 1 of ? in phase 02-app-shell (02-01 complete)
-Status: Phase 2 in progress — 02-01 complete (navigation-menu, Header, NavLinks, /restaurants placeholder)
-Last activity: 2026-02-18 — Completed 02-01-PLAN.md (shadcn NavigationMenu + Header + NavLinks + /restaurants route)
+Plan: 2 of ? in phase 02-app-shell (02-01 complete, 02-02 complete)
+Status: Phase 2 in progress — 02-02 complete (Header wired into root layout, home page updated, build verified)
+Last activity: 2026-02-18 — Completed 02-02-PLAN.md (Header into layout.tsx, Chinese home placeholder, npm run build passes)
 
-Progress: [███░░░░░░░] ~30%
+Progress: [████░░░░░░] ~35%
 
 ## Performance Metrics
 
@@ -28,11 +28,11 @@ Progress: [███░░░░░░░] ~30%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 2 completed | 6 min | 3 min |
-| 02-app-shell | 1 completed | <1 min | <1 min |
+| 02-app-shell | 2 completed | ~3 min | ~1.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01)
-- Trend: Improving (well-scoped tasks)
+- Last 5 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01), ~2 min (02-02)
+- Trend: Stable and fast (well-scoped tasks)
 
 *Updated after each plan completion*
 
@@ -56,6 +56,8 @@ Recent decisions affecting current work:
 - Cuisine labels/colors defined once only in CUISINE_META: no other file repeats them
 - Header is Server Component, NavLinks is Client Component: minimises client bundle; only usePathname() needs browser runtime
 - `usePathname() ?? '/'` fallback: prevents null reference during SSR hydration edge cases
+- layout.tsx stays Server Component: importing Header (also server) requires no client directive
+- `<main className="min-h-screen">` wraps children: ensures full-viewport height on sparse pages
 
 ### Pending Todos
 
@@ -68,6 +70,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18T12:34:53Z
-Stopped at: Completed 02-01-PLAN.md — shadcn navigation-menu installed, Header + NavLinks + /restaurants created
+Last session: 2026-02-18
+Stopped at: Completed 02-02-PLAN.md — Header wired into layout.tsx, home page placeholder updated, build verified
 Resume file: None

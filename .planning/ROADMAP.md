@@ -64,10 +64,12 @@ Plans:
   3. No two generated plans contain more than 2 consecutive restaurants of the same cuisine type
   4. A single day's pick can be swapped without changing any other day's pick
   5. The algorithm terminates in all cases — including when the budget cannot be satisfied — and returns a graceful fallback rather than freezing
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Install Vitest and configure test runner with path alias support
+- [ ] 03-02-PLAN.md — TDD generateWeeklyPlan: budget-aware slot-by-slot greedy algorithm
+- [ ] 03-03-PLAN.md — TDD rerollSlot: per-slot swap with bidirectional cuisine constraint checking
 
 ---
 
@@ -93,7 +95,7 @@ Plans:
 **Depends on**: Phase 2, Phase 3, Phase 4
 **Requirements**: RECO-06, DEPLOY-01, DEPLOY-02
 **Success Criteria** (what must be TRUE):
-  1. User can click one button and see a 5-day (Mon–Fri) weekly lunch plan
+  1. User can click one button and see a 5-day (Mon-Fri) weekly lunch plan
   2. Each day in the plan shows a recommendation card with restaurant name, cuisine type tag, price, and distance
   3. User can adjust the weekly budget input and regenerate a plan that respects the new budget
   4. User can click a re-roll button on any single day to swap that day's pick without affecting the other four days
@@ -108,16 +110,16 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/2 | ✓ Complete | 2026-02-18 |
-| 2. App Shell | 2/2 | ✓ Complete | 2026-02-18 |
-| 3. Recommendation Algorithm | 0/TBD | Not started | - |
+| 1. Foundation | 2/2 | Complete | 2026-02-18 |
+| 2. App Shell | 2/2 | Complete | 2026-02-18 |
+| 3. Recommendation Algorithm | 0/3 | Not started | - |
 | 4. Restaurant Management | 0/TBD | Not started | - |
 | 5. Picker Page and Deployment | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 2 complete*
+*Last updated: 2026-02-18 after Phase 3 planning*

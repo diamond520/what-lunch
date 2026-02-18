@@ -5,23 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 5 - Deployment
+**Current focus:** Phase 6 - Weekend Recommendation
 
 ## Current Position
 
-Phase: 5 of 5 (Picker Page and Deployment) - In progress
-Plan: 1 of 2 in phase 05-picker-page-and-deployment complete (05-01 done)
-Status: App feature-complete — 05-02 deployment blocked on Vercel auth
-Last activity: 2026-02-18 — Completed 05-01-PLAN.md (weekly lunch picker page)
+Phase: 6 of 6 (Weekend Recommendation)
+Plan: 1 of ? in phase 06-weekend-recommendation
+Status: In progress
+Last activity: 2026-02-18 — Completed 06-01-PLAN.md (weekend data foundation)
+Note: Phase 5 Plan 02 (deployment) still blocked on Vercel auth
 
-Progress: [█████████░] ~95%
+Progress: [█████████░] ~92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: ~2 min
-- Total execution time: ~14 min
+- Total execution time: ~16 min
 
 **By Phase:**
 
@@ -32,9 +33,10 @@ Progress: [█████████░] ~95%
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
 | 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
 | 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
+| 06-weekend-recommendation | 1 completed | ~2 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: ~2 min (03-03), ~1.5 min (04-01), ~2 min (04-02), ~1 min (05-01)
+- Last 5 plans: ~1.5 min (04-01), ~2 min (04-02), ~1 min (05-01), ~2 min (06-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -76,6 +78,14 @@ Recent decisions affecting current work:
 - Clear plan on budget change (setPlan(null) in onChange): prevents stale plan showing with new budget
 - Guard handlers against empty pool, NaN budget, and null plan before calling algorithm
 - key={i} for 5-day fixed-length non-reorderable list: no stable ID needed
+- wknd- prefix IDs for weekend restaurants: prevents collision with weekday IDs
+- Separate WEEKEND_STORAGE_KEY ('what-lunch-weekend-restaurants'): fully independent persistence from weekday list
+- readStoredRestaurantsFromKey generic helper: parameterizes key+defaults, eliminates duplication for multi-list localStorage
+- pickRandomRestaurant throws on empty pool: fail-fast caller safety
+
+### Roadmap Evolution
+
+- Phase 6 added: Weekend Recommendation — independent weekend restaurant list, random pick page, tab switching in restaurant management
 
 ### Pending Todos
 
@@ -88,6 +98,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18T13:45:53Z
-Stopped at: Phase 5 Plan 01 complete — deployment blocked on Vercel auth
+Last session: 2026-02-18T15:53:44Z
+Stopped at: Completed 06-01-PLAN.md — weekend data foundation (context, defaults, pickRandomRestaurant, Tabs)
 Resume file: None

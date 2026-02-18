@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, Save, Check } from 'lucide-react'
+import { Trash2, Save, Check, Pencil, X } from 'lucide-react'
 import { useRestaurants } from '@/lib/restaurant-context'
 import { DEFAULT_RESTAURANTS } from '@/lib/restaurants'
 import { CUISINE_META } from '@/lib/types'
-import type { CuisineType } from '@/lib/types'
+import type { CuisineType, Restaurant } from '@/lib/types'
 import {
   Table,
   TableBody,
@@ -25,22 +25,111 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-export default function RestaurantsPage() {
-  const { restaurants, isHydrated, addRestaurant, removeRestaurant } = useRestaurants()
+interface FormState {
+  name: string
+  cuisineType: CuisineType
+  price: string
+  distance: string
+  rating: string
+}
 
-  const [name, setName] = useState('')
-  const [cuisineType, setCuisineType] = useState<CuisineType>('chi')
-  const [price, setPrice] = useState<number | null>(null)
-  const [distance, setDistance] = useState<number | null>(null)
-  const [rating, setRating] = useState<number | null>(null)
-  const [priceError, setPriceError] = useState('')
-  const [distanceError, setDistanceError] = useState('')
-  const [ratingError, setRatingError] = useState('')
+interface FormErrors {
+  name: string
+  price: string
+  distance: string
+  rating: string
+}
+
+const EMPTY_FORM: FormState = {
+  name: '',
+  cuisineType: 'chi',
+  price: '',
+  distance: '',
+  rating: '',
+}
+
+const EMPTY_ERRORS: FormErrors = { name: '', price: '', distance: '', rating: '' }
+
+function validateFields(f: FormState): FormErrors {
+  const errors: FormErrors = { name: '', price: '', distance: '', rating: '' }
+
+  if (!f.name.trim()) {
+    errors.name = '請輸入餐廳名稱'
+  }
+
+  const price = Number(f.price)
+  if (f.price === '' || isNaN(price)) {
+    errors.price = '請輸入有效的價格'
+  } else if (price <= 0) {
+    errors.price = '價格必須大於 0'
+  }
+
+  const distance = Number(f.distance)
+  if (f.distance === '' || isNaN(distance)) {
+    errors.distance = '請輸入有效的距離'
+  } else if (distance < 0) {
+    errors.distance = '距離不可為負數'
+  }
+
+  const rating = Number(f.rating)
+  if (f.rating === '' || isNaN(rating)) {
+    errors.rating = '請輸入有效的評分'
+  } else if (rating < 1.0 || rating > 5.0) {
+    errors.rating = '評分必須介於 1.0 與 5.0 之間'
+  }
+
+  return errors
+}
+
+function hasErrors(errors: FormErrors): boolean {
+  return Object.values(errors).some((e) => e !== '')
+}
+
+function formToRestaurant(f: FormState, id: string): Restaurant {
+  return {
+    id,
+    name: f.name.trim(),
+    type: f.cuisineType,
+    price: Number(f.price),
+    distance: Number(f.distance),
+    rating: Number(f.rating),
+  }
+}
+
+function restaurantToForm(r: Restaurant): FormState {
+  return {
+    name: r.name,
+    cuisineType: r.type,
+    price: String(r.price),
+    distance: String(r.distance),
+    rating: String(r.rating),
+  }
+}
+
+export default function RestaurantsPage() {
+  const { restaurants, isHydrated, addRestaurant, removeRestaurant, updateRestaurant } =
+    useRestaurants()
+
+  const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [errors, setErrors] = useState<FormErrors>(EMPTY_ERRORS)
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<FormState>(EMPTY_FORM)
+  const [editErrors, setEditErrors] = useState<FormErrors>(EMPTY_ERRORS)
+
+  const [search, setSearch] = useState('')
+  const [filterCuisine, setFilterCuisine] = useState<CuisineType | 'all'>('all')
 
   const defaultNames = new Set(DEFAULT_RESTAURANTS.map((r) => r.name))
 
-  async function handleSaveToConfig(r: (typeof restaurants)[number]) {
+  const filteredRestaurants = restaurants.filter((r) => {
+    const nameMatch = r.name.toLowerCase().includes(search.toLowerCase())
+    const cuisineMatch = filterCuisine === 'all' || r.type === filterCuisine
+    return nameMatch && cuisineMatch
+  })
+
+  async function handleSaveToConfig(r: Restaurant) {
     try {
       const res = await fetch('/api/restaurants', {
         method: 'POST',
@@ -58,87 +147,37 @@ export default function RestaurantsPage() {
     }
   }
 
-  function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.valueAsNumber
-    if (isNaN(val) && e.target.value !== '') {
-      setPriceError('價格必須是數字')
-      setPrice(null)
-    } else {
-      setPriceError('')
-      setPrice(isNaN(val) ? null : val)
-    }
-  }
-
-  function handleDistanceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.valueAsNumber
-    if (isNaN(val) && e.target.value !== '') {
-      setDistanceError('距離必須是數字')
-      setDistance(null)
-    } else {
-      setDistanceError('')
-      setDistance(isNaN(val) ? null : val)
-    }
-  }
-
-  function handleRatingChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.valueAsNumber
-    if (isNaN(val) && e.target.value !== '') {
-      setRatingError('評分必須是數字')
-      setRating(null)
-    } else {
-      setRatingError('')
-      setRating(isNaN(val) ? null : val)
-    }
-  }
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    let valid = true
+    const errs = validateFields(form)
+    setErrors(errs)
+    if (hasErrors(errs)) return
 
-    if (!name.trim()) {
-      valid = false
-    }
+    addRestaurant(formToRestaurant(form, crypto.randomUUID()))
+    setForm(EMPTY_FORM)
+    setErrors(EMPTY_ERRORS)
+  }
 
-    if (price === null || isNaN(price)) {
-      setPriceError('請輸入有效的價格')
-      valid = false
-    } else {
-      setPriceError('')
-    }
+  function handleEditStart(r: Restaurant) {
+    setEditingId(r.id)
+    setEditForm(restaurantToForm(r))
+    setEditErrors(EMPTY_ERRORS)
+  }
 
-    if (distance === null || isNaN(distance)) {
-      setDistanceError('請輸入有效的距離')
-      valid = false
-    } else {
-      setDistanceError('')
-    }
+  function handleEditSave() {
+    if (!editingId) return
+    const errs = validateFields(editForm)
+    setEditErrors(errs)
+    if (hasErrors(errs)) return
 
-    if (rating === null || isNaN(rating)) {
-      setRatingError('請輸入有效的評分')
-      valid = false
-    } else {
-      setRatingError('')
-    }
+    updateRestaurant(formToRestaurant(editForm, editingId))
+    setEditingId(null)
+    setEditErrors(EMPTY_ERRORS)
+  }
 
-    if (!valid) return
-
-    addRestaurant({
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      type: cuisineType,
-      price: price!,
-      distance: distance!,
-      rating: rating!,
-    })
-
-    setName('')
-    setCuisineType('chi')
-    setPrice(null)
-    setDistance(null)
-    setRating(null)
-    setPriceError('')
-    setDistanceError('')
-    setRatingError('')
+  function handleEditCancel() {
+    setEditingId(null)
+    setEditErrors(EMPTY_ERRORS)
   }
 
   if (!isHydrated) {
@@ -152,6 +191,35 @@ export default function RestaurantsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
+
+      {/* Search & Filter */}
+      <div className="flex items-center gap-4 mb-4">
+        <Input
+          placeholder="搜尋餐廳名稱…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-xs"
+          aria-label="搜尋餐廳"
+        />
+        <Select
+          value={filterCuisine}
+          onValueChange={(v) => setFilterCuisine(v as CuisineType | 'all')}
+        >
+          <SelectTrigger className="w-36" aria-label="篩選料理類型">
+            <SelectValue placeholder="所有類型" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">所有類型</SelectItem>
+            {(
+              Object.entries(CUISINE_META) as [CuisineType, { label: string; color: string }][]
+            ).map(([key, meta]) => (
+              <SelectItem key={key} value={key}>
+                {meta.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <Table>
         <TableHeader>
@@ -171,42 +239,154 @@ export default function RestaurantsPage() {
                 尚無餐廳資料
               </TableCell>
             </TableRow>
+          ) : filteredRestaurants.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                找不到符合條件的餐廳
+              </TableCell>
+            </TableRow>
           ) : (
-            restaurants.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell>{r.name}</TableCell>
-                <TableCell>
-                  <span
-                    className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white"
-                    style={{ backgroundColor: CUISINE_META[r.type].color }}
-                  >
-                    {CUISINE_META[r.type].label}
-                  </span>
-                </TableCell>
-                <TableCell>{r.price}</TableCell>
-                <TableCell>{r.distance}</TableCell>
-                <TableCell>{r.rating}</TableCell>
-                <TableCell className="flex gap-1">
-                  {defaultNames.has(r.name) || savedIds.has(r.id) ? (
-                    <Button variant="ghost" size="icon" disabled title="已儲存至 config">
-                      <Check className="size-4 text-green-500" />
-                    </Button>
-                  ) : (
+            filteredRestaurants.map((r) =>
+              editingId === r.id ? (
+                <TableRow key={r.id}>
+                  <TableCell>
+                    <Input
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      aria-label="編輯名稱"
+                      className="h-8"
+                    />
+                    {editErrors.name && (
+                      <p className="text-sm text-destructive">{editErrors.name}</p>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={editForm.cuisineType}
+                      onValueChange={(v) =>
+                        setEditForm({ ...editForm, cuisineType: v as CuisineType })
+                      }
+                    >
+                      <SelectTrigger className="h-8" aria-label="編輯料理類型">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(
+                          Object.entries(CUISINE_META) as [
+                            CuisineType,
+                            { label: string; color: string },
+                          ][]
+                        ).map(([key, meta]) => (
+                          <SelectItem key={key} value={key}>
+                            {meta.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={editForm.price}
+                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                      aria-label="編輯價格"
+                      className="h-8 w-20"
+                    />
+                    {editErrors.price && (
+                      <p className="text-sm text-destructive">{editErrors.price}</p>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={editForm.distance}
+                      onChange={(e) => setEditForm({ ...editForm, distance: e.target.value })}
+                      aria-label="編輯距離"
+                      className="h-8 w-20"
+                    />
+                    {editErrors.distance && (
+                      <p className="text-sm text-destructive">{editErrors.distance}</p>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={editForm.rating}
+                      onChange={(e) => setEditForm({ ...editForm, rating: e.target.value })}
+                      aria-label="編輯評分"
+                      className="h-8 w-20"
+                    />
+                    {editErrors.rating && (
+                      <p className="text-sm text-destructive">{editErrors.rating}</p>
+                    )}
+                  </TableCell>
+                  <TableCell className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleSaveToConfig(r)}
-                      title="儲存至 restaurants.ts"
+                      onClick={handleEditSave}
+                      title="儲存編輯"
+                      aria-label="儲存編輯"
                     >
-                      <Save className="size-4" />
+                      <Check className="size-4 text-green-500" />
                     </Button>
-                  )}
-                  <Button variant="ghost" size="icon" onClick={() => removeRestaurant(r.id)}>
-                    <Trash2 className="size-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleEditCancel}
+                      title="取消編輯"
+                      aria-label="取消編輯"
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow key={r.id}>
+                  <TableCell>{r.name}</TableCell>
+                  <TableCell>
+                    <span
+                      className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white"
+                      style={{ backgroundColor: CUISINE_META[r.type].color }}
+                    >
+                      {CUISINE_META[r.type].label}
+                    </span>
+                  </TableCell>
+                  <TableCell>{r.price}</TableCell>
+                  <TableCell>{r.distance}</TableCell>
+                  <TableCell>{r.rating}</TableCell>
+                  <TableCell className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditStart(r)}
+                      title="編輯"
+                      aria-label="編輯"
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    {defaultNames.has(r.name) || savedIds.has(r.id) ? (
+                      <Button variant="ghost" size="icon" disabled title="已儲存至 config">
+                        <Check className="size-4 text-green-500" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleSaveToConfig(r)}
+                        title="儲存至 restaurants.ts"
+                      >
+                        <Save className="size-4" />
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="icon" onClick={() => removeRestaurant(r.id)}>
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ),
+            )
           )}
         </TableBody>
       </Table>
@@ -218,15 +398,18 @@ export default function RestaurantsPage() {
             <Label htmlFor="name">名稱</Label>
             <Input
               id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="餐廳名稱"
-              required
             />
+            {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
           </div>
           <div>
             <Label htmlFor="cuisine">料理類型</Label>
-            <Select value={cuisineType} onValueChange={(v) => setCuisineType(v as CuisineType)}>
+            <Select
+              value={form.cuisineType}
+              onValueChange={(v) => setForm({ ...form, cuisineType: v as CuisineType })}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="選擇料理類型" />
               </SelectTrigger>
@@ -247,12 +430,11 @@ export default function RestaurantsPage() {
               id="price"
               type="number"
               step="1"
-              min="0"
               placeholder="例: 100"
-              onChange={handlePriceChange}
-              value={price ?? ''}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              value={form.price}
             />
-            {priceError && <p className="text-sm text-destructive">{priceError}</p>}
+            {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
           </div>
           <div>
             <Label htmlFor="distance">距離 (m)</Label>
@@ -260,12 +442,11 @@ export default function RestaurantsPage() {
               id="distance"
               type="number"
               step="1"
-              min="0"
               placeholder="例: 150"
-              onChange={handleDistanceChange}
-              value={distance ?? ''}
+              onChange={(e) => setForm({ ...form, distance: e.target.value })}
+              value={form.distance}
             />
-            {distanceError && <p className="text-sm text-destructive">{distanceError}</p>}
+            {errors.distance && <p className="text-sm text-destructive">{errors.distance}</p>}
           </div>
           <div>
             <Label htmlFor="rating">評分</Label>
@@ -273,13 +454,11 @@ export default function RestaurantsPage() {
               id="rating"
               type="number"
               step="0.1"
-              min="1"
-              max="5"
               placeholder="例: 4.5"
-              onChange={handleRatingChange}
-              value={rating ?? ''}
+              onChange={(e) => setForm({ ...form, rating: e.target.value })}
+              value={form.rating}
             />
-            {ratingError && <p className="text-sm text-destructive">{ratingError}</p>}
+            {errors.rating && <p className="text-sm text-destructive">{errors.rating}</p>}
           </div>
         </div>
         <Button type="submit" className="mt-4">

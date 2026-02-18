@@ -166,6 +166,8 @@ describe('rerollSlot', () => {
       rating: 4.0,
     }
     const plan: WeeklyPlan = {
+      id: 'test-backward',
+      createdAt: '2025-01-01T00:00:00.000Z',
       days: [jp1, jp2, chi1, chi1, chi1],
       totalCost: 380,
       weeklyBudget: 1000,
@@ -214,6 +216,8 @@ describe('rerollSlot', () => {
       rating: 4.0,
     }
     const plan: WeeklyPlan = {
+      id: 'test-forward',
+      createdAt: '2025-01-01T00:00:00.000Z',
       days: [chi1, kr1, chi1, jp1, jp1],
       totalCost: 375,
       weeklyBudget: 1000,
@@ -256,6 +260,8 @@ describe('rerollSlot', () => {
       rating: 4.0,
     }
     const plan: WeeklyPlan = {
+      id: 'test-bridge',
+      createdAt: '2025-01-01T00:00:00.000Z',
       days: [chi1, jp1, kr1, jp1, chi1],
       totalCost: 375,
       weeklyBudget: 1000,

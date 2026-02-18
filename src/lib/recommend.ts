@@ -1,6 +1,8 @@
 import type { Restaurant } from './types'
 
 export interface WeeklyPlan {
+  id: string
+  createdAt: string
   days: Restaurant[]
   totalCost: number
   weeklyBudget: number
@@ -119,6 +121,8 @@ function generatePlanAttempt(pool: Restaurant[], weeklyBudget: number): WeeklyPl
   }
 
   return {
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
     days,
     totalCost: weeklyBudget - remainingBudget,
     weeklyBudget,
@@ -153,6 +157,8 @@ export function rerollSlot(plan: WeeklyPlan, slotIndex: number, pool: Restaurant
   newDays[slotIndex] = pick
 
   return {
+    id: plan.id,
+    createdAt: plan.createdAt,
     days: newDays,
     totalCost: newDays.reduce((sum, r) => sum + r.price, 0),
     weeklyBudget: plan.weeklyBudget,

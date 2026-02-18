@@ -11,9 +11,10 @@ interface RestaurantContextValue {
   isHydrated: boolean
   addRestaurant: (r: Restaurant) => void
   removeRestaurant: (id: string) => void
+  updateRestaurant: (r: Restaurant) => void
 }
 
-const RestaurantContext = createContext<RestaurantContextValue | null>(null)
+export const RestaurantContext = createContext<RestaurantContextValue | null>(null)
 
 function readStoredRestaurants(): Restaurant[] {
   if (typeof window === 'undefined') return DEFAULT_RESTAURANTS
@@ -51,8 +52,14 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
     setRestaurants((prev) => prev.filter((r) => r.id !== id))
   }
 
+  function updateRestaurant(r: Restaurant) {
+    setRestaurants((prev) => prev.map((x) => (x.id === r.id ? r : x)))
+  }
+
   return (
-    <RestaurantContext value={{ restaurants, isHydrated, addRestaurant, removeRestaurant }}>
+    <RestaurantContext
+      value={{ restaurants, isHydrated, addRestaurant, removeRestaurant, updateRestaurant }}
+    >
       {children}
     </RestaurantContext>
   )

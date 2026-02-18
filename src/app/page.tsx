@@ -14,20 +14,27 @@ const DEFAULT_BUDGET = 750
 const BUDGET_MIN = 100
 const BUDGET_MAX = 2000
 const BUDGET_STEP = 10
+const MAX_HISTORY = 5
 
 export default function HomePage() {
   const { restaurants, isHydrated } = useRestaurants()
   const [budget, setBudget] = useState<number>(DEFAULT_BUDGET)
-  const [plan, setPlan] = useState<WeeklyPlan | null>(null)
+  const [history, setHistory] = useState<WeeklyPlan[]>([])
+  const [selectedIndex, setSelectedIndex] = useState<number>(0)
+
+  const plan = history.length > 0 ? history[selectedIndex] : null
 
   function handleGenerate() {
     if (restaurants.length === 0 || isNaN(budget)) return
-    setPlan(generateWeeklyPlan(restaurants, budget))
+    const newPlan = generateWeeklyPlan(restaurants, budget)
+    setHistory((prev) => [newPlan, ...prev].slice(0, MAX_HISTORY))
+    setSelectedIndex(0)
   }
 
   function handleReroll(index: number) {
     if (!plan) return
-    setPlan(rerollSlot(plan, index, restaurants))
+    const updated = rerollSlot(plan, index, restaurants)
+    setHistory((prev) => prev.map((p, i) => (i === selectedIndex ? updated : p)))
   }
 
   if (!isHydrated) {
@@ -51,10 +58,7 @@ export default function HomePage() {
           max={BUDGET_MAX}
           step={BUDGET_STEP}
           value={budget}
-          onChange={(e) => {
-            setBudget(e.target.valueAsNumber)
-            setPlan(null)
-          }}
+          onChange={(e) => setBudget(e.target.valueAsNumber)}
           className="w-32"
         />
         <Button onClick={handleGenerate} disabled={restaurants.length === 0}>
@@ -93,6 +97,34 @@ export default function HomePage() {
             本週總花費：NT$ {plan.totalCost}　剩餘預算：NT$ {plan.weeklyBudget - plan.totalCost}
           </p>
         </>
+      )}
+
+      {history.length > 1 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-3">歷史計畫</h2>
+          <ul className="space-y-2">
+            {history.map((h, i) => (
+              <li key={h.id}>
+                <button
+                  className={`w-full text-left px-4 py-2 rounded-md border text-sm ${
+                    i === selectedIndex
+                      ? 'border-primary bg-primary/5 font-medium'
+                      : 'border-border hover:bg-muted/50'
+                  }`}
+                  onClick={() => setSelectedIndex(i)}
+                >
+                  <span>
+                    {new Date(h.createdAt).toLocaleString('zh-TW')} — NT$ {h.totalCost} /{' '}
+                    {h.weeklyBudget}
+                  </span>
+                  {i === selectedIndex && (
+                    <span className="ml-2 text-primary text-xs">（目前檢視）</span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   )

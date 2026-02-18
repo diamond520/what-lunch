@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 2 of 5 (App Shell) - COMPLETE
-Plan: 2 of 2 in phase 02-app-shell (both complete)
-Status: Phase 2 complete — ready for Phase 3
-Last activity: 2026-02-18 — Completed Phase 2 (Header wired into layout, build verified, phase verified)
+Phase: 3 of 5 (Recommendation Algorithm) - In progress
+Plan: 1 of 3 in phase 03-recommendation-algorithm (03-01 complete)
+Status: In progress — 03-01 complete, ready for 03-02
+Last activity: 2026-02-18 — Completed 03-01-PLAN.md (Vitest installed, path alias verified)
 
-Progress: [████░░░░░░] ~40%
+Progress: [█████░░░░░] ~50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: ~2 min
-- Total execution time: ~8 min
+- Total execution time: ~10 min
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: [████░░░░░░] ~40%
 |-------|-------|-------|----------|
 | 01-foundation | 2 completed | 6 min | 3 min |
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
+| 03-recommendation-algorithm | 1 of 3 completed | ~2 min | ~2 min |
 
 **Recent Trend:**
-- Last 4 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01), ~2 min (02-02)
+- Last 5 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01), ~2 min (02-02), ~2 min (03-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -57,6 +58,9 @@ Recent decisions affecting current work:
 - Header is Server Component, NavLinks is Client Component: minimises client bundle
 - `usePathname() ?? '/'` fallback: prevents null reference during SSR hydration edge cases
 - layout.tsx stays Server Component: importing Header (also server) requires no client directive
+- vitest.config.mts (not .ts): avoids ts-node/esm loader edge cases with Vitest
+- environment: node for tests: recommendation algorithm is pure logic, no DOM needed
+- vite-tsconfig-paths plugin: reads existing tsconfig.json paths, no duplication
 
 ### Pending Todos
 
@@ -70,5 +74,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed Phase 2 (App Shell) — all verified, ready for Phase 3
+Stopped at: Completed 03-01-PLAN.md — Vitest installed, path alias working, ready for 03-02
 Resume file: None

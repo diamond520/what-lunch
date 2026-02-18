@@ -1,15 +1,13 @@
 # Codebase Concerns
 
 **Analysis Date:** 2026-02-18
+**Last Updated:** 2026-02-18
 
 ## Data Persistence Issues
 
-**No local storage implementation:**
-- Issue: Restaurant list and plan history are lost on page refresh. State exists only in memory via React Context.
-- Files: `src/lib/restaurant-context.tsx`, `src/app/page.tsx`, `src/app/restaurants/page.tsx`
-- Impact: Users cannot save their custom restaurant list or past plans. Each session starts with default restaurants only.
-- Fix approach: Implement localStorage persistence in `RestaurantProvider` with hydration checks to avoid hydration mismatches in Next.js. Consider IndexedDB for larger datasets.
-- Priority: High - affects core user experience
+**~~No local storage implementation:~~** ✅ RESOLVED
+- Fixed: Restaurant list now persists to localStorage via `RestaurantProvider`. Uses `useSyncExternalStore` for hydration-safe client detection and lazy initializer for initial state.
+- Files: `src/lib/restaurant-context.tsx`
 
 **No plan history:**
 - Issue: Generated weekly plans are not persisted or archived. Only current plan visible, reroll deletes previous state.
@@ -118,12 +116,9 @@
 - Recommendation: Acceptable for current scope. Document as "client-side only" if expanding to API.
 - Priority: Low - not applicable to current architecture
 
-**No XSS protection in dynamic color strings:**
-- Issue: `CUISINE_META` colors are hardcoded hex values (line 11, types.ts) and applied directly to style prop (page.tsx line 69, restaurants page line 144).
-- Files: `src/lib/types.ts`, `src/app/page.tsx`, `src/app/restaurants/page.tsx`
-- Current mitigation: Colors are hardcoded constants, never user input. React escapes style values.
-- Risk: Negligible. If colors become user-configurable, sanitize before applying.
-- Priority: Low - architectural constraint prevents issue
+**~~No XSS protection in dynamic color strings:~~** ✅ NOT A CONCERN
+- Colors are hardcoded constants in `CUISINE_META`, never user input. React escapes style values.
+- Priority: N/A
 
 ## Missing Features (Not Bugs)
 
@@ -157,13 +152,9 @@
 
 ## Performance Observations
 
-**No performance issues detected:**
-- Small dataset (default 13 restaurants): Recommendation algorithm completes instantly.
-- No large renders: Restaurant list table is reasonable size.
-- No memory leaks apparent: Context uses useState normally.
-- Build size not analyzed but likely small (Next.js 16, minimal dependencies).
-- Recommendation: Monitor if restaurant pool grows beyond 100 entries. Algorithm scales O(n*attempts) per plan generation.
-- Priority: Not a concern - proactive note
+**No performance issues detected:** ✅ NOT A CONCERN
+- Small dataset (13 restaurants), algorithm completes instantly. Monitor if pool grows beyond 100.
+- Priority: N/A
 
 ## Browser Compatibility
 
@@ -177,19 +168,23 @@
 
 ## Build & Deployment
 
-**No environment configuration:**
-- Issue: No .env.example or build-time configuration. App is fully client-side.
-- Files: None (intentional design)
-- Impact: No secrets to configure. Deployment is simple (npm build, deploy dist).
-- Current state: Acceptable for static app.
-- Priority: Not applicable
+**~~No environment configuration:~~** ✅ NOT A CONCERN
+- App is fully client-side with dev-only API route. No secrets needed.
+- Priority: N/A
 
-**TypeScript strict mode enabled:**
-- Current state: tsconfig.json has `"strict": true` (line 7).
-- Impact: Good - prevents undefined, any, null coercion issues.
-- Recommendation: Keep enabled. Code already complies.
-- Priority: Not a concern - positive
+**TypeScript strict mode enabled:** ✅ POSITIVE
+- `tsconfig.json` has `"strict": true`. Code compiles cleanly.
+- Priority: N/A
+
+## Code Quality Tooling (Added)
+
+**ESLint + Prettier configured:** ✅ RESOLVED
+- ESLint 9 flat config with `eslint-config-next`, `eslint-plugin-prettier`, `eslint-plugin-better-tailwindcss`
+- Prettier: semi: false, singleQuote: true, printWidth: 100
+- Tailwind v4 canonical class enforcement (auto-fixes arbitrary values like `top-[1px]` → `top-px`)
+- VSCode auto-format on save configured
 
 ---
 
 *Concerns audit: 2026-02-18*
+*Last updated: 2026-02-18*

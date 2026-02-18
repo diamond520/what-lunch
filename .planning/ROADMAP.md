@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Data model, type constants, restaurant data, and Next.js project scaffold
 - [x] **Phase 2: App Shell** - Navigation, layouts, global design system, and static page shells
-- [ ] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
+- [x] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
 - [ ] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
 - [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
 
@@ -67,9 +67,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Install Vitest and configure test runner with path alias support
-- [ ] 03-02-PLAN.md — TDD generateWeeklyPlan: budget-aware slot-by-slot greedy algorithm
-- [ ] 03-03-PLAN.md — TDD rerollSlot: per-slot swap with bidirectional cuisine constraint checking
+- [x] 03-01-PLAN.md — Install Vitest and configure test runner with path alias support
+- [x] 03-02-PLAN.md — TDD generateWeeklyPlan: budget-aware slot-by-slot greedy algorithm
+- [x] 03-03-PLAN.md — TDD rerollSlot: per-slot swap with bidirectional cuisine constraint checking
 
 ---
 
@@ -116,10 +116,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-18 |
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
-| 3. Recommendation Algorithm | 0/3 | Not started | - |
+| 3. Recommendation Algorithm | 3/3 | ✓ Complete | 2026-02-18 |
 | 4. Restaurant Management | 0/TBD | Not started | - |
 | 5. Picker Page and Deployment | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 3 planning*
+*Last updated: 2026-02-18 after Phase 3 complete*

@@ -16,13 +16,13 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 
 ### Recommendation
 
-- [ ] **RECO-01**: One-click weekly lunch plan generation (5 days, Mon-Fri)
-- [ ] **RECO-02**: Budget input control (NT$100-2000, step 10) constraining weekly recommendations
-- [ ] **RECO-03**: Budget-aware algorithm that distributes weekly budget across 5 days
-- [ ] **RECO-04**: Cuisine diversity enforcement — no more than 2 consecutive same-type restaurants
-- [ ] **RECO-05**: Per-slot re-roll — swap one day's pick without regenerating the full week
+- [x] **RECO-01**: One-click weekly lunch plan generation (5 days, Mon-Fri)
+- [x] **RECO-02**: Budget input control (NT$100-2000, step 10) constraining weekly recommendations
+- [x] **RECO-03**: Budget-aware algorithm that distributes weekly budget across 5 days
+- [x] **RECO-04**: Cuisine diversity enforcement — no more than 2 consecutive same-type restaurants
+- [x] **RECO-05**: Per-slot re-roll — swap one day's pick without regenerating the full week
 - [ ] **RECO-06**: Recommendation cards showing restaurant name, cuisine type tag, price, distance
-- [ ] **RECO-07**: Algorithm with bounded iteration (no infinite recursion) and graceful fallback
+- [x] **RECO-07**: Algorithm with bounded iteration (no infinite recursion) and graceful fallback
 
 ### Restaurant Management
 
@@ -88,12 +88,12 @@ Updated during roadmap creation.
 | UI-01 | Phase 2 | Complete |
 | UI-02 | Phase 2 | Complete |
 | UI-03 | Phase 2 | Complete |
-| RECO-01 | Phase 3 | Pending |
-| RECO-02 | Phase 3 | Pending |
-| RECO-03 | Phase 3 | Pending |
-| RECO-04 | Phase 3 | Pending |
-| RECO-05 | Phase 3 | Pending |
-| RECO-07 | Phase 3 | Pending |
+| RECO-01 | Phase 3 | Complete |
+| RECO-02 | Phase 3 | Complete |
+| RECO-03 | Phase 3 | Complete |
+| RECO-04 | Phase 3 | Complete |
+| RECO-05 | Phase 3 | Complete |
+| RECO-07 | Phase 3 | Complete |
 | REST-01 | Phase 4 | Pending |
 | REST-02 | Phase 4 | Pending |
 | REST-03 | Phase 4 | Pending |
@@ -110,4 +110,4 @@ Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 2 complete*
+*Last updated: 2026-02-18 after Phase 3 complete*

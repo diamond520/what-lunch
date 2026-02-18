@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 4 - UI Components (Phase 3 complete)
+**Current focus:** Phase 4 - Restaurant Management
 
 ## Current Position
 

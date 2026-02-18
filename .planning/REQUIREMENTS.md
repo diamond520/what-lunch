@@ -34,9 +34,9 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 
 ### UI/UX
 
-- [ ] **UI-01**: Brand new UI design (not replicating Element UI look)
-- [ ] **UI-02**: Navigation between recommendation page and restaurant management page
-- [ ] **UI-03**: Responsive layout for desktop use
+- [x] **UI-01**: Brand new UI design (not replicating Element UI look)
+- [x] **UI-02**: Navigation between recommendation page and restaurant management page
+- [x] **UI-03**: Responsive layout for desktop use
 
 ### Deployment
 
@@ -85,9 +85,9 @@ Updated during roadmap creation.
 | FOUND-02 | Phase 1 | Complete |
 | FOUND-03 | Phase 1 | Complete |
 | FOUND-04 | Phase 1 | Complete |
-| UI-01 | Phase 2 | Pending |
-| UI-02 | Phase 2 | Pending |
-| UI-03 | Phase 2 | Pending |
+| UI-01 | Phase 2 | Complete |
+| UI-02 | Phase 2 | Complete |
+| UI-03 | Phase 2 | Complete |
 | RECO-01 | Phase 3 | Pending |
 | RECO-02 | Phase 3 | Pending |
 | RECO-03 | Phase 3 | Pending |
@@ -110,4 +110,4 @@ Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 1 complete*
+*Last updated: 2026-02-18 after Phase 2 complete*

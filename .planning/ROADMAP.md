@@ -13,7 +13,7 @@ A Vue 2 to Next.js rewrite of a daily-use lunch randomizer for a small office te
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Data model, type constants, restaurant data, and Next.js project scaffold
-- [ ] **Phase 2: App Shell** - Navigation, layouts, global design system, and static page shells
+- [x] **Phase 2: App Shell** - Navigation, layouts, global design system, and static page shells
 - [ ] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
 - [ ] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
 - [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
@@ -49,8 +49,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Install NavigationMenu, create Header/NavLinks components and /restaurants placeholder page
-- [ ] 02-02-PLAN.md — Wire Header into root layout, verify build, visual navigation checkpoint
+- [x] 02-01-PLAN.md — Install NavigationMenu, create Header/NavLinks components and /restaurants placeholder page
+- [x] 02-02-PLAN.md — Wire Header into root layout, verify build, visual navigation checkpoint
 
 ---
 
@@ -113,11 +113,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | ✓ Complete | 2026-02-18 |
-| 2. App Shell | 0/2 | Not started | - |
+| 2. App Shell | 2/2 | ✓ Complete | 2026-02-18 |
 | 3. Recommendation Algorithm | 0/TBD | Not started | - |
 | 4. Restaurant Management | 0/TBD | Not started | - |
 | 5. Picker Page and Deployment | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 2 planning complete*
+*Last updated: 2026-02-18 after Phase 2 complete*

@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 2 - App Shell
+**Current focus:** Phase 3 - Recommendation Algorithm
 
 ## Current Position
 
-Phase: 2 of 5 (App Shell) - In progress
-Plan: 2 of ? in phase 02-app-shell (02-01 complete, 02-02 complete)
-Status: Phase 2 in progress — 02-02 complete (Header wired into root layout, home page updated, build verified)
-Last activity: 2026-02-18 — Completed 02-02-PLAN.md (Header into layout.tsx, Chinese home placeholder, npm run build passes)
+Phase: 2 of 5 (App Shell) - COMPLETE
+Plan: 2 of 2 in phase 02-app-shell (both complete)
+Status: Phase 2 complete — ready for Phase 3
+Last activity: 2026-02-18 — Completed Phase 2 (Header wired into layout, build verified, phase verified)
 
-Progress: [████░░░░░░] ~35%
+Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: ~2 min
-- Total execution time: ~7 min
+- Total execution time: ~8 min
 
 **By Phase:**
 
@@ -31,8 +31,8 @@ Progress: [████░░░░░░] ~35%
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01), ~2 min (02-02)
-- Trend: Stable and fast (well-scoped tasks)
+- Last 4 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01), ~2 min (02-02)
+- Trend: Stable and fast
 
 *Updated after each plan completion*
 
@@ -51,13 +51,12 @@ Recent decisions affecting current work:
 - src/app/ layout: create-next-app places App Router files under src/app/ by default
 - shadcn/ui new-york style: Selected via --defaults flag
 - Tailwind v4 + shadcn/ui v3: Verified compatible — shadcn init auto-detects Tailwind v4
-- `as const satisfies Record<>` for CUISINE_META: derives CuisineType union from keys while validating entry shape — both guarantees needed
-- `satisfies Restaurant[]` not `: Restaurant[]`: annotation form widens type to string, losing CuisineType compile-time check
+- `as const satisfies Record<>` for CUISINE_META: derives CuisineType union from keys while validating entry shape
+- `satisfies Restaurant[]` not `: Restaurant[]`: preserves literal type narrowing
 - Cuisine labels/colors defined once only in CUISINE_META: no other file repeats them
-- Header is Server Component, NavLinks is Client Component: minimises client bundle; only usePathname() needs browser runtime
+- Header is Server Component, NavLinks is Client Component: minimises client bundle
 - `usePathname() ?? '/'` fallback: prevents null reference during SSR hydration edge cases
 - layout.tsx stays Server Component: importing Header (also server) requires no client directive
-- `<main className="min-h-screen">` wraps children: ensures full-viewport height on sparse pages
 
 ### Pending Todos
 
@@ -65,11 +64,11 @@ None.
 
 ### Blockers/Concerns
 
-- Algorithm specification needs edge cases written as test cases before implementation in Phase 2 (minimum pool size, impossible budget behavior)
-- Tailwind v4 + shadcn/ui v3 RESOLVED: confirmed compatible in Plan 01-01
+- Algorithm specification needs edge cases written as test cases before implementation in Phase 3
+- GitHub auth not configured — needed for Phase 5 Vercel deployment
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-02-PLAN.md — Header wired into layout.tsx, home page placeholder updated, build verified
+Stopped at: Completed Phase 2 (App Shell) — all verified, ready for Phase 3
 Resume file: None

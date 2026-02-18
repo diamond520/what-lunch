@@ -12,7 +12,7 @@ A Vue 2 to Next.js rewrite of a daily-use lunch randomizer for a small office te
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Data model, type constants, restaurant data, and Next.js project scaffold
+- [x] **Phase 1: Foundation** - Data model, type constants, restaurant data, and Next.js project scaffold
 - [ ] **Phase 2: App Shell** - Navigation, layouts, global design system, and static page shells
 - [ ] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
 - [ ] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
@@ -32,8 +32,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold Next.js 16 project with TypeScript strict mode and shadcn/ui (new-york)
-- [ ] 01-02-PLAN.md — Create lib/types.ts and lib/restaurants.ts as the single typed source of truth
+- [x] 01-01-PLAN.md — Scaffold Next.js 16 project with TypeScript strict mode and shadcn/ui (new-york)
+- [x] 01-02-PLAN.md — Create lib/types.ts and lib/restaurants.ts as the single typed source of truth
 
 ---
 
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/2 | Not started | - |
+| 1. Foundation | 2/2 | ✓ Complete | 2026-02-18 |
 | 2. App Shell | 0/TBD | Not started | - |
 | 3. Recommendation Algorithm | 0/TBD | Not started | - |
 | 4. Restaurant Management | 0/TBD | Not started | - |
@@ -119,4 +119,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 1 planning*
+*Last updated: 2026-02-18 after Phase 1 execution complete*

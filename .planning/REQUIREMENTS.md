@@ -9,10 +9,10 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 
 ### Foundation
 
-- [ ] **FOUND-01**: Restaurant data model with TypeScript types (Restaurant interface, CuisineType union)
-- [ ] **FOUND-02**: Cuisine type constants centralized in single file (labels, colors for chi/jp/kr/tai/west)
-- [ ] **FOUND-03**: Default restaurant list (19 hardcoded Taipei restaurants) as typed constant
-- [ ] **FOUND-04**: Next.js 15 App Router project with TypeScript, Tailwind CSS, shadcn/ui
+- [x] **FOUND-01**: Restaurant data model with TypeScript types (Restaurant interface, CuisineType union)
+- [x] **FOUND-02**: Cuisine type constants centralized in single file (labels, colors for chi/jp/kr/tai/west)
+- [x] **FOUND-03**: Default restaurant list (19 hardcoded Taipei restaurants) as typed constant
+- [x] **FOUND-04**: Next.js 16 App Router project with TypeScript, Tailwind CSS, shadcn/ui
 
 ### Recommendation
 
@@ -81,10 +81,10 @@ Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
+| FOUND-01 | Phase 1 | Complete |
+| FOUND-02 | Phase 1 | Complete |
+| FOUND-03 | Phase 1 | Complete |
+| FOUND-04 | Phase 1 | Complete |
 | UI-01 | Phase 2 | Pending |
 | UI-02 | Phase 2 | Pending |
 | UI-03 | Phase 2 | Pending |
@@ -110,4 +110,4 @@ Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after roadmap creation*
+*Last updated: 2026-02-18 after Phase 1 complete*

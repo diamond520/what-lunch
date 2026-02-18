@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 3 of 5 (Recommendation Algorithm) - COMPLETE
-Plan: 3 of 3 in phase 03-recommendation-algorithm (03-01, 03-02, 03-03 all complete)
-Status: Phase 3 complete — ready to begin Phase 4
-Last activity: 2026-02-18 — Completed 03-03-PLAN.md (rerollSlot TDD, 22 tests passing)
+Phase: 4 of 5 (Restaurant Management) - In progress
+Plan: 1 of 2 in phase 04-restaurant-management complete (04-01 done, 04-02 pending)
+Status: In progress
+Last activity: 2026-02-18 — Completed 04-01-PLAN.md (shadcn UI components + RestaurantContext)
 
-Progress: [███████░░░] ~70%
+Progress: [████████░░] ~80%
 
 ## Performance Metrics
 
@@ -30,9 +30,10 @@ Progress: [███████░░░] ~70%
 | 01-foundation | 2 completed | 6 min | 3 min |
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
+| 04-restaurant-management | 1 of 2 completed | ~1.5 min | ~1.5 min |
 
 **Recent Trend:**
-- Last 5 plans: <1 min (02-01), ~2 min (02-02), ~2 min (03-01), ~2 min (03-02), ~2 min (03-03)
+- Last 5 plans: ~2 min (03-01), ~2 min (03-02), ~2 min (03-03), ~1.5 min (04-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -65,6 +66,9 @@ Recent decisions affecting current work:
 - hasCuisineViolation checks backward/forward/bridge: forward/bridge checks are no-ops during generateWeeklyPlan (next slots undefined), zero risk to existing behavior
 - pickForSlotReroll is separate from pickForSlot: reroll only needs remaining budget (no future-slot reserve)
 - rerollSlot remaining = weeklyBudget - othersCost: guarantees totalCost <= weeklyBudget after reroll
+- React 19 context: <Context value={...}> not <Context.Provider value={...}>
+- RestaurantProvider wraps <main> only, Header stays outside (has no restaurant data needs)
+- layout.tsx remains Server Component — importing Client Component provider is valid in App Router
 
 ### Pending Todos
 
@@ -77,5 +81,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-03-PLAN.md — rerollSlot TDD complete, 22 tests passing, Phase 3 done
+Stopped at: Completed 04-01-PLAN.md — shadcn UI components installed, RestaurantContext + provider in layout
 Resume file: None

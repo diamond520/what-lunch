@@ -101,10 +101,11 @@ Plans:
   3. User can adjust the weekly budget input and regenerate a plan that respects the new budget
   4. User can click a re-roll button on any single day to swap that day's pick without affecting the other four days
   5. The production Vercel deployment builds without errors or warnings and serves all features correctly
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Build weekly lunch picker page with budget input, 5-day cards, and per-card re-roll
+- [ ] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL
 
 ---
 
@@ -119,7 +120,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
 | 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
 | 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
-| 5. Picker Page and Deployment | 0/TBD | Not started | - |
+| 5. Picker Page and Deployment | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*

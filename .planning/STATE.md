@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 2 - Algorithm
+**Current focus:** Phase 2 - App Shell
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation) - COMPLETE
-Plan: 2 of 2 in phase 01-foundation (both complete)
-Status: Phase 1 complete — ready for Phase 2
-Last activity: 2026-02-18 — Completed 01-02-PLAN.md (typed data model + 19 restaurants)
+Phase: 2 of 5 (App Shell) - In progress
+Plan: 1 of ? in phase 02-app-shell (02-01 complete)
+Status: Phase 2 in progress — 02-01 complete (navigation-menu, Header, NavLinks, /restaurants placeholder)
+Last activity: 2026-02-18 — Completed 02-01-PLAN.md (shadcn NavigationMenu + Header + NavLinks + /restaurants route)
 
-Progress: [██░░░░░░░░] ~20%
+Progress: [███░░░░░░░] ~30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 3 min
-- Total execution time: 6 min
+- Total plans completed: 3
+- Average duration: ~2 min
+- Total execution time: ~7 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 2 completed | 6 min | 3 min |
+| 02-app-shell | 1 completed | <1 min | <1 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min (01-01), 1 min (01-02)
-- Trend: Improving (simpler task scope)
+- Last 5 plans: 5 min (01-01), 1 min (01-02), <1 min (02-01)
+- Trend: Improving (well-scoped tasks)
 
 *Updated after each plan completion*
 
@@ -53,6 +54,8 @@ Recent decisions affecting current work:
 - `as const satisfies Record<>` for CUISINE_META: derives CuisineType union from keys while validating entry shape — both guarantees needed
 - `satisfies Restaurant[]` not `: Restaurant[]`: annotation form widens type to string, losing CuisineType compile-time check
 - Cuisine labels/colors defined once only in CUISINE_META: no other file repeats them
+- Header is Server Component, NavLinks is Client Component: minimises client bundle; only usePathname() needs browser runtime
+- `usePathname() ?? '/'` fallback: prevents null reference during SSR hydration edge cases
 
 ### Pending Todos
 
@@ -65,6 +68,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18T12:17:44Z
-Stopped at: Completed 01-02-PLAN.md — typed data model (CuisineType, Restaurant, CUISINE_META, DEFAULT_RESTAURANTS)
+Last session: 2026-02-18T12:34:53Z
+Stopped at: Completed 02-01-PLAN.md — shadcn navigation-menu installed, Header + NavLinks + /restaurants created
 Resume file: None

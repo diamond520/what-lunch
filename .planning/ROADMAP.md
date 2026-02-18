@@ -45,11 +45,12 @@ Plans:
   1. User can navigate between the recommendation page and the restaurant management page without a full page reload
   2. The app renders correctly on a standard desktop viewport (1280px+)
   3. The visual design is distinct from Element UI — uses shadcn/ui components styled with Tailwind
-  4. The deployed Vercel URL serves the app shell with correct routing
-**Plans**: TBD
+  4. The deployed Vercel URL serves the app shell with correct routing (verified locally: npm run build + npm run dev)
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Install NavigationMenu, create Header/NavLinks components and /restaurants placeholder page
+- [ ] 02-02-PLAN.md — Wire Header into root layout, verify build, visual navigation checkpoint
 
 ---
 
@@ -112,11 +113,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | ✓ Complete | 2026-02-18 |
-| 2. App Shell | 0/TBD | Not started | - |
+| 2. App Shell | 0/2 | Not started | - |
 | 3. Recommendation Algorithm | 0/TBD | Not started | - |
 | 4. Restaurant Management | 0/TBD | Not started | - |
 | 5. Picker Page and Deployment | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 1 execution complete*
+*Last updated: 2026-02-18 after Phase 2 planning complete*

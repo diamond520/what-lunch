@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 const NAV_ITEMS = [
   { href: '/', label: '今日推薦' },
   { href: '/restaurants', label: '餐廳管理' },
+  { href: '/weekend', label: '假日推薦' },
 ] as const
 
 export function NavLinks() {

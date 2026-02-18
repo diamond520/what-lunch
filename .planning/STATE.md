@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 4 - Restaurant Management
+**Current focus:** Phase 5 - Deployment
 
 ## Current Position
 
-Phase: 4 of 5 (Restaurant Management) - In progress
-Plan: 1 of 2 in phase 04-restaurant-management complete (04-01 done, 04-02 pending)
-Status: In progress
-Last activity: 2026-02-18 — Completed 04-01-PLAN.md (shadcn UI components + RestaurantContext)
+Phase: 4 of 5 (Restaurant Management) - Complete
+Plan: 2 of 2 in phase 04-restaurant-management complete (04-01 done, 04-02 done)
+Status: Phase complete - ready for Phase 5
+Last activity: 2026-02-18 — Completed 04-02-PLAN.md (restaurant management page: table + form + validation + cuisine tags)
 
-Progress: [████████░░] ~80%
+Progress: [█████████░] ~90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: ~2 min
-- Total execution time: ~12 min
+- Total execution time: ~14 min
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [████████░░] ~80%
 | 01-foundation | 2 completed | 6 min | 3 min |
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
-| 04-restaurant-management | 1 of 2 completed | ~1.5 min | ~1.5 min |
+| 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
 
 **Recent Trend:**
-- Last 5 plans: ~2 min (03-01), ~2 min (03-02), ~2 min (03-03), ~1.5 min (04-01)
+- Last 5 plans: ~2 min (03-02), ~2 min (03-03), ~1.5 min (04-01), ~2 min (04-02)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - React 19 context: <Context value={...}> not <Context.Provider value={...}>
 - RestaurantProvider wraps <main> only, Header stays outside (has no restaurant data needs)
 - layout.tsx remains Server Component — importing Client Component provider is valid in App Router
+- value={price ?? ''} pattern: avoids React uncontrolled->controlled warning when numeric state resets to null after form clear
+- Cuisine badge uses inline style={{ backgroundColor }} from CUISINE_META: Tailwind cannot generate dynamic class names from runtime values
+- Object.entries(CUISINE_META) cast to [CuisineType, ...][] needed because Object.entries returns string keys
 
 ### Pending Todos
 
@@ -81,5 +84,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 04-01-PLAN.md — shadcn UI components installed, RestaurantContext + provider in layout
+Stopped at: Completed 04-02-PLAN.md — restaurant management page with table, cuisine tags, delete, add form with validation
 Resume file: None

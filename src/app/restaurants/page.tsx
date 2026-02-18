@@ -24,8 +24,10 @@ export default function RestaurantsPage() {
   const [cuisineType, setCuisineType] = useState<CuisineType>('chi')
   const [price, setPrice] = useState<number | null>(null)
   const [distance, setDistance] = useState<number | null>(null)
+  const [rating, setRating] = useState<number | null>(null)
   const [priceError, setPriceError] = useState('')
   const [distanceError, setDistanceError] = useState('')
+  const [ratingError, setRatingError] = useState('')
 
   function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.valueAsNumber
@@ -46,6 +48,17 @@ export default function RestaurantsPage() {
     } else {
       setDistanceError('')
       setDistance(isNaN(val) ? null : val)
+    }
+  }
+
+  function handleRatingChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.valueAsNumber
+    if (isNaN(val) && e.target.value !== '') {
+      setRatingError('評分必須是數字')
+      setRating(null)
+    } else {
+      setRatingError('')
+      setRating(isNaN(val) ? null : val)
     }
   }
 
@@ -71,6 +84,13 @@ export default function RestaurantsPage() {
       setDistanceError('')
     }
 
+    if (rating === null || isNaN(rating)) {
+      setRatingError('請輸入有效的評分')
+      valid = false
+    } else {
+      setRatingError('')
+    }
+
     if (!valid) return
 
     addRestaurant({
@@ -79,14 +99,17 @@ export default function RestaurantsPage() {
       type: cuisineType,
       price: price!,
       distance: distance!,
+      rating: rating!,
     })
 
     setName('')
     setCuisineType('chi')
     setPrice(null)
     setDistance(null)
+    setRating(null)
     setPriceError('')
     setDistanceError('')
+    setRatingError('')
   }
 
   return (
@@ -100,13 +123,14 @@ export default function RestaurantsPage() {
             <TableHead>料理類型</TableHead>
             <TableHead>價格 (NT$)</TableHead>
             <TableHead>距離 (m)</TableHead>
+            <TableHead>評分</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {restaurants.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                 尚無餐廳資料
               </TableCell>
             </TableRow>
@@ -124,6 +148,7 @@ export default function RestaurantsPage() {
                 </TableCell>
                 <TableCell>{r.price}</TableCell>
                 <TableCell>{r.distance}</TableCell>
+                <TableCell>{r.rating}</TableCell>
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -194,6 +219,20 @@ export default function RestaurantsPage() {
               value={distance ?? ''}
             />
             {distanceError && <p className="text-sm text-destructive">{distanceError}</p>}
+          </div>
+          <div>
+            <Label htmlFor="rating">評分</Label>
+            <Input
+              id="rating"
+              type="number"
+              step="0.1"
+              min="1"
+              max="5"
+              placeholder="例: 4.5"
+              onChange={handleRatingChange}
+              value={rating ?? ''}
+            />
+            {ratingError && <p className="text-sm text-destructive">{ratingError}</p>}
           </div>
         </div>
         <Button type="submit" className="mt-4">新增</Button>

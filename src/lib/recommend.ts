@@ -105,14 +105,19 @@ function pickForSlotReroll(
   return pool.slice().sort((a, b) => a.price - b.price)[0]
 }
 
-export function generateWeeklyPlan(
+function hasConsecutiveCuisineViolation(days: Restaurant[]): boolean {
+  for (let i = 2; i < days.length; i++) {
+    if (days[i].type === days[i - 1].type && days[i].type === days[i - 2].type) {
+      return true
+    }
+  }
+  return false
+}
+
+function generatePlanAttempt(
   pool: Restaurant[],
   weeklyBudget: number,
 ): WeeklyPlan {
-  if (pool.length === 0) {
-    throw new Error('Restaurant pool cannot be empty')
-  }
-
   const DAYS = 5
   const days: Restaurant[] = []
   let remainingBudget = weeklyBudget
@@ -129,6 +134,25 @@ export function generateWeeklyPlan(
     totalCost: weeklyBudget - remainingBudget,
     weeklyBudget,
   }
+}
+
+export function generateWeeklyPlan(
+  pool: Restaurant[],
+  weeklyBudget: number,
+): WeeklyPlan {
+  if (pool.length === 0) {
+    throw new Error('Restaurant pool cannot be empty')
+  }
+
+  // Retry to find a plan without cuisine violations (different random picks each attempt)
+  const MAX_ATTEMPTS = 10
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const plan = generatePlanAttempt(pool, weeklyBudget)
+    if (!hasConsecutiveCuisineViolation(plan.days)) return plan
+  }
+
+  // Fallback: return best-effort plan
+  return generatePlanAttempt(pool, weeklyBudget)
 }
 
 export function rerollSlot(

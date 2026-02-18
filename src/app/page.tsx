@@ -71,7 +71,7 @@ export default function HomePage() {
                   {CUISINE_META[r.type].label}
                 </span>
                 <p className="text-sm">NT$ {r.price}</p>
-                <p className="text-sm text-muted-foreground">{r.distance} m</p>
+                <p className="text-sm text-muted-foreground">{r.distance} m・⭐ {r.rating}</p>
                 <Button variant="outline" size="sm" onClick={() => handleReroll(i)}>
                   <RefreshCw className="h-3 w-3 mr-1" />
                   重抽

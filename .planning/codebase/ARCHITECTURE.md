@@ -4,207 +4,172 @@
 
 ## Pattern Overview
 
-**Overall:** Vue.js Single Page Application (SPA) with Vuex state management
+**Overall:** Next.js 16 full-stack application with client-side state management using React Context API.
 
 **Key Characteristics:**
-- Component-based UI architecture with Vue 2.6
-- Centralized state management via Vuex store
-- Client-side routing with Vue Router
-- Element UI component library for UI elements
-- Local data persistence via JSON store file
+- Next.js App Router with server-side rendered layouts and client-side interactive pages
+- React Context API for global restaurant state management (no external state library)
+- Separation of concerns: algorithms isolated in pure functions, UI components consume contexts and compose through props
+- Strong type safety via TypeScript with inferred union types from constant definitions
+- Fallback-oriented error handling: graceful degradation rather than throwing errors
 
 ## Layers
 
-**Presentation Layer:**
-- Purpose: Render UI and handle user interactions
-- Location: `src/App.vue`, `src/views/`, `src/components/`
-- Contains: Vue Single File Components (.vue files)
-- Depends on: Vuex store, Vue Router
-- Used by: End users via browser
+**Presentation Layer (UI Components):**
+- Purpose: Render user interface and handle user interactions
+- Location: `src/components/`
+- Contains: Shadcn UI primitive components (`ui/`), layout components (`layout/`)
+- Depends on: Radix UI, Lucide React icons, Tailwind CSS, context hooks from `@/lib`
+- Used by: Page components in `src/app/`
 
-**View Layer:**
-- Purpose: Page-level components for specific features
-- Location: `src/views/Home.vue`, `src/views/Dishes.vue`
-- Contains: Full-page components with business logic
-- Depends on: Vuex store via mapGetters/mapActions, Element UI components
-- Used by: Router for page navigation
+**Page Layer (Route Handlers):**
+- Purpose: Top-level page components that coordinate between context and UI components
+- Location: `src/app/page.tsx`, `src/app/restaurants/page.tsx`
+- Contains: Client components marked with `'use client'` directive
+- Depends on: Context hooks (`useRestaurants()`), business logic functions (`generateWeeklyPlan`, `rerollSlot`), UI components
+- Used by: Next.js routing system
 
-**Component Layer:**
-- Purpose: Reusable UI components
-- Location: `src/components/HelloWorld.vue`
-- Contains: Presentational components (currently minimal)
-- Depends on: Vue, Element UI
-- Used by: Views and other components
+**State Management Layer (Context):**
+- Purpose: Provide global restaurant data and mutation functions
+- Location: `src/lib/restaurant-context.tsx`
+- Contains: `RestaurantContext` definition, `RestaurantProvider` component, `useRestaurants()` hook
+- Depends on: `Restaurant` type from `@/lib/types`
+- Used by: All client components needing restaurant data
 
-**State Management Layer:**
-- Purpose: Centralize application state and mutations
-- Location: `src/store/index.js`
-- Contains: Vuex store with state, mutations, actions, getters
-- Depends on: `src/store/dishes.json`, `src/store/utils.js`
-- Used by: All Vue components via this.$store
+**Business Logic Layer:**
+- Purpose: Pure functions for algorithm implementation (recommendation generation, validation)
+- Location: `src/lib/recommend.ts`
+- Contains: `generateWeeklyPlan()`, `rerollSlot()`, helper functions for budget calculation and cuisine validation
+- Depends on: `Restaurant` type, no external dependencies
+- Used by: Page components (`page.tsx`)
 
-**Router Layer:**
-- Purpose: Client-side navigation and route management
-- Location: `src/router/index.js`
-- Contains: Route definitions and configuration
-- Depends on: Vue Router, view components
-- Used by: App.vue root component
+**Data Definition Layer:**
+- Purpose: Type definitions and constant metadata for the domain
+- Location: `src/lib/types.ts`, `src/lib/restaurants.ts`
+- Contains: `CUISINE_META` constant (cuisine metadata), `CuisineType` union type, `Restaurant` interface, `DEFAULT_RESTAURANTS` seed data
+- Depends on: None
+- Used by: All other layers
 
-**Entry Point:**
-- Purpose: Bootstrap the Vue application
-- Location: `src/main.js`
-- Contains: Vue instance initialization, filters, plugins
+**Root Layout:**
+- Purpose: HTML structure, font configuration, provider wrapping
+- Location: `src/app/layout.tsx`
+- Contains: `RootLayout` component, `Header` component instantiation, `RestaurantProvider` wrapping
+- Depends on: `@/lib/restaurant-context`, `@/components/layout/header`
+- Used by: Next.js as page wrapper
 
 ## Data Flow
 
-**Application Initialization:**
+**Plan Generation Flow:**
 
-1. Browser loads index.html
-2. `src/main.js` executes, initializes Vue instance
-3. Global filters registered (typeColor, typeText)
-4. Element UI plugin installed
-5. Vuex store and Vue Router configured
-6. App.vue root component renders
+1. User opens home page (`src/app/page.tsx`)
+2. Page component calls `useRestaurants()` hook to access global restaurant state
+3. User adjusts budget input and clicks "產生本週午餐計畫"
+4. Page calls `generateWeeklyPlan(restaurants, budget)` with current state
+5. Algorithm returns `WeeklyPlan` object with 5 days of recommendations
+6. Page renders weekly plan cards with reroll buttons
 
-**User Recommendation Flow:**
+**Reroll Flow:**
 
-1. User on Home.vue enters weekly budget amount
-2. User clicks "一鍵推薦" (one-click recommend) button
-3. `recommend()` method executes algorithm
-4. Algorithm selects 5 random dishes, checks constraints:
-   - Total price ≤ budget
-   - At least 2 different cuisine types
-   - Max consecutive same type ≤ 2 days
-5. Results dispatch via `setRecommend` action to Vuex
-6. Template re-renders with new recommendations
-7. Remaining dishes stored in `leftDishes` for single dish swaps
+1. User clicks reroll button on a day card
+2. Page calls `rerollSlot(currentPlan, slotIndex, restaurants)`
+3. Algorithm calculates remaining budget for that slot
+4. Algorithm selects new restaurant respecting budget and cuisine constraints
+5. Returns updated `WeeklyPlan` with only that slot changed
+6. Page re-renders with new selection
 
-**Single Dish Swap Flow:**
+**Restaurant Management Flow:**
 
-1. User clicks refresh icon on specific day card
-2. `recommendSingle(index)` calculates remaining budget
-3. Finds next available dish from `leftDishes`
-4. Validates no excessive type repetition via `findMaxRepeat()`
-5. Dispatches `setRecommend` and `setLeftDishes` mutations
-6. Component template updates
-
-**Menu Management Flow:**
-
-1. User navigates to Dishes.vue
-2. Table displays all dishes from store getter `dishes`
-3. User clicks "新增餐廳" (add restaurant) button
-4. Modal drawer opens with form
-5. User completes form validation and submits
-6. `addDish` action dispatches `addDish` mutation
-7. New dish added with generated UUID
-8. Form resets, drawer closes
-9. Table re-renders with new dish
-10. User can delete via deleteRow → `deleteDish` action
+1. User navigates to `/restaurants` page
+2. Page displays current restaurants from `useRestaurants()` context
+3. User fills form (name, cuisine type, price, distance, rating)
+4. Form validation on each field change
+5. User submits → page calls `addRestaurant(newRestaurant)`
+6. Context updates global state, all pages re-render
+7. User can delete restaurant by calling `removeRestaurant(id)`
 
 **State Management:**
 
-- Single source of truth: `src/store/index.js` state object
-- Initial data: `src/store/dishes.json` loaded on store init
-- Mutations modify state synchronously
-- Actions commit mutations (some currently unused)
-- Getters provide computed access to state (e.g., dishes sorted by price)
-- Components subscribe via mapGetters/mapActions or direct dispatch
+- `Restaurant[]` state stored in `RestaurantProvider` via `useState()`
+- Initialized with `DEFAULT_RESTAURANTS` from `src/lib/restaurants.ts`
+- Provider exported as `RestaurantProvider` component, wrapped in `RootLayout`
+- Accessed via `useRestaurants()` hook in client components
+- Mutations: `addRestaurant()`, `removeRestaurant()` update internal state directly
 
 ## Key Abstractions
 
-**Vuex Store State:**
-- Purpose: Centralized application data
-- Location: `src/store/index.js`
-- State properties:
-  - `types`: Map of cuisine type codes to Chinese labels
-  - `dishes`: Array of all restaurant objects
-  - `recommends`: Array of 5 selected dishes for the week
-  - `leftDishes`: Array of remaining dishes available for swaps
-- Pattern: Single store instance, no modules
+**WeeklyPlan:**
+- Purpose: Encapsulates a 5-day lunch recommendation plan
+- Examples: `src/lib/recommend.ts` defines interface, returned by `generateWeeklyPlan()`
+- Pattern: Data transfer object (DTO) containing immutable days array, cost info, budget reference
 
-**Restaurant/Dish Object:**
-- Purpose: Represents a restaurant menu item
-- Structure:
-  ```javascript
-  {
-    id: string (UUID)
-    name: string
-    distance: number (meters)
-    type: string (chi, jp, kr, tai, west)
-    price: number (dollars)
-  }
-  ```
-- Examples: `src/store/dishes.json` contains 19 example restaurants
+**Restaurant:**
+- Purpose: Core domain model for a restaurant entry
+- Examples: `src/lib/types.ts` line 20-27
+- Pattern: Strongly typed with compile-time validation of cuisine type through union type
 
-**Recommendation Algorithm:**
-- Purpose: Select optimal weekly meal plan within budget
-- Location: `src/views/Home.vue` methods
-- Key methods:
-  - `recommend()`: Main algorithm entry point
-  - `checkTotalPrice()`: Recursive validation of budget + type diversity
-  - `nonRepeatSort()`: Ensures no more than 2 consecutive same cuisine type
-  - `findMaxRepeat()`: Calculates max consecutive type count
-  - `dishesArraySum()`: Sums price and counts distinct cuisine types
-- Pattern: Randomized selection with constraint validation
+**CuisineType:**
+- Purpose: Exhaustive union type for valid cuisine categories
+- Examples: `'chi' | 'jp' | 'kr' | 'tai' | 'west'`
+- Pattern: Derived from `CUISINE_META` keys using `keyof typeof` to ensure type and constants stay in sync
 
-**Vue Filters:**
-- Purpose: Format data for display
-- Location: `src/main.js`
-- Filters:
-  - `typeColor`: Maps cuisine codes to color hex values
-  - `typeText`: Maps cuisine codes to Chinese labels
-- Usage: In templates with pipe syntax `{{ value | typeColor }}`
+**CUISINE_META:**
+- Purpose: Single source of truth for cuisine metadata (labels, colors)
+- Examples: `src/lib/types.ts` line 6-12
+- Pattern: `as const satisfies Record<>` validates shape at compile time while deriving union type
 
 ## Entry Points
 
-**main.js:**
-- Location: `src/main.js`
-- Triggers: Application startup
-- Responsibilities:
-  - Import and register global dependencies (Vue, Vuex, Router, Element UI)
-  - Define global filters for cuisine type formatting
-  - Create root Vue instance
-  - Mount to DOM element #app
+**Root Entry Point:**
+- Location: `src/app/layout.tsx`
+- Triggers: Every page navigation
+- Responsibilities: Configure fonts, wrap with `RestaurantProvider`, render `Header`
 
-**App.vue:**
-- Location: `src/App.vue`
-- Triggers: After main.js mounts Vue instance
-- Responsibilities:
-  - Render root layout (header, main container)
-  - Provide header navigation links
-  - Render router-view for page content
+**Home Page:**
+- Location: `src/app/page.tsx`
+- Triggers: User navigates to `/` or app loads
+- Responsibilities: Render plan generation UI, display weekly recommendations, handle reroll interactions
 
-**Router:**
-- Location: `src/router/index.js`
-- Triggers: Route changes via navigation
-- Responsibilities:
-  - Define routes (/ → Home, /dishes → Dishes)
-  - Lazy-load Dishes.vue component
-  - Enable HTML5 history mode navigation
+**Restaurant Management Page:**
+- Location: `src/app/restaurants/page.tsx`
+- Triggers: User navigates to `/restaurants`
+- Responsibilities: Display restaurant table, handle add/delete forms with validation
+
+**Header Navigation:**
+- Location: `src/components/layout/header.tsx` + `src/components/layout/nav-links.tsx`
+- Triggers: Rendered on every page
+- Responsibilities: Display app title, navigation links with active state highlighting
 
 ## Error Handling
 
-**Strategy:** Graceful degradation with user feedback via Element UI toast messages
+**Strategy:** Graceful degradation with fallback selection rather than throwing.
 
 **Patterns:**
-- Message boxes for constraint violations (e.g., "找不到符合條件的餐廳" - restaurant not found)
-- Console logging for form validation errors in dev
-- Silent fallbacks (e.g., recommend() returns without action if conditions unmet)
+
+1. **Empty Restaurant Pool:** `generateWeeklyPlan()` throws explicitly when pool is empty (line 143-145 in `recommend.ts`), preventing downstream errors
+
+2. **Impossible Budgets:** Algorithm implements cascading fallbacks instead of throwing:
+   - Fallback 1 (line 64-68): Relax cuisine constraint, maintain budget reserve
+   - Fallback 2 (line 70-75): Relax cuisine + use full remaining budget
+   - Fallback 3 (line 77-78): Use globally cheapest restaurant to minimize overage
+
+3. **Budget Constraint During Reroll:** `pickForSlotReroll()` applies same fallback chain (lines 81-106)
+
+4. **Form Validation:** Input change handlers validate on each keystroke, displaying error messages without throwing (lines 32-63 in `restaurants/page.tsx`)
+
+5. **Context Hook Safety:** `useRestaurants()` throws explicit error if called outside provider (line 35 in `restaurant-context.tsx`)
 
 ## Cross-Cutting Concerns
 
-**Logging:** Console logs in Home.vue methods (commented out in production code)
+**Logging:** Not implemented. Debug via console during development; consider adding structured logging for errors/analytics in production.
 
 **Validation:**
-- Form validation in Dishes.vue via Element UI form rules
-- Business logic validation in recommendation algorithm via constraint checks
+- Type-level: TypeScript ensures `Restaurant` shape via interface and `CuisineType` via union type
+- Runtime: Algorithm fallbacks handle invalid states gracefully
+- Form-level: User input validated on change with error messages in UI (form validation in `restaurants/page.tsx` lines 32-93)
 
-**Authentication:** Not implemented (client-side app)
+**Authentication:** Not implemented. App assumes single-user, in-browser state only.
 
-**Styling:**
-- SCSS via vue-loader (scoped styles per component)
-- Element UI CSS imported in main.js
-- Normalize.css for cross-browser consistency
+**Styling:** Tailwind CSS utility classes with shadcn component library for consistent design system.
 
 ---
 

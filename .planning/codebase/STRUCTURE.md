@@ -6,194 +6,187 @@
 
 ```
 what-lunch/
-├── public/                 # Static assets served directly
-├── src/                    # Application source code
-│   ├── App.vue            # Root component
-│   ├── main.js            # Application entry point
-│   ├── assets/            # Static images and media
-│   │   └── logo.png
-│   ├── components/        # Reusable Vue components
-│   │   └── HelloWorld.vue
-│   ├── router/            # Vue Router configuration
-│   │   └── index.js
-│   ├── store/             # Vuex state management
-│   │   ├── index.js       # Store definition
-│   │   ├── dishes.json    # Initial restaurant data
-│   │   └── utils.js       # Utility functions
-│   └── views/             # Page-level components
-│       ├── Home.vue       # Main recommendation page
-│       ├── Dishes.vue     # Menu management page
-│       └── About.vue      # About page (unused)
-├── .planning/             # GSD planning documents
-├── .eslintrc.js           # ESLint configuration
-├── babel.config.js        # Babel transpiler configuration
-├── .browserslistrc        # Target browser versions
-├── .gitignore            # Git ignore rules
-├── package.json          # Project metadata and dependencies
-└── yarn.lock             # Dependency lock file
+├── src/                          # Application source code
+│   ├── app/                       # Next.js App Router pages and layouts
+│   │   ├── layout.tsx             # Root layout wrapping all pages
+│   │   ├── page.tsx               # Home page (plan generation)
+│   │   ├── restaurants/
+│   │   │   └── page.tsx           # Restaurant management page
+│   │   ├── globals.css            # Global Tailwind styles
+│   │   └── favicon.ico
+│   ├── components/                # React components
+│   │   ├── layout/                # Layout/structural components
+│   │   │   ├── header.tsx         # Top navigation bar
+│   │   │   └── nav-links.tsx      # Navigation menu with active state
+│   │   └── ui/                    # Shadcn primitive UI components
+│   │       ├── button.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── select.tsx
+│   │       ├── table.tsx
+│   │       ├── badge.tsx
+│   │       └── navigation-menu.tsx
+│   └── lib/                       # Utilities, types, state, business logic
+│       ├── types.ts               # Type definitions and cuisine metadata
+│       ├── restaurants.ts         # Default restaurant seed data
+│       ├── restaurant-context.tsx # React Context for global state
+│       ├── recommend.ts           # Plan generation algorithm
+│       └── utils.ts               # Utility functions (cn)
+├── __tests__/                     # Test files
+│   └── recommend.test.ts          # Tests for plan generation algorithm
+├── public/                        # Static assets
+├── .planning/                     # GSD planning documents
+├── package.json                   # Dependencies and scripts
+├── tsconfig.json                  # TypeScript configuration
+├── next.config.ts                 # Next.js configuration
+├── vitest.config.mts              # Vitest configuration
+├── postcss.config.mjs             # PostCSS/Tailwind configuration
+└── eslint.config.mjs              # ESLint configuration
 ```
 
 ## Directory Purposes
 
-**public/:**
-- Purpose: Static assets directly served by web server
-- Contains: HTML entry point (index.html), favicon, static images
-- Key files: public/index.html (not shown but implied)
-- Build: Files copied to dist/ during build, no processing
+**`src/app/`:**
+- Purpose: Next.js App Router pages and layouts
+- Contains: Page components (`.tsx`), global styles, root layout
+- Key files: `page.tsx` (home), `restaurants/page.tsx` (management), `layout.tsx` (root wrapper)
 
-**src/:**
-- Purpose: All application source code
-- Contains: Vue components, router, store, styles
-- Key files: main.js (entry point), App.vue (root), views/ (pages)
-- Build: Webpack processes and bundles everything
+**`src/components/layout/`:**
+- Purpose: Structural/layout components used across pages
+- Contains: Header, navigation menu
+- Key files: `header.tsx`, `nav-links.tsx`
 
-**src/assets/:**
-- Purpose: Static media files bundled with app
-- Contains: Images, fonts (referenced in components)
-- Key files: `logo.png` (unused currently)
-- Build: Webpack imports and hashes for cache busting
+**`src/components/ui/`:**
+- Purpose: Shadcn primitive UI components (buttons, inputs, tables, etc.)
+- Contains: Imported and customized from shadcn/ui package
+- Key files: All files are imported components, used throughout app
 
-**src/components/:**
-- Purpose: Reusable Vue components used across multiple views
-- Contains: Single File Components (.vue)
-- Key files: `HelloWorld.vue` (example/unused)
-- Pattern: Components export objects, imported in views
+**`src/lib/`:**
+- Purpose: Core business logic, state management, types, constants
+- Contains: Algorithm code, React Context, type definitions, utilities
+- Key files: `recommend.ts` (algorithm), `restaurant-context.tsx` (state), `types.ts` (domain models)
 
-**src/router/:**
-- Purpose: Vue Router configuration and route definitions
-- Contains: Route table, router instance setup
-- Key files: `index.js` (single file, defines all routes)
-- Routes defined:
-  - `/` → Home.vue (eager load)
-  - `/dishes` → Dishes.vue (lazy load with code splitting)
-
-**src/store/:**
-- Purpose: Vuex centralized state management
-- Contains: Store definition, initial data, helpers
-- Key files:
-  - `index.js`: Vuex store with state, mutations, actions, getters
-  - `dishes.json`: Initial 19 restaurant records
-  - `utils.js`: UUID generation helper
-- Pattern: Single store (no modules)
-
-**src/views/:**
-- Purpose: Page-level components corresponding to routes
-- Contains: Full-page Vue components with business logic
-- Key files:
-  - `Home.vue`: Main interface, recommendation algorithm
-  - `Dishes.vue`: Restaurant management (CRUD)
-  - `About.vue`: Currently unused
-- Pattern: Smart components that interact with store
-
-**.planning/codebase/:**
-- Purpose: GSD (Get Stuff Done) codebase documentation
-- Contains: Architecture, structure, conventions analysis
-- Key files: ARCHITECTURE.md, STRUCTURE.md, etc.
-- Committed: Yes (for team reference)
+**`__tests__/`:**
+- Purpose: Unit and integration tests
+- Contains: Test files matching `*.test.ts` pattern
+- Key files: `recommend.test.ts` (algorithm tests)
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/main.js`: Vue application bootstrap and global setup
-- `src/App.vue`: Root component providing layout and router-view
-- `public/index.html`: HTML container (not shown but implied)
+
+- `src/app/layout.tsx`: Root layout; applies fonts, wraps with `RestaurantProvider`, renders `Header`
+- `src/app/page.tsx`: Home page; plan generation UI
+- `src/app/restaurants/page.tsx`: Restaurant management UI
 
 **Configuration:**
-- `package.json`: Dependencies, scripts, project metadata
-- `.eslintrc.js`: Linting rules (Vue essentials + recommended)
-- `babel.config.js`: ES6+ transpilation preset
-- `.browserslistrc`: Target browser versions (>1% usage, last 2 versions)
+
+- `tsconfig.json`: TypeScript compiler options, path alias `@/*` → `src/*`
+- `next.config.ts`: Next.js build configuration
+- `vitest.config.mts`: Test runner configuration
+- `postcss.config.mjs`: Tailwind CSS build configuration
+- `eslint.config.mjs`: Linting rules
+- `components.json`: Shadcn component configuration
 
 **Core Logic:**
-- `src/store/index.js`: Vuex store definition (state, mutations, actions)
-- `src/views/Home.vue`: Recommendation algorithm and UI
-- `src/views/Dishes.vue`: CRUD operations for restaurants
 
-**State & Data:**
-- `src/store/dishes.json`: Initial 19 restaurants
-- `src/store/utils.js`: UUID generator
+- `src/lib/recommend.ts`: Plan generation algorithm (generateWeeklyPlan, rerollSlot, validation functions)
+- `src/lib/restaurant-context.tsx`: Global state provider and hook
+- `src/lib/types.ts`: Type definitions, cuisine metadata constants
 
-**Routing:**
-- `src/router/index.js`: Route table and router setup
+**Utilities:**
 
-**Styling:**
-- Scoped styles in each .vue file
-- Element UI CSS from `node_modules/element-ui/lib/theme-chalk/index.css`
-- Global normalize.css imported in main.js
+- `src/lib/utils.ts`: Helper function `cn()` for merging Tailwind class names
+- `src/lib/restaurants.ts`: Default restaurant seed data
+
+**Testing:**
+
+- `__tests__/recommend.test.ts`: Comprehensive tests for algorithm behavior, budget constraints, cuisine diversity
 
 ## Naming Conventions
 
 **Files:**
-- Vue components: PascalCase (e.g., `Home.vue`, `Dishes.vue`, `HelloWorld.vue`)
-- Utility files: camelCase (e.g., `utils.js`, `index.js`)
-- Data files: camelCase (e.g., `dishes.json`)
-- Config files: kebab-case with dot prefix (e.g., `.eslintrc.js`, `babel.config.js`)
+
+- `.tsx` extension for React components (require JSX)
+- `.ts` extension for pure logic/utilities (no JSX)
+- Page components use `page.tsx` following Next.js convention
+- Kebab-case for component file names: `nav-links.tsx`, `restaurant-context.tsx`
 
 **Directories:**
-- Feature directories: lowercase plural (e.g., `components/`, `views/`, `router/`, `store/`, `assets/`)
-- Hidden directories: dot prefix (e.g., `.git/`, `.planning/`)
 
-**Vue Components:**
-- Component names: PascalCase in code, kebab-case in templates (Vue convention)
-- File names: Match component name (e.g., Home.vue exports component named Home)
+- Kebab-case for feature/layout directories: `components/layout/`, `components/ui/`
+- Lowercase plural for grouped files: `components/` (contains multiple components)
 
-**Variables & Functions:**
-- camelCase (inferred from codebase style)
-- Examples: `price`, `dishes`, `leftDishes`, `recommends`, `typeColor`, `recommend()`
+**React Components:**
 
-**Constants:**
-- Type codes: lowercase abbreviations (chi, jp, kr, tai, west)
-- Cuisine labels: Chinese text stored in types object
+- PascalCase for component names: `Header`, `NavLinks`, `RestaurantProvider`
+- `use` prefix for custom hooks: `useRestaurants()`
+- `export` at module level for components (not default export for utilities)
+
+**Types:**
+
+- PascalCase for interfaces and types: `Restaurant`, `WeeklyPlan`, `CuisineType`
+- `Type` suffix typically omitted for type aliases derived from constants: `CuisineType` (not `CuisineTypeType`)
+
+**Functions:**
+
+- camelCase for all functions: `generateWeeklyPlan()`, `rerollSlot()`, `hasCuisineViolation()`
+- Internal helper functions prefixed with lowercase (no special marker): `pickForSlot()`, `cheapestPrice()`
+
+**Variables:**
+
+- camelCase for all variables: `restaurants`, `weeklyBudget`, `remainingBudget`
+- UPPER_SNAKE_CASE for compile-time constants: `DEFAULT_BUDGET`, `BUDGET_MAX`, `DAY_LABELS`
 
 ## Where to Add New Code
 
-**New Feature (e.g., favorite restaurants):**
-- Primary code: `src/views/Favorites.vue` (new view)
-- Store mutations/actions: Add to `src/store/index.js` (state, mutations, actions, getters)
-- Router: Add route to `src/router/index.js`
-- Tests: `src/views/Favorites.spec.js` (not yet present in repo)
+**New Feature:**
 
-**New Component (e.g., RestaurantCard):**
-- Implementation: `src/components/RestaurantCard.vue`
-- Import in view: Use in `src/views/Home.vue` or `src/views/Dishes.vue`
-- Styling: Scoped styles in component file using `<style lang="scss" scoped>`
+- Primary code: Add business logic to `src/lib/` (e.g., new algorithm → `src/lib/newfeature.ts`)
+- UI code: Create component in `src/components/` subdirectory (e.g., `src/components/features/newfeature.tsx`)
+- Page route: Add page component in `src/app/` directory (e.g., `src/app/newfeature/page.tsx`)
+- Tests: Add test file in `__tests__/` matching feature name (e.g., `__tests__/newfeature.test.ts`)
 
-**New Utility (e.g., distance calculation):**
-- Shared helpers: `src/store/utils.js` or `src/utils/` (new dir if multiple)
-- Export as named function
-- Import in store or components as needed
+**New Component/Module:**
 
-**New Global Filter (e.g., format price):**
-- Register in: `src/main.js` via `Vue.filter()`
-- Use in templates: `{{ value | filterName }}`
+- Implementation: Place in `src/components/` (layout components) or `src/lib/` (non-UI utilities)
+- Example: New form component → `src/components/forms/myform.tsx`
+- Example: New algorithm → `src/lib/myalgorithm.ts`
 
-**Store Data (e.g., user preferences):**
-- Add to state: `src/store/index.js` state object
-- Add mutations: For state modifications
-- Add getters: For computed access
-- Add actions: For async operations (currently minimal)
+**Utilities:**
+
+- Shared helpers: `src/lib/utils.ts` if simple and general-purpose
+- Feature-specific: Create `src/lib/featurename-utils.ts` if multiple related helpers
+
+**Global State:**
+
+- Add to existing `src/lib/restaurant-context.tsx` if restaurant-related
+- Create new context file `src/lib/mynewcontext.tsx` if independent domain (e.g., user preferences)
 
 ## Special Directories
 
-**node_modules/:**
-- Purpose: Installed npm/yarn dependencies
-- Generated: Yes (not committed, recreated via yarn install)
-- Committed: No (.gitignore)
-
-**dist/:**
-- Purpose: Production build output
-- Generated: Yes (via yarn build)
-- Committed: No (.gitignore)
-
-**.git/:**
-- Purpose: Git version control metadata
+**`.next/`:**
+- Purpose: Build output from Next.js (generated during build)
 - Generated: Yes
-- Committed: N/A (git internal)
+- Committed: No (in `.gitignore`)
+- Note: Contains compiled pages, server-side code, types
 
-**.next/ (if upgraded to Next.js):**
-- Purpose: Next.js build cache
-- Generated: Yes
-- Committed: No (.gitignore implied)
+**`.planning/`:**
+- Purpose: GSD planning documents and analysis
+- Generated: No (manually created)
+- Committed: Yes
+- Note: Consumed by GSD orchestrator for code generation context
+
+**`public/`:**
+- Purpose: Static assets (favicon, SVGs)
+- Generated: No
+- Committed: Yes
+- Note: Served directly by Next.js without processing
+
+**`node_modules/`:**
+- Purpose: Installed dependencies
+- Generated: Yes (by npm install)
+- Committed: No (in `.gitignore`)
 
 ---
 

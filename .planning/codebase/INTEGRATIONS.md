@@ -4,87 +4,124 @@
 
 ## APIs & External Services
 
-**Not detected.**
+**None detected** - Application contains no external API integrations
 
-The application does not integrate with external APIs or services. All operations are client-side with local data processing.
+- No HTTP clients (fetch, axios) configured
+- No SDK imports for third-party services
+- No API endpoints called from source code
+- Self-contained restaurant recommendation system
 
 ## Data Storage
 
 **Databases:**
-- Not used - No database integration detected
+- Not applicable - No database required
+
+**In-Memory State Management:**
+- React Context API (`RestaurantProvider` in `src/lib/restaurant-context.tsx`)
+- Data persists only during browser session
+- Default restaurants loaded from `src/lib/restaurants.ts` (hardcoded)
+- Client-side state: `useState` hooks in `src/app/page.tsx` and `src/app/restaurants/page.tsx`
 
 **File Storage:**
-- Local JSON file only: `src/store/dishes.json`
-- Data is loaded into Vuex store at application initialization
-- All modifications are in-memory (not persisted to disk)
+- Not applicable - No file uploads or storage services
 
 **Caching:**
-- Not used - No caching layer detected
+- Browser cache only (implicit Next.js caching)
+
+**Local Storage:**
+- Not utilized - Data is session-only
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- Not used - No authentication system implemented
+- None - Application is fully public with no authentication
 
-**Current Implementation:**
-- Application requires no user login or authentication
-- All users access the same restaurant data
+**Implementation:**
+- No login/signup functionality
+- No API route protection
+- All features accessible to all users
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- Not detected - No error tracking service integrated
+- Not configured - No error tracking service (Sentry, LogRocket, etc.)
 
 **Logs:**
-- Browser console only via `console.log()` (development mode)
-- Production config disables console warnings per `.eslintrc.js` rules
+- Console logs only (development debugging via `console.*`)
+- No centralized logging service
+
+**Performance Monitoring:**
+- Not configured - No analytics or RUM service
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Not detected - No hosting platform configured
-- Built artifacts should be deployed to static file hosting
+- Vercel recommended in `README.md`
+- Compatible with any Node.js hosting platform
+- Next.js built-in deployment ready
 
 **CI Pipeline:**
-- Not detected - No CI/CD configuration present
+- Not detected - No GitHub Actions, GitLab CI, or other CI config files
+- No automated test runners configured in workflows
 
-**Build Output:**
-- Static site output to `dist/` directory via `vue-cli-service build`
+**Build Commands:**
+- `npm run dev` - Local development
+- `npm run build` - Production build
+- `npm run start` - Production server
+- `npm run lint` - ESLint validation
+- `npm run test` - Vitest execution
 
 ## Environment Configuration
 
 **Required env vars:**
-- None detected - Application is fully static with no environment-specific configuration
+- None - Application runs without environment variables
 
 **Optional env vars:**
-- `NODE_ENV` - Checked in `.eslintrc.js` to control console/debugger warnings (development vs. production)
-- `BASE_URL` - Implicit Vue CLI variable used in `src/router/index.js` and `public/index.html` for routing base path
+- Not applicable
 
 **Secrets location:**
-- Not applicable - No API keys, tokens, or secrets required
+- Not applicable - No secrets used
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- Not applicable - No webhook endpoints
+- None
 
 **Outgoing:**
-- Not applicable - No external service callbacks
+- None
 
-## Data Flow
+## Font Services
 
-**Application Data Source:**
-1. Static JSON file: `src/store/dishes.json`
-2. Loaded into Vuex store on application startup via `src/store/index.js`
-3. Modified in-memory through Vuex mutations (addDish, deleteDish, setDishes)
-4. Displayed in components using Vuex getters
-5. Data is lost on page refresh (no persistence)
+**Google Fonts:**
+- Geist (sans-serif) - Via `next/font/google` in `src/app/layout.tsx`
+- Geist Mono (monospace) - Via `next/font/google` in `src/app/layout.tsx`
+- Self-hosted optimization (no external requests at runtime after font files are downloaded)
 
-**Recommendation Algorithm:**
-- Runs client-side using `Home.vue` methods
-- Filters restaurant list based on budget constraint
-- Selects random restaurants with no API calls
-- State managed in Vuex store: `recommends` and `leftDishes`
+## Component Library (Design System)
+
+**shadcn/ui:**
+- Registry: New York style
+- Icon library: Lucide React
+- Primitives: Radix UI
+- CSS-in-JS: Class Variance Authority (CVA)
+- Utility: tailwind-merge, clsx
+- Configuration: `components.json` at project root
+- Component paths: `@/components` alias (maps to `src/components/`)
+
+## Static Resources
+
+**Public Assets:**
+- Location: `public/` directory
+- Favicon: `public/favicon.ico`
+- No external CDN required
+
+## Type Definitions
+
+**DefinitelyTyped:**
+- @types/node 20
+- @types/react 19
+- @types/react-dom 19
+- Provided by package dependencies (no separate registry needed)
 
 ---
 

@@ -5,86 +5,106 @@
 ## Languages
 
 **Primary:**
-- JavaScript (ES6+) - All source code in `src/` directory
-- HTML - Templates in Vue single-file components (.vue files)
-- SCSS - Styling in Vue components with `lang="scss"` attribute
-- JSON - Configuration and data files
+- TypeScript 5 - All source files (`.ts`, `.tsx`)
+
+**Secondary:**
+- JavaScript - Configuration files (`.mjs`, `.mts`)
 
 ## Runtime
 
 **Environment:**
-- Node.js (no specific version pinned; uses .browserslistrc for browser targeting)
+- Node.js - Version not explicitly pinned (inferred from Next.js 16.1.6 requirements, typically 18.x or higher)
 
 **Package Manager:**
-- Yarn (lockfile present at `yarn.lock`)
+- npm - Version from `package-lock.json`
+- Lockfile: Present
 
 ## Frameworks
 
 **Core:**
-- Vue 2.6.11 - Frontend UI framework
-- Vue Router 3.1.5 - Client-side routing (`src/router/index.js`)
-- Vuex 3.1.2 - State management (`src/store/index.js`)
+- Next.js 16.1.6 - Full-stack React framework with App Router
+- React 19.2.3 - UI library
+- React DOM 19.2.3 - DOM rendering
 
-**UI Component Library:**
-- Element UI 2.13.0 - Reusable UI components (buttons, cards, containers, dividers, tags, dialogs, input controls)
+**UI Components:**
+- shadcn 3.8.5 - Headless component library (New York style)
+- Radix UI 1.4.3 - Primitives for accessible components
+- Lucide React 0.574.0 - Icon library
 
-**CSS Utilities:**
-- normalize.css 8.0.1 - CSS normalization across browsers
+**Styling:**
+- Tailwind CSS 4 - Utility-first CSS framework
+- @tailwindcss/postcss 4 - PostCSS plugin for Tailwind
 
 **Testing:**
-- Not detected
+- Vitest 4.0.18 - Unit test runner
+- Vite-tsconfig-paths 6.1.1 - TypeScript path resolution for Vitest
 
 **Build/Dev:**
-- Vue CLI 4.2.0 (@vue/cli-service, @vue/cli-plugin-babel, @vue/cli-plugin-eslint)
-- Webpack (implicit, managed by Vue CLI)
-- Babel 10.0.3 (babel-eslint) - JavaScript transpilation
+- PostCSS 4 - CSS transformation (via `@tailwindcss/postcss`)
+- ESLint 9 - Linting with Next.js config
+- eslint-config-next 16.1.6 - Next.js ESLint rules
 
 ## Key Dependencies
 
 **Critical:**
-- vue@2.6.11 - Core framework for building UI
-- vuex@3.1.2 - Centralized state management for dishes, recommendations, and filtering
-- vue-router@3.1.5 - Routing between Home and Dishes views
+- class-variance-authority 0.7.1 - Utility for component variant management (used with shadcn components)
+- clsx 2.1.1 - Class name utility for conditional styling
+- tailwind-merge 3.4.1 - Merge Tailwind CSS classes without conflicts
 
-**Infrastructure:**
-- core-js@3.6.4 - JavaScript standard library polyfills
-- element-ui@2.13.0 - Component library reducing custom CSS needs
-- node-sass@4.12.0 - SASS preprocessing for scoped component styles
-- sass-loader@8.0.2 - Webpack loader for SASS compilation
-- vue-template-compiler@2.6.11 - Compiles Vue templates
+**Development:**
+- @types/node 20 - Node.js type definitions
+- @types/react 19 - React type definitions
+- @types/react-dom 19 - React DOM type definitions
+- tw-animate-css 1.4.0 - Animation utilities for Tailwind
 
 ## Configuration
 
 **Environment:**
-- Babel configuration: `babel.config.js` - Uses Vue CLI preset
-- ESLint configuration: `.eslintrc.js` - Rules for Vue essential, ES6 recommended
-- Browser targeting: `.browserslistrc` - Targets browsers with >1% usage and last 2 versions
-- Git ignore: `.gitignore` - Ignores node_modules, /dist, .env.local, IDE files
+- No `.env.local` or `.env.example` files detected
+- Application uses static data only (no external service configuration)
+- Can be deployed without environment variables
 
 **Build:**
-- Vue CLI service commands in `package.json`:
-  - `serve` - Development server
-  - `build` - Production build output to `dist/`
-  - `lint` - ESLint checking
+- TypeScript compilation via `next build`
+- ESLint configuration: `eslint.config.mjs` (ESLint 9 flat config)
+- PostCSS configuration: `postcss.config.mjs`
+- Tailwind configuration: Managed by `@tailwindcss/postcss` v4 (CSS-first approach, no JS config file)
+- Next.js configuration: `next.config.ts` (minimal, no custom config)
 
-**App Configuration:**
-- `src/main.js` - Application entry point with Vue instance initialization
-- Registers Element UI globally
-- Defines Vue filters for restaurant type colors and translations
-- `src/store/index.js` - Vuex store configuration with state, mutations, actions, getters
-- `src/router/index.js` - Vue Router configuration with history mode
+**TypeScript:**
+- Config file: `tsconfig.json`
+- Target: ES2017
+- Strict mode enabled
+- Path aliases: `@/*` → `./src/*`
+- JSX mode: react-jsx (new transform)
 
 ## Platform Requirements
 
 **Development:**
-- Node.js and Yarn package manager
+- Node.js 18+ (estimated, Next.js 16 requirement)
+- npm 10+ (recommended for npm workspaces support)
 - No database required
-- No external API dependencies
+- No API keys or secrets needed
 
 **Production:**
-- Static file hosting (HTML/CSS/JS output from build)
-- Browser with ES6 support (via Babel transpilation)
-- No server-side runtime required
+- Vercel (mentioned in README as recommended deployment target)
+- Can deploy to any Node.js hosting (AWS, Digital Ocean, etc.)
+- Static generation compatible (no dynamic backend required for core features)
+- Uses Next.js App Router (required Node.js 18+)
+
+## Package Management
+
+**Dependencies:** 7 packages
+- React ecosystem: react, react-dom, next
+- UI/styling: radix-ui, lucide-react, class-variance-authority, clsx, tailwind-merge
+
+**DevDependencies:** 10 packages
+- Tooling: @tailwindcss/postcss, tailwindcss, eslint, typescript
+- Testing: vitest, vite-tsconfig-paths
+- Type definitions: @types/node, @types/react, @types/react-dom
+- Component library: shadcn
+
+**Total:** 17 dependencies + 3 type definition packages = 20 total packages
 
 ---
 

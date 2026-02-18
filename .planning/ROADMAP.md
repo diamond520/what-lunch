@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Data model, type constants, restaurant data, and Next.js project scaffold
 - [x] **Phase 2: App Shell** - Navigation, layouts, global design system, and static page shells
 - [x] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
-- [ ] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
+- [x] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
 - [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
 
 ## Phase Details
@@ -86,8 +86,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Install shadcn UI components and create RestaurantContext provider shared via root layout
-- [ ] 04-02-PLAN.md — Build restaurant management page with table, add form, validation, remove, and cuisine tags
+- [x] 04-01-PLAN.md — Install shadcn UI components and create RestaurantContext provider shared via root layout
+- [x] 04-02-PLAN.md — Build restaurant management page with table, add form, validation, remove, and cuisine tags
 
 ---
 
@@ -118,9 +118,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Foundation | 2/2 | Complete | 2026-02-18 |
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
 | 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
-| 4. Restaurant Management | 0/2 | Not started | - |
+| 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
 | 5. Picker Page and Deployment | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 4 planned*
+*Last updated: 2026-02-18 after Phase 4 complete*

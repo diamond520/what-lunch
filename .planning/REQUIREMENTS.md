@@ -26,11 +26,11 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 
 ### Restaurant Management
 
-- [ ] **REST-01**: Restaurant list view with name, cuisine type, price, distance columns
-- [ ] **REST-02**: Add restaurant form with name, cuisine type, price, distance fields
-- [ ] **REST-03**: Form validation enforcing numeric types for price and distance (fix type coercion bug)
-- [ ] **REST-04**: Remove restaurant from list
-- [ ] **REST-05**: Cuisine type color-coded tags on restaurant entries
+- [x] **REST-01**: Restaurant list view with name, cuisine type, price, distance columns
+- [x] **REST-02**: Add restaurant form with name, cuisine type, price, distance fields
+- [x] **REST-03**: Form validation enforcing numeric types for price and distance (fix type coercion bug)
+- [x] **REST-04**: Remove restaurant from list
+- [x] **REST-05**: Cuisine type color-coded tags on restaurant entries
 
 ### UI/UX
 
@@ -94,11 +94,11 @@ Updated during roadmap creation.
 | RECO-04 | Phase 3 | Complete |
 | RECO-05 | Phase 3 | Complete |
 | RECO-07 | Phase 3 | Complete |
-| REST-01 | Phase 4 | Pending |
-| REST-02 | Phase 4 | Pending |
-| REST-03 | Phase 4 | Pending |
-| REST-04 | Phase 4 | Pending |
-| REST-05 | Phase 4 | Pending |
+| REST-01 | Phase 4 | Complete |
+| REST-02 | Phase 4 | Complete |
+| REST-03 | Phase 4 | Complete |
+| REST-04 | Phase 4 | Complete |
+| REST-05 | Phase 4 | Complete |
 | RECO-06 | Phase 5 | Pending |
 | DEPLOY-01 | Phase 5 | Pending |
 | DEPLOY-02 | Phase 5 | Pending |
@@ -110,4 +110,4 @@ Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 3 complete*
+*Last updated: 2026-02-18 after Phase 4 complete*

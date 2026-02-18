@@ -18,6 +18,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
 - [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
 - [x] **Phase 6: Weekend Recommendation** - Independent weekend restaurant list, random pick page, tab switching in restaurant management
+- [ ] **Phase 7: Dark Mode** - Tailwind CSS variable theme toggle with system preference detection
+- [ ] **Phase 8: Cuisine Filter** - Exclude or lock specific cuisine types when generating weekly plans
+- [ ] **Phase 9: Lunch History** - Track daily lunch picks and avoid recommending recently visited restaurants
+- [ ] **Phase 10: Share Plan** - One-click copy weekly plan as formatted text for LINE/clipboard
+- [ ] **Phase 11: Wheel Animation** - Spinning wheel animation for restaurant picks to add fun
 
 ## Phase Details
 
@@ -130,10 +135,91 @@ Plans:
 
 ---
 
+### Phase 7: Dark Mode
+**Goal**: Users can toggle between light and dark themes, with system preference as default
+**Depends on**: Phase 2
+**Success Criteria** (what must be TRUE):
+  1. A theme toggle button exists in the header/nav area
+  2. Clicking the toggle switches all pages between light and dark color schemes
+  3. The app respects the user's OS-level color scheme preference on first load
+  4. The chosen theme persists across page reloads via localStorage
+  5. All existing UI components (tables, cards, forms, badges) render correctly in both themes
+**Plans**: 1 plan
+
+Plans:
+- [ ] 07-01-PLAN.md — Install next-themes, create ThemeProvider + ThemeToggle, wire into layout and header
+
+---
+
+### Phase 8: Cuisine Filter
+**Goal**: Users can exclude or lock specific cuisine types when generating a weekly plan
+**Depends on**: Phase 3, Phase 5
+**Success Criteria** (what must be TRUE):
+  1. The picker page shows cuisine type checkboxes/toggles before generating a plan
+  2. User can exclude one or more cuisine types — excluded types never appear in the generated plan
+  3. User can lock one or more cuisine types — only locked types appear in the generated plan
+  4. Exclude and lock modes are mutually exclusive (toggle between them)
+  5. The algorithm still respects budget and diversity constraints with filtered cuisine types
+  6. If filtering leaves too few restaurants to fill 5 days, a clear warning is shown
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 8 to break down)
+
+---
+
+### Phase 9: Lunch History
+**Goal**: The app tracks which restaurants were picked and avoids recommending recently visited ones
+**Depends on**: Phase 5
+**Success Criteria** (what must be TRUE):
+  1. When a weekly plan is confirmed/used, the picks are saved to a history log in localStorage
+  2. A history page or section shows past picks with dates
+  3. The recommendation algorithm deprioritizes restaurants visited in the last N days (configurable, default 5 business days)
+  4. Users can clear history or remove individual entries
+  5. History persists across page reloads
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 9 to break down)
+
+---
+
+### Phase 10: Share Plan
+**Goal**: Users can share the weekly lunch plan with teammates in one click
+**Depends on**: Phase 5
+**Success Criteria** (what must be TRUE):
+  1. A "複製計畫" button appears when a weekly plan is generated
+  2. Clicking the button copies a formatted text summary to clipboard (Mon-Fri with restaurant name, cuisine, price)
+  3. A toast/notification confirms the copy was successful
+  4. The copied text is readable in LINE, Slack, or any messaging app
+  5. Weekend pick page also has a share/copy button for the single result
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 10 to break down)
+
+---
+
+### Phase 11: Wheel Animation
+**Goal**: Picking a restaurant shows a fun spinning wheel animation before revealing the result
+**Depends on**: Phase 5, Phase 6
+**Success Criteria** (what must be TRUE):
+  1. Clicking the recommendation button triggers a spinning wheel/slot-machine animation
+  2. The animation shows restaurant names cycling through before landing on the pick
+  3. The animation runs for 2-3 seconds before settling on the final result
+  4. The animation works on both the weekday picker and weekend picker pages
+  5. Users can skip the animation by clicking again or pressing a key
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 11 to break down)
+
+---
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -141,9 +227,14 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
 | 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
 | 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
-| 5. Picker Page and Deployment | 1/2 | In progress (deployment needs auth) | - |
+| 5. Picker Page and Deployment | 1/2 | Backlog (deployment) | - |
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
+| 7. Dark Mode | 0/1 | Planned | - |
+| 8. Cuisine Filter | 0/0 | Not planned | - |
+| 9. Lunch History | 0/0 | Not planned | - |
+| 10. Share Plan | 0/0 | Not planned | - |
+| 11. Wheel Animation | 0/0 | Not planned | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 6 complete*
+*Last updated: 2026-02-19 after planning Phase 7*

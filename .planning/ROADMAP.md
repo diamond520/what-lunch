@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
 - [x] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
 - [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
+- [ ] **Phase 6: Weekend Recommendation** - Independent weekend restaurant list, random pick page, tab switching in restaurant management
 
 ## Phase Details
 
@@ -109,10 +110,30 @@ Plans:
 
 ---
 
+### Phase 6: Weekend Recommendation
+**Goal**: Users can maintain a separate weekend restaurant list and randomly pick one for weekend meals
+**Depends on**: Phase 4, Phase 5
+**Success Criteria** (what must be TRUE):
+  1. A separate weekend restaurant list exists with independent CRUD (add/remove/update) and localStorage persistence
+  2. The `/restaurants` page has tab switching between weekday and weekend restaurant lists
+  3. Adding a restaurant under the weekend tab goes into the weekend list, not the weekday list
+  4. The `/weekend` page randomly picks 1 restaurant from the weekend pool on button click
+  5. Re-rolling on the weekend page picks a different restaurant
+  6. Empty weekend pool shows a prompt to add restaurants with a link to `/restaurants`
+  7. Navigation bar includes a "假日推薦" link to `/weekend`
+**Plans**: 3 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Install shadcn Tabs, add weekend defaults, extend RestaurantContext, add pickRandomRestaurant
+- [ ] 06-02-PLAN.md — Build tabbed restaurant management page and /weekend random picker page with nav link
+- [ ] 06-03-PLAN.md — Write unit and component tests for weekend features
+
+---
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -121,7 +142,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
 | 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
 | 5. Picker Page and Deployment | 1/2 | In progress (deployment needs auth) | - |
+| 6. Weekend Recommendation | 0/3 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-18 after Phase 5 Plan 01 complete*
+*Last updated: 2026-02-18 after Phase 6 planned*

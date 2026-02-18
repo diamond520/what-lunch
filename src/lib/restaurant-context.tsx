@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useSyncExternalStore } from 'react'
 import type { Restaurant } from './types'
 import { DEFAULT_RESTAURANTS } from './restaurants'
 
@@ -15,24 +15,25 @@ interface RestaurantContextValue {
 
 const RestaurantContext = createContext<RestaurantContextValue | null>(null)
 
+function readStoredRestaurants(): Restaurant[] {
+  if (typeof window === 'undefined') return DEFAULT_RESTAURANTS
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored ? JSON.parse(stored) : DEFAULT_RESTAURANTS
+  } catch {
+    return DEFAULT_RESTAURANTS
+  }
+}
+
 export function RestaurantProvider({ children }: { children: React.ReactNode }) {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(DEFAULT_RESTAURANTS)
-  const [isHydrated, setIsHydrated] = useState(false)
+  const [restaurants, setRestaurants] = useState<Restaurant[]>(readStoredRestaurants)
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
 
-  // Load from localStorage on mount (client-side only)
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        setRestaurants(JSON.parse(stored))
-      }
-    } catch {
-      // Ignore parse errors, keep defaults
-    }
-    setIsHydrated(true)
-  }, [])
-
-  // Persist to localStorage after hydration
+  // Persist to localStorage on changes
   useEffect(() => {
     if (!isHydrated) return
     try {
@@ -43,11 +44,11 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
   }, [restaurants, isHydrated])
 
   function addRestaurant(r: Restaurant) {
-    setRestaurants(prev => [...prev, r])
+    setRestaurants((prev) => [...prev, r])
   }
 
   function removeRestaurant(id: string) {
-    setRestaurants(prev => prev.filter(r => r.id !== id))
+    setRestaurants((prev) => prev.filter((r) => r.id !== id))
   }
 
   return (

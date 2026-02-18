@@ -28,7 +28,7 @@ export function NavLinks() {
               asChild
               className={cn(
                 navigationMenuTriggerStyle(),
-                pathname === href && 'bg-accent text-accent-foreground'
+                pathname === href && 'bg-accent text-accent-foreground',
               )}
             >
               <Link href={href}>{label}</Link>

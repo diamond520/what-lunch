@@ -23,9 +23,7 @@ export async function POST(request: Request) {
 
   // Find next id number
   const idMatches = [...content.matchAll(/id: 'id-(\d+)'/g)]
-  const maxId = idMatches.length > 0
-    ? Math.max(...idMatches.map(m => parseInt(m[1])))
-    : 0
+  const maxId = idMatches.length > 0 ? Math.max(...idMatches.map((m) => parseInt(m[1]))) : 0
   const newId = `id-${maxId + 1}`
 
   // Format new entry

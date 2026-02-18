@@ -7,15 +7,22 @@ import { DEFAULT_RESTAURANTS } from '@/lib/restaurants'
 import { CUISINE_META } from '@/lib/types'
 import type { CuisineType } from '@/lib/types'
 import {
-  Table, TableBody, TableCell, TableHead,
-  TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select, SelectContent, SelectItem,
-  SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
 
 export default function RestaurantsPage() {
@@ -31,9 +38,9 @@ export default function RestaurantsPage() {
   const [ratingError, setRatingError] = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
-  const defaultNames = new Set(DEFAULT_RESTAURANTS.map(r => r.name))
+  const defaultNames = new Set(DEFAULT_RESTAURANTS.map((r) => r.name))
 
-  async function handleSaveToConfig(r: typeof restaurants[number]) {
+  async function handleSaveToConfig(r: (typeof restaurants)[number]) {
     try {
       const res = await fetch('/api/restaurants', {
         method: 'POST',
@@ -41,7 +48,7 @@ export default function RestaurantsPage() {
         body: JSON.stringify({ restaurant: r }),
       })
       if (res.ok) {
-        setSavedIds(prev => new Set(prev).add(r.id))
+        setSavedIds((prev) => new Set(prev).add(r.id))
       } else {
         const data = await res.json()
         alert(data.error ?? '儲存失敗')
@@ -135,7 +142,11 @@ export default function RestaurantsPage() {
   }
 
   if (!isHydrated) {
-    return <div className="container mx-auto px-4 py-8"><h1 className="text-2xl font-semibold mb-6">餐廳管理</h1></div>
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
+      </div>
+    )
   }
 
   return (
@@ -178,7 +189,7 @@ export default function RestaurantsPage() {
                 <TableCell className="flex gap-1">
                   {defaultNames.has(r.name) || savedIds.has(r.id) ? (
                     <Button variant="ghost" size="icon" disabled title="已儲存至 config">
-                      <Check className="h-4 w-4 text-green-500" />
+                      <Check className="size-4 text-green-500" />
                     </Button>
                   ) : (
                     <Button
@@ -187,15 +198,11 @@ export default function RestaurantsPage() {
                       onClick={() => handleSaveToConfig(r)}
                       title="儲存至 restaurants.ts"
                     >
-                      <Save className="h-4 w-4" />
+                      <Save className="size-4" />
                     </Button>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeRestaurant(r.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" onClick={() => removeRestaurant(r.id)}>
+                    <Trash2 className="size-4" />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -224,13 +231,13 @@ export default function RestaurantsPage() {
                 <SelectValue placeholder="選擇料理類型" />
               </SelectTrigger>
               <SelectContent>
-                {(Object.entries(CUISINE_META) as [CuisineType, { label: string; color: string }][]).map(
-                  ([key, meta]) => (
-                    <SelectItem key={key} value={key}>
-                      {meta.label}
-                    </SelectItem>
-                  )
-                )}
+                {(
+                  Object.entries(CUISINE_META) as [CuisineType, { label: string; color: string }][]
+                ).map(([key, meta]) => (
+                  <SelectItem key={key} value={key}>
+                    {meta.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -275,7 +282,9 @@ export default function RestaurantsPage() {
             {ratingError && <p className="text-sm text-destructive">{ratingError}</p>}
           </div>
         </div>
-        <Button type="submit" className="mt-4">新增</Button>
+        <Button type="submit" className="mt-4">
+          新增
+        </Button>
       </form>
     </div>
   )

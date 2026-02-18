@@ -31,7 +31,11 @@ export default function HomePage() {
   }
 
   if (!isHydrated) {
-    return <div className="container mx-auto px-4 py-8"><h1 className="text-2xl font-semibold mb-6">每週午餐推薦</h1></div>
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-semibold mb-6">每週午餐推薦</h1>
+      </div>
+    )
   }
 
   return (
@@ -75,9 +79,11 @@ export default function HomePage() {
                   {CUISINE_META[r.type].label}
                 </span>
                 <p className="text-sm">NT$ {r.price}</p>
-                <p className="text-sm text-muted-foreground">{r.distance} m・⭐ {r.rating}</p>
+                <p className="text-sm text-muted-foreground">
+                  {r.distance} m・⭐ {r.rating}
+                </p>
                 <Button variant="outline" size="sm" onClick={() => handleReroll(i)}>
-                  <RefreshCw className="h-3 w-3 mr-1" />
+                  <RefreshCw className="size-3 mr-1" />
                   重抽
                 </Button>
               </div>

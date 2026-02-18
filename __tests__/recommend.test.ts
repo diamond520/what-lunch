@@ -19,8 +19,7 @@ describe('generateWeeklyPlan', () => {
     const plan = generateWeeklyPlan(DEFAULT_RESTAURANTS, 750)
     for (let i = 2; i < plan.days.length; i++) {
       const threeConsecutive =
-        plan.days[i].type === plan.days[i - 1].type &&
-        plan.days[i].type === plan.days[i - 2].type
+        plan.days[i].type === plan.days[i - 1].type && plan.days[i].type === plan.days[i - 2].type
       expect(threeConsecutive, `3 consecutive ${plan.days[i].type} at index ${i}`).toBe(false)
     }
   })
@@ -60,7 +59,7 @@ describe('generateWeeklyPlan', () => {
     ]
     const plan = generateWeeklyPlan(single, 1000)
     expect(plan.days).toHaveLength(5)
-    expect(plan.days.every(d => d.id === 'only')).toBe(true)
+    expect(plan.days.every((d) => d.id === 'only')).toBe(true)
   })
 
   test('handles pool with all same cuisine type', () => {
@@ -91,18 +90,15 @@ describe('generateWeeklyPlan', () => {
       const plan = generateWeeklyPlan(DEFAULT_RESTAURANTS, 750)
       for (let j = 2; j < plan.days.length; j++) {
         const threeConsecutive =
-          plan.days[j].type === plan.days[j - 1].type &&
-          plan.days[j].type === plan.days[j - 2].type
+          plan.days[j].type === plan.days[j - 1].type && plan.days[j].type === plan.days[j - 2].type
         expect(threeConsecutive).toBe(false)
       }
     }
   })
 
   test('produces varied results (not deterministic)', () => {
-    const plans = Array.from({ length: 20 }, () =>
-      generateWeeklyPlan(DEFAULT_RESTAURANTS, 750)
-    )
-    const uniqueFirstPicks = new Set(plans.map(p => p.days[0].id))
+    const plans = Array.from({ length: 20 }, () => generateWeeklyPlan(DEFAULT_RESTAURANTS, 750))
+    const uniqueFirstPicks = new Set(plans.map((p) => p.days[0].id))
     expect(uniqueFirstPicks.size).toBeGreaterThan(1)
   })
 })
@@ -145,16 +141,40 @@ describe('rerollSlot', () => {
 
   test('does not create backward cuisine violation', () => {
     // Force slots 0,1 to be same cuisine, then reroll slot 2
-    const jp1: Restaurant = { id: 'jp1', name: 'JP1', type: 'jp', price: 80, distance: 100, rating: 4.0 }
-    const jp2: Restaurant = { id: 'jp2', name: 'JP2', type: 'jp', price: 90, distance: 100, rating: 4.0 }
-    const chi1: Restaurant = { id: 'chi1', name: 'CHI1', type: 'chi', price: 70, distance: 100, rating: 4.0 }
+    const jp1: Restaurant = {
+      id: 'jp1',
+      name: 'JP1',
+      type: 'jp',
+      price: 80,
+      distance: 100,
+      rating: 4.0,
+    }
+    const jp2: Restaurant = {
+      id: 'jp2',
+      name: 'JP2',
+      type: 'jp',
+      price: 90,
+      distance: 100,
+      rating: 4.0,
+    }
+    const chi1: Restaurant = {
+      id: 'chi1',
+      name: 'CHI1',
+      type: 'chi',
+      price: 70,
+      distance: 100,
+      rating: 4.0,
+    }
     const plan: WeeklyPlan = {
       days: [jp1, jp2, chi1, chi1, chi1],
       totalCost: 380,
       weeklyBudget: 1000,
     }
     // Pool has jp and chi options
-    const pool: Restaurant[] = [jp1, jp2, chi1,
+    const pool: Restaurant[] = [
+      jp1,
+      jp2,
+      chi1,
       { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 100, rating: 4.0 },
     ]
     for (let i = 0; i < 50; i++) {
@@ -169,9 +189,30 @@ describe('rerollSlot', () => {
 
   test('does not create forward cuisine violation', () => {
     // Force slots 3,4 to be same cuisine, then reroll slot 2
-    const jp1: Restaurant = { id: 'jp1', name: 'JP1', type: 'jp', price: 80, distance: 100, rating: 4.0 }
-    const chi1: Restaurant = { id: 'chi1', name: 'CHI1', type: 'chi', price: 70, distance: 100, rating: 4.0 }
-    const kr1: Restaurant = { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 100, rating: 4.0 }
+    const jp1: Restaurant = {
+      id: 'jp1',
+      name: 'JP1',
+      type: 'jp',
+      price: 80,
+      distance: 100,
+      rating: 4.0,
+    }
+    const chi1: Restaurant = {
+      id: 'chi1',
+      name: 'CHI1',
+      type: 'chi',
+      price: 70,
+      distance: 100,
+      rating: 4.0,
+    }
+    const kr1: Restaurant = {
+      id: 'kr1',
+      name: 'KR1',
+      type: 'kr',
+      price: 75,
+      distance: 100,
+      rating: 4.0,
+    }
     const plan: WeeklyPlan = {
       days: [chi1, kr1, chi1, jp1, jp1],
       totalCost: 375,
@@ -190,9 +231,30 @@ describe('rerollSlot', () => {
 
   test('does not create bridge cuisine violation', () => {
     // Force slot 1 and slot 3 to same cuisine, reroll slot 2
-    const jp1: Restaurant = { id: 'jp1', name: 'JP1', type: 'jp', price: 80, distance: 100, rating: 4.0 }
-    const chi1: Restaurant = { id: 'chi1', name: 'CHI1', type: 'chi', price: 70, distance: 100, rating: 4.0 }
-    const kr1: Restaurant = { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 100, rating: 4.0 }
+    const jp1: Restaurant = {
+      id: 'jp1',
+      name: 'JP1',
+      type: 'jp',
+      price: 80,
+      distance: 100,
+      rating: 4.0,
+    }
+    const chi1: Restaurant = {
+      id: 'chi1',
+      name: 'CHI1',
+      type: 'chi',
+      price: 70,
+      distance: 100,
+      rating: 4.0,
+    }
+    const kr1: Restaurant = {
+      id: 'kr1',
+      name: 'KR1',
+      type: 'kr',
+      price: 75,
+      distance: 100,
+      rating: 4.0,
+    }
     const plan: WeeklyPlan = {
       days: [chi1, jp1, kr1, jp1, chi1],
       totalCost: 375,

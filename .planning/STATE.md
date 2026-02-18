@@ -5,24 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 6 COMPLETE - Weekend Recommendation fully implemented and tested
+**Current focus:** Phase 7 - Dark Mode (at human-verify checkpoint)
 
 ## Current Position
 
-Phase: 6 of 6 (Weekend Recommendation)
-Plan: 3 of 3 in phase 06-weekend-recommendation
-Status: Phase complete
-Last activity: 2026-02-18 — Completed 06-03-PLAN.md (unit tests for pickRandomRestaurant + component tests for WeekendPage)
-Note: Phase 5 Plan 02 (deployment) moved to backlog — manual deploy when ready
+Phase: 7 of 11 (Dark Mode)
+Plan: 1 of 1 in phase 07-dark-mode
+Status: At human-verify checkpoint (Task 3) — awaiting user approval
+Last activity: 2026-02-19 — Completed Tasks 1-2 of 07-01-PLAN.md (dark mode infrastructure built, pending visual verification)
 
-Progress: [██████████] 100% (all planned phases complete)
+Progress: [███████░░░░] 64% (11 plans complete of ~17 planned, at checkpoint in plan 11)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 10 fully, 1 at checkpoint
 - Average duration: ~2 min
-- Total execution time: ~19 min
+- Total execution time: ~21 min
 
 **By Phase:**
 
@@ -34,9 +33,10 @@ Progress: [██████████] 100% (all planned phases complete)
 | 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
 | 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
 | 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
+| 07-dark-mode | 1 in progress (at checkpoint) | ~2 min so far | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: ~1 min (05-01), ~2 min (06-01), ~2 min (06-02), ~1 min (06-03)
+- Last 5 plans: ~1 min (05-01), ~2 min (06-01), ~2 min (06-02), ~1 min (06-03), ~2 min (07-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -88,10 +88,19 @@ Recent decisions affecting current work:
 - Re-roll logic lives in /weekend page component, not pickRandomRestaurant: keeps algorithm pure
 - vitest.config.mts environment: jsdom globally — no file-level @vitest-environment comment needed in .tsx test files
 - CuisineType uses 'tai' not 'thai' — caught by tsc --noEmit in test data
+- ThemeProvider wraps both Header and RestaurantProvider/main: ThemeToggle inside Header calls useTheme() which needs provider above it
+- attribute='class' in ThemeProvider: aligns with existing @custom-variant dark (&:is(.dark *)) — no CSS changes needed
+- mounted guard in ThemeToggle: useTheme() returns undefined on server; guard prevents hydration mismatch
+- suppressHydrationWarning on html element: next-themes modifies class attribute client-side
 
 ### Roadmap Evolution
 
 - Phase 6 added: Weekend Recommendation — independent weekend restaurant list, random pick page, tab switching in restaurant management
+- Phase 7 added: Dark Mode — theme toggle with system preference detection
+- Phase 8 added: Cuisine Filter — exclude or lock cuisine types when generating plans
+- Phase 9 added: Lunch History — track picks, avoid recent repeats
+- Phase 10 added: Share Plan — copy formatted plan text to clipboard
+- Phase 11 added: Wheel Animation — spinning wheel for restaurant picks
 
 ### Pending Todos
 
@@ -107,6 +116,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18T16:01:24Z
-Stopped at: Completed 06-03-PLAN.md — weekend tests (pickRandomRestaurant unit tests + WeekendPage component tests)
+Last session: 2026-02-19T00:31:01Z
+Stopped at: 07-01-PLAN.md Task 3 human-verify checkpoint — awaiting visual verification of dark mode toggle
 Resume file: None

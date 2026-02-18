@@ -194,10 +194,10 @@ Plans:
   3. A toast/notification confirms the copy was successful
   4. The copied text is readable in LINE, Slack, or any messaging app
   5. Weekend pick page also has a share/copy button for the single result
-**Plans**: 0 plans
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Install Sonner, wire Toaster to layout, add copy buttons to weekday and weekend pages
 
 ---
 
@@ -233,9 +233,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
 | 8. Cuisine Filter | 0/2 | Planned | - |
 | 9. Lunch History | 0/0 | Not planned | - |
-| 10. Share Plan | 0/0 | Not planned | - |
+| 10. Share Plan | 0/1 | Planned | - |
 | 11. Wheel Animation | 0/0 | Not planned | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-19 after Phase 7 complete*
+*Last updated: 2026-02-19 after Phase 10 planned*

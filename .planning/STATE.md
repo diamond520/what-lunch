@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 8 - Cuisine Filter (COMPLETE — both plans done)
+**Current focus:** Phase 9 - Lunch History (plan 1 of 3 done)
 
 ## Current Position
 
-Phase: 8 of 11 (Cuisine Filter)
-Plan: 2 of 2 in phase 08-cuisine-filter — COMPLETE
-Status: Phase 08 complete — ready for Phase 09 (Lunch History)
-Last activity: 2026-02-19 — Completed 08-02-PLAN.md (cuisine filter UI on picker page)
+Phase: 9 of 11 (Lunch History)
+Plan: 1 of 3 in phase 09-lunch-history
+Status: Active — 09-01 complete, ready for 09-02 (wire HistoryProvider into app)
+Last activity: 2026-02-19 — Completed 09-01-PLAN.md (history lib and context)
 
-Progress: [████████░░░] 82% (14 plans complete of ~17 planned)
+Progress: [████████░░░] 85% (15 plans complete of ~17 planned)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 fully
+- Total plans completed: 15 fully
 - Average duration: ~2 min
-- Total execution time: ~21 min
+- Total execution time: ~22 min
 
 **By Phase:**
 
@@ -35,9 +35,10 @@ Progress: [████████░░░] 82% (14 plans complete of ~17 plan
 | 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
 | 07-dark-mode | 1 completed | ~2 min | ~2 min |
 | 08-cuisine-filter | 2 of 2 completed | 28 min | 14 min |
+| 09-lunch-history | 1 of 3 completed | 1 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: ~1 min (05-01), ~2 min (06-01), ~2 min (06-02), ~1 min (06-03), ~2 min (07-01)
+- Last 5 plans: ~2 min (06-02), ~1 min (06-03), ~2 min (07-01), ~14 min (08-02), ~1 min (09-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -101,6 +102,12 @@ Recent decisions affecting current work:
 - Generate button disabled when filteredPool.length === 0 (in addition to restaurants.length === 0)
 - relaxDiversity only true in lock mode with exactly 1 cuisine type selected — single-cuisine lock makes diversity constraint impossible to satisfy
 - readStoredFilter() called only in useState lazy initializer — avoids repeated localStorage reads on re-render
+- getRecentlyVisitedIds uses new Date().toLocaleDateString('sv') for YYYY-MM-DD local date — avoids UTC offset issues
+- Business day lookback walks backwards day-by-day skipping Sat(6)/Sun(0) — simple correct algorithm
+- splitPoolByHistory fallback is always full pool — callers decide when primary is empty
+- addEntries accepts array (not single): enables bulk add when confirming 5-day weekly plan
+- setLookbackDays clamps to min 1 in HistoryProvider — prevents degenerate 0-day lookback
+- lookbackDays persisted as String(n) in localStorage (not JSON) — simpler for single integer
 
 ### Roadmap Evolution
 
@@ -125,6 +132,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T01:50:37Z
-Stopped at: Completed 08-02-PLAN.md (cuisine filter UI on picker page)
+Last session: 2026-02-19T01:57:22Z
+Stopped at: Completed 09-01-PLAN.md (history lib and context)
 Resume file: None

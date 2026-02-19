@@ -164,8 +164,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — TDD applyFilter helper and relaxDiversity option in recommend.ts
-- [ ] 08-02-PLAN.md — Cuisine filter UI on picker page with persistence and human verification
+- [x] 08-01-PLAN.md — TDD applyFilter helper and relaxDiversity option in recommend.ts
+- [x] 08-02-PLAN.md — Cuisine filter UI on picker page with persistence and human verification
 
 ---
 
@@ -199,7 +199,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 10-01-PLAN.md — Install Sonner, wire Toaster to layout, add copy buttons to weekday and weekend pages
+- [x] 10-01-PLAN.md — Install Sonner, wire Toaster to layout, add copy buttons to weekday and weekend pages
 
 ---
 

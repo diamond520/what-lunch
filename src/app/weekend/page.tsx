@@ -7,6 +7,8 @@ import { pickRandomRestaurant } from '@/lib/recommend'
 import { CUISINE_META } from '@/lib/types'
 import type { Restaurant } from '@/lib/types'
 import { Button } from '@/components/ui/button'
+import { Copy } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function WeekendPage() {
   const { weekendRestaurants, isHydrated } = useRestaurants()
@@ -45,6 +47,25 @@ export default function WeekendPage() {
     setCurrent(pickRandomRestaurant(pool))
   }
 
+  async function handleCopyWeekend() {
+    if (!current) return
+    if (!navigator.clipboard) {
+      toast.error('複製失敗，請手動複製')
+      return
+    }
+    const text = [
+      '假日推薦 🍽️',
+      `${current.name} ${CUISINE_META[current.type].label} NT$${current.price}`,
+      `距離：${current.distance}m｜評分：${current.rating}`,
+    ].join('\n')
+    try {
+      await navigator.clipboard.writeText(text)
+      toast('已複製到剪貼簿 ✓')
+    } catch {
+      toast.error('複製失敗，請手動複製')
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold mb-6">假日推薦</h1>
@@ -52,9 +73,15 @@ export default function WeekendPage() {
       <div className="flex gap-3 mb-8">
         <Button onClick={handleRoll}>隨機推薦</Button>
         {current !== null && (
-          <Button variant="outline" onClick={handleReroll}>
-            換一間
-          </Button>
+          <>
+            <Button variant="outline" onClick={handleReroll}>
+              換一間
+            </Button>
+            <Button variant="outline" onClick={handleCopyWeekend}>
+              <Copy className="size-4 mr-1" />
+              複製
+            </Button>
+          </>
         )}
       </div>
 

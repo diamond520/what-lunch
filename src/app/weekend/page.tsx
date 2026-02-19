@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRestaurants } from '@/lib/restaurant-context'
 import { pickRandomRestaurant } from '@/lib/recommend'
@@ -9,10 +9,33 @@ import type { Restaurant } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
+import { useSlotAnimation } from '@/hooks/use-slot-animation'
 
 export default function WeekendPage() {
   const { weekendRestaurants, isHydrated } = useRestaurants()
   const [current, setCurrent] = useState<Restaurant | null>(null)
+
+  const candidateNames = useMemo(
+    () => weekendRestaurants.map((r) => r.name),
+    [weekendRestaurants],
+  )
+
+  const { displayValue, isAnimating, skip } = useSlotAnimation({
+    candidates: candidateNames,
+    finalValue: current?.name ?? null,
+  })
+
+  useEffect(() => {
+    if (!isAnimating) return
+    const handler = (e: KeyboardEvent) => {
+      if (['Space', 'Enter', 'Escape'].includes(e.code)) {
+        e.preventDefault()
+        skip()
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [isAnimating, skip])
 
   if (!isHydrated) {
     return (
@@ -71,10 +94,10 @@ export default function WeekendPage() {
       <h1 className="text-2xl font-semibold mb-6">假日推薦</h1>
 
       <div className="flex gap-3 mb-8">
-        <Button onClick={handleRoll}>隨機推薦</Button>
+        <Button onClick={handleRoll} disabled={isAnimating}>隨機推薦</Button>
         {current !== null && (
           <>
-            <Button variant="outline" onClick={handleReroll}>
+            <Button variant="outline" onClick={handleReroll} disabled={isAnimating}>
               換一間
             </Button>
             <Button variant="outline" onClick={handleCopyWeekend}>
@@ -86,30 +109,49 @@ export default function WeekendPage() {
       </div>
 
       {current !== null && (
-        <div className="rounded-lg border bg-card p-6 shadow-sm max-w-sm">
-          <h2 className="text-xl font-semibold mb-3">{current.name}</h2>
-          <div className="flex flex-wrap gap-2 mb-4">
-            <span
-              className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white"
-              style={{ backgroundColor: CUISINE_META[current.type].color }}
-            >
-              {CUISINE_META[current.type].label}
-            </span>
-          </div>
-          <dl className="space-y-1 text-sm text-muted-foreground">
-            <div className="flex gap-2">
-              <dt className="font-medium text-foreground">價格</dt>
-              <dd>NT$ {current.price}</dd>
+        <div
+          className={`rounded-lg border bg-card p-6 shadow-sm max-w-sm${isAnimating ? ' cursor-pointer' : ''}`}
+          onClick={isAnimating ? skip : undefined}
+        >
+          <h2 className="text-xl font-semibold mb-3">
+            {isAnimating ? (displayValue ?? '...') : current.name}
+          </h2>
+          {isAnimating ? (
+            <div className="space-y-2">
+              <div className="h-5 w-16 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-16 bg-muted animate-pulse rounded" />
             </div>
-            <div className="flex gap-2">
-              <dt className="font-medium text-foreground">距離</dt>
-              <dd>{current.distance}m</dd>
+          ) : (
+            <div className="animate-in fade-in zoom-in-95 duration-300">
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span
+                  className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white"
+                  style={{ backgroundColor: CUISINE_META[current.type].color }}
+                >
+                  {CUISINE_META[current.type].label}
+                </span>
+              </div>
+              <dl className="space-y-1 text-sm text-muted-foreground">
+                <div className="flex gap-2">
+                  <dt className="font-medium text-foreground">價格</dt>
+                  <dd>NT$ {current.price}</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="font-medium text-foreground">距離</dt>
+                  <dd>{current.distance}m</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="font-medium text-foreground">評分</dt>
+                  <dd>{current.rating}</dd>
+                </div>
+              </dl>
             </div>
-            <div className="flex gap-2">
-              <dt className="font-medium text-foreground">評分</dt>
-              <dd>{current.rating}</dd>
-            </div>
-          </dl>
+          )}
+          {isAnimating && (
+            <p className="text-xs text-muted-foreground mt-1 text-center">按任意鍵或點擊跳過</p>
+          )}
         </div>
       )}
     </div>

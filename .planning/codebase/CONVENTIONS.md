@@ -1,199 +1,224 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-02-18
+**Analysis Date:** 2026-02-19
 
 ## Naming Patterns
 
 **Files:**
-- Components: PascalCase, no suffix - `Header.tsx`, `Button.tsx`
-- UI components: `src/components/ui/` directory, lowercase kebab-case - `button.tsx`, `input.tsx`, `table.tsx`
-- Layout/feature components: `src/components/layout/` - `header.tsx`, `nav-links.tsx`
-- Pages: `src/app/` or `src/app/[route]/page.tsx` following Next.js convention - `page.tsx`, `restaurants/page.tsx`
-- Utilities/libraries: lowercase with hyphens - `restaurant-context.tsx`, `utils.ts`, `recommend.ts`
-- Type/data files: lowercase - `types.ts`, `restaurants.ts`
+- Components: kebab-case (e.g., `theme-toggle.tsx`, `use-slot-animation.ts`)
+- Pages: kebab-case with folder structure (e.g., `src/app/page.tsx`, `src/app/weekend/page.tsx`)
+- Utilities/libraries: kebab-case (e.g., `history.ts`, `recommend.ts`)
+- UI components: kebab-case (e.g., `button.tsx`, `navigation-menu.tsx`)
 
 **Functions:**
-- camelCase for all functions - `generateWeeklyPlan()`, `hasCuisineViolation()`, `handleGenerate()`, `handleReroll()`
-- Event handlers: `handle{Event}` pattern - `handleSubmit()`, `handleReroll()`, `handlePriceChange()`
-- Hook functions: `use{Purpose}` pattern - `useRestaurants()` (custom hook)
-- Internal helper functions: descriptive camelCase - `pickForSlot()`, `cheapestPrice()`, `hasConsecutiveCuisineViolation()`
+- camelCase for all function declarations and exports
+- Public functions: descriptive names (e.g., `generateWeeklyPlan`, `rerollSlot`, `useSlotAnimation`)
+- Private/internal functions: camelCase with underscore prefix discouraged; instead use lowercase with implied privacy (e.g., `hasCuisineViolation`, `cheapestPrice`, `pickForSlot`)
+- React hooks: `use` prefix (e.g., `useSlotAnimation`, `useRestaurants`, `useHistory`)
+- Event handlers: `handle` prefix (e.g., `handleGenerate`, `handleReroll`, `handleCopy`)
 
 **Variables:**
-- camelCase for all variables and constants - `budget`, `restaurants`, `cuisineType`, `remainingBudget`
-- State setters follow React pattern - `setBudget()`, `setPlan()`, `setName()`
-- Constants in all caps with underscores - `DEFAULT_BUDGET`, `BUDGET_MIN`, `BUDGET_MAX`, `BUDGET_STEP`, `DAY_LABELS`, `MAX_ATTEMPTS`, `DAYS`, `CUISINE_META`
-- Props/destructured params: camelCase - `slotIndex`, `slotsRemaining`, `weeklyBudget`
+- camelCase for all variables and constants
+- Local constants: UPPERCASE with CONST_NAME pattern (e.g., `DEFAULT_BUDGET`, `MAX_HISTORY`, `DAYS`)
+- Module-level constants: UPPERCASE (e.g., `CUISINE_META`, `HISTORY_STORAGE_KEY`, `DAY_LABELS`)
+- State variables: descriptive camelCase (e.g., `displayNames`, `animatingSlots`, `selectedCuisines`)
+- Refs: suffix with `Ref` (e.g., `genIntervalRef`, `timeoutRef`, `prevFinalRef`)
 
 **Types:**
-- Interfaces: PascalCase with `Interface` suffix pattern or descriptive name - `Restaurant`, `RestaurantContextValue`, `WeeklyPlan`
-- Union types: PascalCase - `CuisineType` (derived from `keyof typeof CUISINE_META`)
-- Generic constraint interfaces: `Record<string, { label: string; color: string }>`
+- Interfaces: PascalCase (e.g., `Restaurant`, `WeeklyPlan`, `UseSlotAnimationOptions`)
+- Type unions and aliases: PascalCase (e.g., `FilterMode`, `CuisineType`, `LunchHistoryEntry`)
+- Generic type parameters: single uppercase letter or PascalCase (e.g., `T extends { id: string }`)
 
 ## Code Style
 
 **Formatting:**
-- No explicit Prettier config found, but code follows consistent formatting
-- Indentation: 2 spaces (inferred from file contents)
-- Line length: No strict limit observed, but generally reasonable (~80-100 chars)
-- Trailing commas: Used in multiline structures
+- Tool: Prettier 3.8.1
+- Settings:
+  - `semi: false` - no semicolons
+  - `singleQuote: true` - single quotes for strings
+  - `trailingComma: 'all'` - trailing commas in multi-line objects/arrays
+  - `printWidth: 100` - line wrapping at 100 characters
+  - `tabWidth: 2` - 2-space indentation
 
 **Linting:**
-- Tool: ESLint v9 with Next.js config
-- Config file: `eslint.config.mjs`
-- Extends: `eslint-config-next/core-web-vitals` and `eslint-config-next/typescript`
-- Key rules: Next.js web vitals and TypeScript best practices
-- Run command: `npm run lint`
-- Ignored: `.next/**`, `out/**`, `build/**`, `next-env.d.ts`
+- Tool: ESLint 9 with flat config (eslint.config.mjs)
+- Rules: Extends `eslint-config-next` core-web-vitals and TypeScript configs
+- Additional plugins:
+  - `eslint-plugin-better-tailwindcss` - Tailwind CSS class warnings
+  - `eslint-plugin-prettier` - enforces Prettier formatting (warn level)
+- Disabled rules for this codebase:
+  - `better-tailwindcss/enforce-consistent-line-wrapping` (off)
+  - `better-tailwindcss/enforce-consistent-class-order` (off)
+
+**Run Prettier:**
+```bash
+npm run format              # Format all src/ and __tests__/ files
+npm run format:check       # Check formatting without writing
+```
+
+**Run ESLint:**
+```bash
+npm run lint               # Run ESLint (exact command varies based on eslint v9 config)
+```
 
 ## Import Organization
 
 **Order:**
-1. React and third-party library imports - `import { createContext, useContext, useState } from 'react'`
-2. Type imports - `import type { Restaurant } from './types'`, `import type { CuisineType } from '@/lib/types'`
-3. Local module imports - `import { DEFAULT_RESTAURANTS } from './restaurants'`, `import { Button } from '@/components/ui/button'`
-4. Utility imports - `import { cn } from '@/lib/utils'`
-5. Icon imports - `import { RefreshCw, Trash2 } from 'lucide-react'`
+1. React and Next.js imports (e.g., `import { useState } from 'react'`, `import Link from 'next/link'`)
+2. Third-party library imports (e.g., `import { cva } from 'class-variance-authority'`, `import { toast } from 'sonner'`)
+3. Local imports from `@/` paths (organized by type: contexts, hooks, lib functions, components, UI)
+4. Type-only imports (if any, grouped with local imports using `import type`)
 
 **Path Aliases:**
-- Primary alias: `@/*` → `src/*` (defined in `tsconfig.json`)
-- Usage: `@/lib/types`, `@/components/ui/button`, `@/lib/restaurant-context`
+- `@/*` → `./src/*` (defined in `tsconfig.json`)
+- Always use `@/` for imports from src directory (never relative paths like `../../`)
 
-**Type imports:**
-- Explicitly use `import type { ... }` for TypeScript types to avoid circular dependencies
-- Example: `import type { Restaurant } from './types'`
+**Examples:**
+```typescript
+// Order in page.tsx
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { useRestaurants } from '@/lib/restaurant-context'
+import { useHistory } from '@/lib/history-context'
+import { generateWeeklyPlan, rerollSlot, applyFilter, type FilterMode, type WeeklyPlan } from '@/lib/recommend'
+import { getRecentlyVisitedIds, splitPoolByHistory, type LunchHistoryEntry } from '@/lib/history'
+import { CUISINE_META, type CuisineType } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { RefreshCw, Copy } from 'lucide-react'
+import { toast } from 'sonner'
+```
 
 ## Error Handling
 
-**Patterns:**
-- Throw on preconditions: `if (pool.length === 0) { throw new Error('Restaurant pool cannot be empty') }`
-- Graceful fallbacks: Logic includes multiple fallback levels for budget/constraint violations
-- Try-catch: Not explicitly used; relies on function return validation
-- Context error: Custom hooks throw if used outside provider - `if (!ctx) throw new Error('useRestaurants must be used within RestaurantProvider')`
+**Pattern:**
+- Use explicit `throw new Error(message)` for invariant violations
+- Errors are thrown in:
+  - Context hooks when used outside provider: `useRestaurants`, `useHistory` (`src/lib/restaurant-context.tsx:114`, `src/lib/history-context.tsx:89`)
+  - Pure functions with preconditions: `generateWeeklyPlan`, `pickRandomRestaurant` (`src/lib/recommend.ts`)
+- Error messages are descriptive and human-readable
 
-**Validation:**
-- Input validation in event handlers before state updates
-- Budget validation: checks `isNaN(budget)` before proceeding
-- Form validation: checks for empty strings with `.trim()`, validates numeric inputs individually
-- Destructuring with non-null assertions: `price!`, `distance!`, `rating!` after validation passes
+**Examples from codebase:**
+```typescript
+// src/lib/recommend.ts
+export function generateWeeklyPlan(pool: Restaurant[], weeklyBudget: number, ...): WeeklyPlan {
+  if (pool.length === 0) {
+    throw new Error('Restaurant pool cannot be empty')
+  }
+  // ... implementation
+}
+
+// src/lib/restaurant-context.tsx
+export function useRestaurants(): RestaurantContextType {
+  const ctx = useContext(RestaurantContext)
+  if (!ctx) throw new Error('useRestaurants must be used within RestaurantProvider')
+  return ctx
+}
+```
+
+**Error recovery:**
+- localStorage read errors: wrapped in try-catch, returns default value on failure (`src/lib/history.ts:18-26`, `src/app/page.tsx:31-40`)
+- clipboard copy errors: caught and user receives toast error (`src/app/page.tsx:205-217`)
+- localStorage write errors: ignored silently in useEffect (`src/app/page.tsx:83-93`)
 
 ## Logging
 
-**Framework:** console (no explicit logging library)
+**Framework:** console (no structured logging library)
 
 **Patterns:**
-- Comments preferred over logging for code documentation
-- No `console.log()` or `console.error()` found in source code
-- Heavy use of JSDoc/inline comments for algorithm explanation
+- No console.log in production code observed
+- `toast` from sonner package used for user-facing notifications:
+  - Success: `toast('message')` or `toast.success('message')`
+  - Error: `toast.error('message')`
+- Logging decisions left to developer; no explicit logging pattern enforced
 
 ## Comments
 
 **When to Comment:**
-- Algorithm explanation: Heavy comments in complex logic files like `recommend.ts`
-- Pattern documentation: Top-of-file comments explaining design patterns
-- Inline comments: Within algorithm blocks to explain edge cases and fallbacks
+- Architecture decisions and non-obvious algorithms documented with JSDoc/block comments
+- Complex business logic (e.g., cuisine diversity checking, budget planning fallbacks)
+- State management patterns explained (e.g., animation vs plan state separation)
 
 **JSDoc/TSDoc:**
-- Minimal JSDoc usage
-- File-level comments with explanatory text: `// lib/types.ts` followed by explanation of the pattern
-- Comments explain "why" not "what": `// Reserve budget for future slots (each future slot needs at least cheapest price)`
-- Constraint descriptions: Comments document business logic like cuisine violation rules
+- Used selectively on exported functions and types
+- Type definitions often include inline comments explaining purpose and constraints
 
 **Examples from codebase:**
 ```typescript
-// lib/types.ts
-// Single source of truth for all type definitions and cuisine constants.
+// src/lib/types.ts - inline comments explain pattern rationale
 // Pattern: as const satisfies Record<> derives union type from object keys
 // while validating each entry's shape at compile time.
+export const CUISINE_META = { ... }
 
-// Backward: would this be 3rd consecutive (prev2, prev1, candidate)?
-if (prev1 && prev2 && prev1.type === candidate.type && prev2.type === candidate.type) {
-  return true
-}
+// src/lib/history.ts - comments explain non-obvious behavior
+// Compute a cutoff date that is lookbackDays business days before today (local date).
+// Business days = Mon–Fri; Sat(6) and Sun(0) are skipped when counting backwards.
+export function getRecentlyVisitedIds(...): Set<string> { ... }
+
+// src/app/page.tsx - comments explain state design decisions
+// Animation state — separate from plan (never mutate plan for animation display)
+const [displayNames, setDisplayNames] = useState<(string | null)[]>(Array(5).fill(null))
 ```
 
 ## Function Design
 
-**Size:**
-- Range: 5-50 lines typical for helpers, up to 100 lines for complex functions
-- Examples: `pickForSlot()` (38 lines), `generatePlanAttempt()` (20 lines)
-- Longer functions (100+) decompose logic into helper functions
+**Size:** Functions kept focused and testable
+- Pure functions dominate in lib modules (recommend.ts, history.ts)
+- React components encapsulate state and side effects
+- Helper functions extracted when logic exceeds ~30 lines
 
 **Parameters:**
-- Positional parameters ordered by logical sequence, not alphabetically
-- Example: `pickForSlot(pool, remainingBudget, planSoFar, slotIndex, slotsRemaining)`
-- Type annotations always included: `plan: Restaurant[]`, `budget: number`
+- Prefer explicit parameters over options objects for simple cases
+- Use options object `{ }` for functions with multiple optional parameters:
+  ```typescript
+  export function generateWeeklyPlan(
+    pool: Restaurant[],
+    weeklyBudget: number,
+    options?: { relaxDiversity?: boolean },
+  ): WeeklyPlan
+  ```
+- Type parameters documented in JSDoc comments
 
 **Return Values:**
-- Single value or object return
-- Named return type: `Restaurant` or `WeeklyPlan` interfaces
-- No void functions except event handlers and state setters
+- Explicit return types on all exported functions
+- Internal functions may use implicit return type inference
+- Prefer returning new objects over mutation; immutability favored in pure functions
 
-**React Patterns:**
-- Component names: PascalCase, default export - `export default function HomePage() { ... }`
-- Hook rules followed: `'use client'` at file top for client components
-- Event handlers: inline arrow functions in JSX or named functions in scope
-- State management: `useState()` for local state, Context API for shared state
+**Example pure function pattern (src/lib/recommend.ts):**
+```typescript
+export function rerollSlot(
+  plan: WeeklyPlan,
+  slotIndex: number,
+  pool: Restaurant[],
+  options?: { relaxDiversity?: boolean },
+): WeeklyPlan {
+  // ... compute updates
+  const newDays = [...plan.days]
+  newDays[slotIndex] = pick
+  return { ...plan, days: newDays, totalCost: ... }  // new object, no mutation
+}
+```
 
 ## Module Design
 
 **Exports:**
-- Named exports for utilities and functions: `export function generateWeeklyPlan() { ... }`
-- Type exports: `export type CuisineType = keyof typeof CUISINE_META`
-- Default exports for React components: `export default function Header() { ... }`
-- Named exports from utility modules for tree-shaking
+- Named exports for all public functions and types (never default exports except page components)
+- Type exports marked with `export type` or `import type` for tree-shaking
+- Barrel files not used; import directly from source files
 
-**Barrel Files:**
-- Not used in this codebase
-- Each module exported individually where needed
-
-**Library Boundaries:**
-- `src/lib/`: Core business logic (recommend, types, restaurants, context)
-- `src/components/ui/`: Reusable UI components (button, input, table, etc.)
-- `src/components/layout/`: Layout/page-specific components (header, nav-links)
-- `src/app/`: Next.js App Router pages and root layout
-
-## Specific Patterns
-
-**Const satisfies pattern:**
+**Examples:**
 ```typescript
-// Validates shape at compile time while deriving union type from keys
-export const CUISINE_META = {
-  chi:  { label: '中式', color: '#67C23A' },
-  jp:   { label: '日式', color: '#E6A23C' },
-  // ...
-} as const satisfies Record<string, { label: string; color: string }>
+// src/lib/recommend.ts
+export type FilterMode = 'exclude' | 'lock'
+export function applyFilter(...): Restaurant[] { ... }
+export interface WeeklyPlan { ... }
+export function generateWeeklyPlan(...): WeeklyPlan { ... }
 ```
 
-**Filter + random selection pattern:**
-```typescript
-// Used for picking random eligible options from a filtered set
-const eligible = pool.filter((r) => r.price <= spendableNow && !hasCuisineViolation(...))
-if (eligible.length > 0) {
-  return eligible[Math.floor(Math.random() * eligible.length)]
-}
-```
-
-**Multi-level fallback pattern:**
-```typescript
-// Try strict constraints first, relax progressively if needed
-// 1. Budget + cuisine constraints
-// 2. Budget only
-// 3. Cheap option
-// 4. Globally cheapest
-```
-
-**React destructuring in function signatures:**
-```typescript
-export function RestaurantProvider({ children }: { children: React.ReactNode }) {
-  // Type inline in params
-}
-```
-
-**Template literal in style attributes:**
-```typescript
-style={{ backgroundColor: CUISINE_META[r.type].color }}
-```
+**Module separation:**
+- Pure functions in lib/ modules (`recommend.ts`, `history.ts`)
+- Context providers as React components (`restaurant-context.tsx`, `history-context.tsx`)
+- UI components in components/ (`button.tsx`, `header.tsx`)
+- Pages in app/ (Next.js App Router convention)
 
 ---
 
-*Convention analysis: 2026-02-18*
+*Convention analysis: 2026-02-19*

@@ -1,190 +1,324 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-02-18
-**Last Updated:** 2026-02-18
+**Analysis Date:** 2026-02-19
 
-## Data Persistence Issues
+## Tech Debt
 
-**~~No local storage implementation:~~** ✅ RESOLVED
-- Fixed: Restaurant list now persists to localStorage via `RestaurantProvider`. Uses `useSyncExternalStore` for hydration-safe client detection and lazy initializer for initial state.
-- Files: `src/lib/restaurant-context.tsx`
+**File System API Route for Restaurant Config:**
+- Issue: `src/app/api/restaurants/route.ts` writes directly to TypeScript source files using string manipulation and regex. This is fragile and non-idiomatic.
+- Files: `src/app/api/restaurants/route.ts` (lines 5–43)
+- Impact:
+  - String-based file manipulation can break with formatting changes
+  - Regex pattern `/\n\] satisfies Restaurant\[\]/` assumes specific source code format
+  - Manual ID number tracking (maxId + 1) can fail if IDs are edited directly in the file
+  - No validation that the final file is valid TypeScript
+- Fix approach: Migrate to JSON-based persistence (e.g., `.data/restaurants.json`) or a proper database. Store restaurant config separately from source code. If source code generation is needed, use an AST parser (e.g., TypeScript compiler API) instead of regex.
 
-**No plan history:**
-- Issue: Generated weekly plans are not persisted or archived. Only current plan visible, reroll deletes previous state.
-- Files: `src/app/page.tsx` (line 21: `plan` state is local only)
-- Impact: Users cannot refer back to previous plans or track lunch choices over time.
-- Fix approach: Add plan history stack with localStorage, provide UI to view/restore past plans.
-- Priority: Medium - nice-to-have feature
+**Silent Error Swallowing:**
+- Issue: Multiple catch blocks silently ignore all errors without logging or distinguishing between expected and unexpected failures.
+- Files:
+  - `src/app/page.tsx` (lines 37–39, 90–92, 214–216): localStorage reads/writes, clipboard operations
+  - `src/lib/history.ts` (lines 23–25, 35–37): localStorage reads
+  - `src/lib/restaurant-context.tsx` (lines 29–31, 54–57, 64–67): localStorage operations
+  - `src/lib/history-context.tsx` (lines 39–42, 49–52): localStorage operations
+  - `src/app/restaurants/page.tsx` (lines 159–161): API call errors
+- Impact:
+  - Data loss goes unnoticed (e.g., localStorage quota exceeded)
+  - API failures show generic user message instead of actionable feedback
+  - Debugging production issues becomes difficult
+  - Users don't know if data was actually persisted
+- Fix approach:
+  - Log errors with context (dev console at minimum)
+  - Distinguish between expected errors (quota exceeded, no clipboard API) and unexpected ones (JSON parse errors)
+  - Show more specific toasts for critical failures
+  - Consider adding error boundary or analytics for quota exceeded events
 
-## Random Selection Concerns
+**Animation State Cleanup:**
+- Issue: `src/app/page.tsx` (lines 148–161, 173–190) manually manages two separate interval/timeout refs (`genIntervalRef`, `rerollIntervalRef`) with manual cleanup in `stopGenAnimation()` and `stopRerollAnimation()`.
+- Files: `src/app/page.tsx`
+- Impact:
+  - Duplicate cleanup logic — maintainer must update both functions if cleanup strategy changes
+  - Potential memory leak if animation stops unexpectedly
+  - Hard to add new timer-based animations without repeating pattern
+  - `useSlotAnimation` hook exists but not used in the main page
+- Fix approach: Use `useSlotAnimation` hook for main page animations instead of manual interval management. This consolidates cleanup logic and follows single responsibility principle.
 
-**Weak randomness for determinism issues:**
-- Issue: Uses `Math.floor(Math.random() * array.length)` for restaurant selection in `pickForSlot()` and `pickForSlotReroll()`.
-- Files: `src/lib/recommend.ts` (lines 61, 95)
-- Current mitigation: Test suite verifies variation over 100 iterations (lines 101-107), so randomness is adequate for user-facing randomization.
-- Recommendation: Current approach is acceptable for client-side lunch picker. If this moves to server-side or requires seeded randomness for reproducibility, switch to `crypto.getRandomValues()`.
-- Priority: Low - not a bug, just a design note
+**Hardcoded Constants Scattered:**
+- Issue: Magic numbers and strings are defined at page level rather than in a central config.
+- Files: `src/app/page.tsx` (lines 17–24): `DAY_LABELS`, `DEFAULT_BUDGET`, `BUDGET_MIN/MAX/STEP`, `MAX_HISTORY`, `FILTER_STORAGE_KEY`, `POOL_WARNING_THRESHOLD`
+- Impact:
+  - Changing budget constraints requires finding 10+ locations
+  - No single source of truth for validation ranges
+  - Hard to test different configurations
+- Fix approach: Move all constants to `src/lib/config.ts` and import. Use Zod schemas for budget/history constraints.
 
-## State Management Complexity
+**DateString Parsing Fragility:**
+- Issue: `src/lib/history.ts` (lines 40–62) uses 'sv' locale for ISO date strings and manual date arithmetic with `cursor.setDate()`. Timezone-aware operations are manual and error-prone.
+- Files: `src/lib/history.ts`
+- Impact:
+  - Daylight saving time transitions could cause off-by-one errors
+  - Implicit assumption that `new Date(dateStr)` parses in local timezone
+  - No validation that date strings are valid YYYY-MM-DD format
+  - Comment acknowledges UTC offset issues but doesn't prevent them
+- Fix approach: Use a date library (date-fns, Day.js) with explicit timezone handling. Add date validation with Zod.
 
-**High number of useState calls in RestaurantsPage:**
-- Issue: 9 separate useState calls for form inputs/errors in `src/app/restaurants/page.tsx` (lines 23-30).
-- Files: `src/app/restaurants/page.tsx` (lines 23-30, 32-62)
-- Impact: Makes form handling verbose and error-prone. Difficult to add new fields or refactor validation logic.
-- Fix approach: Consolidate into single state object or use useReducer hook. Extract validation logic into reusable helper function.
-- Priority: Medium - code maintainability issue, not a functional bug
+## Known Bugs
 
-**No form state reset abstraction:**
-- Issue: Form reset logic duplicated in `handleSubmit()` (lines 105-112) mirrors initialization (lines 23-27).
-- Files: `src/app/restaurants/page.tsx`
-- Impact: If validation rules change or fields are added, must update reset logic in two places.
-- Fix approach: Extract reset to standalone function `const resetForm = () => { ... }` at module level.
-- Priority: Low - minor DRY violation
+**Weekly Budget Overspend in Edge Cases:**
+- Symptoms: Total cost can slightly exceed weekly budget due to rounding or fallback logic
+- Files: `src/lib/recommend.ts` (lines 128–151, 153–178)
+- Trigger: When budget is very tight and few affordable restaurants exist, fallback logic (lines 81–92) may pick restaurants that don't fit the spendable budget
+- Workaround: User can manually reroll slots to find cheaper combinations. Budget min/max limits (100–2000 TWD) reduce likelihood
+- Root cause: `pickForSlot` function's fallback (lines 81–82) uses `affordable` with budget constraint, but `generatePlanAttempt` doesn't validate final total matches constraint. Function returns plan even if fallback was used.
+- Fix approach: Validate total cost in `generatePlanAttempt` before returning. If it exceeds budget, retry with relaxed cuisine rules or return error to caller.
 
-## Input Validation Gaps
+**Potential State Hydration Mismatch:**
+- Symptoms: On rare occasions, page might show stale data during initial render before hydration completes
+- Files: `src/app/page.tsx` (line 79), `src/app/restaurants/page.tsx` (line 493), `src/app/weekend/page.tsx` (line 40), `src/app/history/page.tsx` (line 12)
+- Trigger: Pages use `isHydrated` flag from context to conditionally render. Timing window between server render and client hydration could show loader when data should be visible.
+- Workaround: All pages properly use `if (!isHydrated) return <loader>` so incorrect render is prevented
+- Root cause: `useSyncExternalStore` pattern (used in contexts) has inherent timing issues in some React versions
+- Fix approach: Verify React 19.2.3 hydration consistency. Add integration tests that verify hydration doesn't cause layout shift.
 
-**Inconsistent numeric validation:**
-- Issue: Restaurant form validates price, distance, rating with multiple isNaN checks (lines 34, 45, 56, 73, 80, 87) but lacks range validation.
-- Files: `src/app/restaurants/page.tsx`
-- Current behavior: Accepts negative values, zero distance, rating outside 1-5 range, prices beyond typical range.
-- Impact: Invalid data can be added (e.g., -100 price, 0 rating). Budget input in page.tsx has min/max (lines 42-43) but restaurant form doesn't.
-- Fix approach: Add explicit range validation in handleXxxChange handlers. For rating: 1-5, for price/distance: > 0.
-- Priority: Medium - edge case handling
-
-**No validation for duplicate restaurants:**
-- Issue: Users can add identical restaurants (same name, cuisine, price).
-- Files: `src/app/restaurants/page.tsx` (line 96)
-- Impact: Redundant entries clutter the list and skew algorithm when same restaurant chosen multiple times.
-- Fix approach: Check restaurant name uniqueness before addRestaurant, show warning if duplicate detected.
-- Priority: Low - user experience issue, not a bug
-
-**Name field accepts only whitespace:**
-- Issue: `name.trim()` check on line 69 prevents submission of whitespace-only names, but UI allows user to enter spaces.
-- Files: `src/app/restaurants/page.tsx` (line 69)
-- Impact: Users can type spaces, see no error, then submit fails silently with no feedback.
-- Fix approach: Add real-time validation feedback for name field, disable submit if name is empty/whitespace-only.
-- Priority: Low - UX polish
-
-## Algorithm Stability
-
-**MAX_ATTEMPTS hardcoded to 10:**
-- Issue: `generatePlanAttempt()` retries up to 10 times to find a plan without cuisine violations (line 148).
-- Files: `src/lib/recommend.ts` (line 148)
-- Impact: With tight budgets or single-cuisine restaurants, may fail to avoid violations within 10 attempts and return suboptimal plan on line 155.
-- Current mitigation: Test suite verifies no violations over 100 iterations (line 89-98) for DEFAULT_RESTAURANTS. This works but is dataset-dependent.
-- Fix approach: Make MAX_ATTEMPTS configurable, or increase to 20-50 and measure actual success rate by cuisine pool diversity. Add metric logging.
-- Priority: Low - only affects edge cases with homogeneous restaurant pools
-
-**Fallback plan quality not evaluated:**
-- Issue: If strict plan generation fails, fallback on line 155 returns `generatePlanAttempt()` result even if it violates cuisine constraints.
-- Files: `src/lib/recommend.ts` (lines 147-156)
-- Impact: Users see 3+ consecutive same-cuisine days on fallback. This is documented behavior in code but user-visible failure.
-- Fix approach: Track if fallback was used, show UI indicator ("⚠ Not all constraints met") to set expectations.
-- Priority: Low - acceptable graceful degradation
-
-## Testing Gaps
-
-**No tests for RestaurauntPage component:**
-- Issue: Only `recommend.ts` has test coverage. React components are untested.
-- Files: `src/app/restaurants/page.tsx`, `src/app/page.tsx`, component UI files
-- Impact: Form validation logic, submission, error rendering untested. Regressions would go undetected.
-- Fix approach: Add Vitest + Testing Library tests for RestaurantsPage form submission, error states, and HomePage plan rendering.
-- Priority: Medium - component behavior not validated
-
-**No type-level tests:**
-- Issue: CuisineType union is enforced at compile-time via `as const satisfies`, but no test ensures all CUISINE_META keys are used in actual data.
-- Files: `src/lib/types.ts`, `src/lib/restaurants.ts`
-- Impact: If new cuisine added to CUISINE_META but not in test data, type system prevents errors but runtime may be incomplete.
-- Current mitigation: Compile-time check + manual review. Acceptable.
-- Fix approach: Optional - add compile-time assertion that all CuisineType keys appear in DEFAULT_RESTAURANTS.
-- Priority: Low - type safety is strong
-
-**No integration tests:**
-- Issue: No tests verify full user flow: add restaurant → generate plan → reroll → remove restaurant.
-- Files: All of src/
-- Impact: Cannot detect regressions in cross-component interactions or context propagation.
-- Fix approach: Add integration tests simulating user actions through RestaurantProvider lifecycle.
-- Priority: Medium - would catch context/state bugs
+**useSlotAnimation Dependency Warning:**
+- Symptoms: `useSlotAnimation` hook (line 69) has ESLint disable comment: `react-hooks/exhaustive-deps`
+- Files: `src/hooks/use-slot-animation.ts` (line 69)
+- Trigger: `stopAnimation` is listed as dependency but it's defined inside the effect. Removing it causes infinite loops. Including it requires complex memoization.
+- Impact: Hook is correct despite warning, but signals code smell. Future changes to `stopAnimation` could be missed.
+- Fix approach: Refactor to avoid re-creating `stopAnimation` on every render, or use a ref-based approach. See: https://github.com/facebook/react/issues/18786
 
 ## Security Considerations
 
-**Client-side UUID generation:**
-- Issue: Uses `crypto.randomUUID()` for restaurant IDs (line 97, RestaurantsPage).
-- Files: `src/app/restaurants/page.tsx`
-- Current mitigation: IDs are only used in client-side React keys and filtering. No backend API.
-- Risk: Negligible for this app. If backend added, UUIDs must be server-generated to prevent collisions/spoofing.
-- Recommendation: Acceptable for current scope. Document as "client-side only" if expanding to API.
-- Priority: Low - not applicable to current architecture
+**API Route Dev-Only Check is Insufficient:**
+- Risk: `src/app/api/restaurants/route.ts` (line 8) checks `process.env.NODE_ENV !== 'development'` to prevent production access
+- Files: `src/app/api/restaurants/route.ts`
+- Current mitigation: Node env check prevents deployment, but it's not cryptographically secure
+- Recommendations:
+  - This should never be deployed to production. Add deployment checklist to verify API is never exported.
+  - If this pattern is needed in production, switch to authenticated API (e.g., OAuth, API keys)
+  - Consider removing this entire API endpoint if it's dev-only and use git diff/manual updates instead
 
-**~~No XSS protection in dynamic color strings:~~** ✅ NOT A CONCERN
-- Colors are hardcoded constants in `CUISINE_META`, never user input. React escapes style values.
-- Priority: N/A
+**No Input Validation on API Payload:**
+- Risk: API expects `restaurant.name`, `restaurant.type`, `restaurant.price` but only checks existence, not format
+- Files: `src/app/api/restaurants/route.ts` (lines 12–15)
+- Current mitigation: Minimal type checking prevents obvious errors
+- Recommendations:
+  - Validate with Zod schema (same as restaurant form validation in `src/app/restaurants/page.tsx`)
+  - Reject missing `distance` and `rating` fields
+  - Validate numeric ranges (price > 0, rating 1–5)
 
-## Missing Features (Not Bugs)
+**Duplicate Name String Matching is Fragile:**
+- Risk: Line 20 uses `content.includes(\`name: '${restaurant.name}'\`)` to detect duplicates
+- Files: `src/app/api/restaurants/route.ts` (line 20)
+- Current mitigation: String contains check prevents exact duplicates
+- Recommendations:
+  - This can have false positives (e.g., restaurant named "name: 'Bob'" would match any restaurant with "Bob")
+  - Use AST parsing or JSON-based storage to avoid string matching
 
-**No restaurant search/filter:**
-- Current state: Restaurant list shows all entries, no search/filter by name or cuisine.
-- Files: `src/app/restaurants/page.tsx`
-- Impact: With 20+ restaurants, hard to find specific entry.
-- Recommendation: Add search input above table, filter by name substring and cuisine type.
-- Priority: Medium - UX improvement
+**No CORS/CSRF Protection:**
+- Risk: API endpoint accepts POST with no CSRF token or origin validation
+- Files: `src/app/api/restaurants/route.ts`
+- Current mitigation: Only enabled in development
+- Recommendations:
+  - If deployed, add CSRF token validation
+  - Restrict origin header
+  - Use SameSite cookie attribute
 
-**No edit functionality:**
-- Current state: Can only add or delete restaurants, not modify existing entries.
-- Files: `src/app/restaurants/page.tsx`
-- Impact: If user enters wrong price, must delete and re-add. Loses ID and position in list.
-- Recommendation: Add edit mode or inline editing for restaurant fields.
-- Priority: Medium - UX improvement
+## Performance Bottlenecks
 
-**No budget templates:**
-- Current state: Budget is free-form input. No preset options (e.g., "budget: 600", "splurge: 1000").
-- Files: `src/app/page.tsx`
-- Impact: User must calculate or remember preferred budgets.
-- Recommendation: Add preset buttons or dropdown alongside numeric input.
-- Priority: Low - nice-to-have
+**Recommendation Algorithm Retry Loop:**
+- Problem: `generateWeeklyPlan` (lines 153–178) retries up to 10 times to find a cuisine-diverse plan
+- Files: `src/lib/recommend.ts` (lines 153–178)
+- Cause: No constraint satisfaction algorithm — uses random sampling with retry
+- Current capacity: ~10ms per generation on modern hardware; retries add 0.1–1s for tight budgets
+- Limit: O(n) for each retry; inefficient with large restaurant pools
+- Scaling path:
+  - Pre-compute cuisine distribution and use smarter selection heuristic
+  - Use backtracking or constraint solver for optimal picks
+  - Cache eligible sets per cuisine type
+- Test coverage: Good (100+ iterations tested in `__tests__/recommend.test.ts`)
 
-**No cuisine preference settings:**
-- Current state: Algorithm enforces hard rule: "no 3+ consecutive same cuisine". Not configurable.
-- Files: `src/lib/recommend.ts`
-- Impact: Cannot adjust strictness or disable constraint for users who prefer variety.
-- Recommendation: Add user preference toggle or slider to control diversity requirement.
-- Priority: Low - advanced feature
+**Slot Animation Calculations:**
+- Problem: Main page animation recalculates `allRestaurantNames` every render; cycles through all names during animation
+- Files: `src/app/page.tsx` (lines 77, 150–154)
+- Cause: `useMemo` for restaurant names, but still iterates full list on every animation frame
+- Current capacity: Acceptable for < 100 restaurants
+- Limit: Becomes visible lag with 500+ restaurants
+- Scaling path:
+  - Randomly sample N animation candidates instead of full pool
+  - Use requestAnimationFrame instead of setInterval (80ms) for smoother motion
 
-## Performance Observations
+**LocalStorage Serialization on Every History Change:**
+- Problem: `src/lib/history-context.tsx` (lines 34–42) serializes entire history array to JSON every time an entry is added
+- Files: `src/lib/history-context.tsx`, `src/app/page.tsx`
+- Cause: No batch operations; every `addEntries` call triggers serialization + disk write
+- Current capacity: < 100 entries (5 per week × 20 weeks)
+- Limit: Noticeable slowdown when history exceeds 500+ entries
+- Scaling path:
+  - Implement pagination/archiving (oldest entries)
+  - Use IndexedDB instead of localStorage for large datasets
+  - Batch writes with debouncing
 
-**No performance issues detected:** ✅ NOT A CONCERN
-- Small dataset (13 restaurants), algorithm completes instantly. Monitor if pool grows beyond 100.
-- Priority: N/A
+**No Memoization in RestaurantListPanel:**
+- Problem: `RestaurantListPanel` component in `src/app/restaurants/page.tsx` (lines 140–144) re-filters restaurants on every render
+- Files: `src/app/restaurants/page.tsx` (lines 119–478)
+- Cause: Filter calculation is not memoized
+- Current capacity: 100–200 restaurants, 60fps
+- Limit: Stuttering with 1000+ restaurants and frequent table updates
+- Scaling path:
+  - Wrap filter calculation in useMemo
+  - Virtualize table rows (react-window or similar)
+  - Use React.memo on RestaurantListPanel
 
-## Browser Compatibility
+## Fragile Areas
 
-**Uses modern APIs:**
-- `crypto.randomUUID()` requires modern browser (Chrome 92+, Firefox 96+, Safari 16+, not IE11).
-- Files: `src/app/restaurants/page.tsx`
-- Impact: Not compatible with older browsers.
-- Current mitigation: README states minimum supported browsers implicitly (Next.js 16 requirement).
-- Recommendation: If legacy support needed, use UUID library instead. Otherwise acceptable.
-- Priority: Low - noted for deployment documentation
+**Restaurant API File Generation:**
+- Files: `src/app/api/restaurants/route.ts`
+- Why fragile:
+  - String manipulation assumes specific formatting (`\n\] satisfies Restaurant\[\]`)
+  - ID generation is manual and order-dependent
+  - No atomic writes — file corruption if process crashes mid-write
+  - No rollback on failure
+- Safe modification:
+  - Add comprehensive tests for the regex pattern
+  - Add file backup before writing
+  - Validate output file is valid TypeScript before committing
+  - Consider switching to JSON-based storage entirely
+- Test coverage: None (no tests for route.ts)
 
-## Build & Deployment
+**useSlotAnimation Hook Timing:**
+- Files: `src/hooks/use-slot-animation.ts`
+- Why fragile:
+  - Complex timing logic with interval + timeout + state updates
+  - Closure over `candidates` array — mutations break animation
+  - cleanup callback (`return () => stopAnimation()`) can conflict with manual `skip()` call
+  - ESLint exhaustive deps warning suggests incomplete dependency tracking
+- Safe modification:
+  - Add tests for edge cases: skip before animation ends, rapid animations, empty candidates
+  - Document interval/timeout lifecycle clearly
+  - Consider using AbortController pattern for cleaner cancellation
+- Test coverage: 121 lines in `__tests__/use-slot-animation.test.ts` (good)
 
-**~~No environment configuration:~~** ✅ NOT A CONCERN
-- App is fully client-side with dev-only API route. No secrets needed.
-- Priority: N/A
+**Filter State Persistence:**
+- Files: `src/app/page.tsx` (lines 31–40, 83–93)
+- Why fragile:
+  - Filter mode and cuisines stored in component state AND localStorage
+  - Sync happens in useEffect after render; potential stale render
+  - JSON.parse on arbitrary object could deserialize invalid cuisine types
+  - No schema validation on read
+- Safe modification:
+  - Use Zod to validate stored filter shape
+  - Move all filter logic to context (RestaurantContext) instead of page-level state
+  - Add migration if filter schema ever changes
+- Test coverage: Partial (not explicitly tested)
 
-**TypeScript strict mode enabled:** ✅ POSITIVE
-- `tsconfig.json` has `"strict": true`. Code compiles cleanly.
-- Priority: N/A
+**History Date Parsing and Business Day Logic:**
+- Files: `src/lib/history.ts` (lines 40–73)
+- Why fragile:
+  - Cursor arithmetic assumes `setDate()` handles month boundaries correctly
+  - No DST handling
+  - Comment acknowledges UTC offset issues but doesn't prevent them
+  - Date comparison uses string `>=` (works for ISO 8601 but fragile)
+- Safe modification:
+  - Add unit tests for dates around month/year boundaries
+  - Add tests for DST transitions (March/November in many locales)
+  - Use date-fns or Day.js for robust date arithmetic
+  - Document assumption that all dates are local and YYYY-MM-DD format
+- Test coverage: 153 lines in `__tests__/history.test.ts` (good, but no DST/boundary tests)
 
-## Code Quality Tooling (Added)
+## Scaling Limits
 
-**ESLint + Prettier configured:** ✅ RESOLVED
-- ESLint 9 flat config with `eslint-config-next`, `eslint-plugin-prettier`, `eslint-plugin-better-tailwindcss`
-- Prettier: semi: false, singleQuote: true, printWidth: 100
-- Tailwind v4 canonical class enforcement (auto-fixes arbitrary values like `top-[1px]` → `top-px`)
-- VSCode auto-format on save configured
+**Restaurant Pool Size:**
+- Current capacity: 50–100 restaurants (comfortable)
+- Limit: Algorithm O(n²) in worst case due to cuisine conflict checking
+- Scaling path:
+  - Pre-compute valid combinations
+  - Index by cuisine type
+  - Use smarter heuristic instead of random retry
+
+**Plan History Stack:**
+- Current capacity: Last 5 plans kept in memory (MAX_HISTORY)
+- Limit: Each plan is immutable; no pruning by age
+- Scaling path:
+  - Prune plans older than 30 days
+  - Move older plans to IndexedDB/localStorage
+  - Implement infinite scroll with pagination
+
+**localStorage Quota:**
+- Current capacity: Typical quota 5–50 MB; codebase uses ~50 KB with default data
+- Limit: Will fail silently when quota exceeded (errors swallowed)
+- Scaling path:
+  - Implement quota monitoring
+  - Add user warning when >80% full
+  - Implement data compression or archiving
+  - Consider IndexedDB for history + restaurants
+
+## Dependencies at Risk
+
+**No External Data Persistence:**
+- Risk: All data (restaurants, history, filters) lives in localStorage only. No cloud sync or backup.
+- Impact: User data is lost if browser cache clears or they switch devices
+- Migration plan: Add optional JSON export/import feature. Consider cloud storage integration (Firebase, Supabase) for future versions.
+
+**No Error Reporting:**
+- Risk: Bugs only reported via user complaints; no error tracking
+- Impact: Production errors go unnoticed; pattern of silent failures makes debugging hard
+- Migration plan: Add Sentry or similar error tracking. Prioritize logging over silent catches.
+
+**No Type Validation at Runtime:**
+- Risk: Zod is not used (except in tests). localStorage reads could deserialize invalid shapes.
+- Impact: If schema changes, old data becomes invalid
+- Migration plan: Validate all localStorage reads with Zod schemas. Add migration functions for schema upgrades.
+
+## Missing Critical Features
+
+**No Data Export/Import:**
+- Problem: Users cannot backup or migrate their restaurant/history data
+- Blocks: Multi-device sync, data portability
+- Fix approach: Add JSON export (downloads file) and import (accepts file upload with validation)
+
+**No Undo/Redo:**
+- Problem: Deleting a restaurant or history entry is permanent and irreversible
+- Blocks: Recovery from accidental deletion
+- Fix approach: Implement soft deletes or simple undo stack (keep last 10 deletions)
+
+**No Conflict Resolution for Weekend/Weekday Overlap:**
+- Problem: User can add same restaurant to both weekend and weekday pools; no indication of inconsistency
+- Blocks: Scenario planning for restaurants with limited hours
+- Fix approach: Show warning if adding to one pool when already in the other
+
+## Test Coverage Gaps
+
+**API Route Not Tested:**
+- What's not tested: `src/app/api/restaurants/route.ts` endpoint logic
+- Files: `src/app/api/restaurants/route.ts`
+- Risk: Regex patterns, file writing, ID generation, duplicate detection — all untested
+- Priority: **High** (this code is fragile and write-to-disk)
+
+**Error Handling in Components:**
+- What's not tested: Error paths for localStorage quota exceeded, missing clipboard API, API call failures
+- Files: `src/app/page.tsx`, `src/app/weekend/page.tsx`, `src/app/restaurants/page.tsx`
+- Risk: User-facing errors are silent; can't verify error messages work
+- Priority: **Medium** (low frequency, but important when they happen)
+
+**Hydration Edge Cases:**
+- What's not tested: Race conditions between server render and client hydration
+- Files: `src/app/layout.tsx`, all pages using `isHydrated`
+- Risk: Rare but possible mismatch causing layout shift or stale data
+- Priority: **Low** (React 19.2 is mature; unlikely but good to verify)
+
+**Date Boundary Conditions:**
+- What's not tested: Month/year boundaries, DST transitions, leap years
+- Files: `src/lib/history.ts`
+- Risk: `setDate()` arithmetic could fail on boundary dates
+- Priority: **Low** (unlikely, but test is easy to add)
+
+**Restaurant Filter Validation:**
+- What's not tested: Stored filter with invalid cuisine types, corrupt JSON in localStorage
+- Files: `src/app/page.tsx`, `src/lib/restaurant-context.tsx`
+- Risk: Invalid filters silently fall back to defaults (current behavior is safe but untested)
+- Priority: **Low** (fallback is safe)
 
 ---
 
-*Concerns audit: 2026-02-18*
-*Last updated: 2026-02-18*
+*Concerns audit: 2026-02-19*

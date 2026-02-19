@@ -1,86 +1,75 @@
 # External Integrations
 
-**Analysis Date:** 2026-02-18
+**Analysis Date:** 2026-02-19
 
 ## APIs & External Services
 
-**None detected** - Application contains no external API integrations
+**None detected.**
 
-- No HTTP clients (fetch, axios) configured
-- No SDK imports for third-party services
-- No API endpoints called from source code
-- Self-contained restaurant recommendation system
+The application does not integrate with external APIs or third-party services. All functionality is self-contained and locally stored.
 
 ## Data Storage
 
 **Databases:**
-- Not applicable - No database required
+- None. Application uses browser localStorage exclusively.
+  - Weekday restaurants: `localStorage['what-lunch-restaurants']` (`STORAGE_KEY` in `src/lib/restaurant-context.tsx`)
+  - Weekend restaurants: `localStorage['what-lunch-weekend-restaurants']` (`WEEKEND_STORAGE_KEY` in `src/lib/restaurant-context.tsx`)
+  - Lunch history: `localStorage['what-lunch-history']` (`HISTORY_STORAGE_KEY` in `src/lib/history.ts`)
+  - Lookback days setting: `localStorage['what-lunch-lookback-days']` (`LOOKBACK_STORAGE_KEY` in `src/lib/history.ts`)
+  - Cuisine filter preference: `localStorage['what-lunch-cuisine-filter']` (`FILTER_STORAGE_KEY` in `src/app/page.tsx`)
 
-**In-Memory State Management:**
-- React Context API (`RestaurantProvider` in `src/lib/restaurant-context.tsx`)
-- Data persists only during browser session
-- Default restaurants loaded from `src/lib/restaurants.ts` (hardcoded)
-- Client-side state: `useState` hooks in `src/app/page.tsx` and `src/app/restaurants/page.tsx`
+**Storage pattern:** JSON serialization with fallback defaults (see `readStoredRestaurants()` in `src/lib/restaurant-context.tsx`, `readStoredHistory()` in `src/lib/history.ts`)
 
 **File Storage:**
-- Not applicable - No file uploads or storage services
+- Development mode only: POST `/api/restaurants` endpoint can persist new restaurants to `src/lib/restaurants.ts` (file system write)
+  - Gated by `process.env.NODE_ENV !== 'development'` check in `src/app/api/restaurants/route.ts`
+  - Uses Node.js `fs/promises` API to read/write TypeScript source file
+  - Not available in production
 
 **Caching:**
-- Browser cache only (implicit Next.js caching)
-
-**Local Storage:**
-- Not utilized - Data is session-only
+- None configured. Uses localStorage for user state persistence.
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- None - Application is fully public with no authentication
+- None. No authentication system implemented.
 
-**Implementation:**
-- No login/signup functionality
-- No API route protection
-- All features accessible to all users
+**Current approach:**
+- No login/user management
+- No session tracking
+- Client-side data storage (localStorage) — single-user per browser
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- Not configured - No error tracking service (Sentry, LogRocket, etc.)
+- None detected. No Sentry, LogRocket, or equivalent service.
 
 **Logs:**
-- Console logs only (development debugging via `console.*`)
-- No centralized logging service
-
-**Performance Monitoring:**
-- Not configured - No analytics or RUM service
+- Browser console via `toast()` notifications from sonner
+  - Copy feedback: `toast('已複製到剪貼簿 ✓')` in `src/app/page.tsx`
+  - Copy failures: `toast.error('複製失敗，請手動複製')`
+  - API errors: `alert()` fallback in `src/app/restaurants/page.tsx`
+- No server-side logging infrastructure
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Vercel recommended in `README.md`
-- Compatible with any Node.js hosting platform
-- Next.js built-in deployment ready
+- Vercel (inferred from README.md "Deploy on Vercel" section and Next.js framework choice)
 
 **CI Pipeline:**
-- Not detected - No GitHub Actions, GitLab CI, or other CI config files
-- No automated test runners configured in workflows
-
-**Build Commands:**
-- `npm run dev` - Local development
-- `npm run build` - Production build
-- `npm run start` - Production server
-- `npm run lint` - ESLint validation
-- `npm run test` - Vitest execution
+- None detected. No GitHub Actions, GitLab CI, or equivalent configured.
 
 ## Environment Configuration
 
 **Required env vars:**
-- None - Application runs without environment variables
+- None. Application does not require environment variables for core functionality.
 
-**Optional env vars:**
-- Not applicable
+**Development-only:**
+- `NODE_ENV` - Read by `src/app/api/restaurants/route.ts` to gate file write API
 
 **Secrets location:**
-- Not applicable - No secrets used
+- Not applicable. No secrets stored (no API keys, database credentials, etc.).
+- No `.env` files referenced in codebase
 
 ## Webhooks & Callbacks
 
@@ -90,39 +79,25 @@
 **Outgoing:**
 - None
 
-## Font Services
+## Data Flow & Integration Points
 
-**Google Fonts:**
-- Geist (sans-serif) - Via `next/font/google` in `src/app/layout.tsx`
-- Geist Mono (monospace) - Via `next/font/google` in `src/app/layout.tsx`
-- Self-hosted optimization (no external requests at runtime after font files are downloaded)
+**Client-side only:**
+- All restaurant data originates from hardcoded defaults in `src/lib/restaurants.ts`
+- User modifications stored in browser localStorage
+- No backend persistence except dev-mode file writes
 
-## Component Library (Design System)
+**API endpoints:**
+- `POST /api/restaurants` - Development-only endpoint to save new restaurants to `src/lib/restaurants.ts`
+  - Requires `NODE_ENV === 'development'`
+  - Returns 403 Forbidden in production
+  - Used by `src/app/restaurants/page.tsx` "Save to config" button
 
-**shadcn/ui:**
-- Registry: New York style
-- Icon library: Lucide React
-- Primitives: Radix UI
-- CSS-in-JS: Class Variance Authority (CVA)
-- Utility: tailwind-merge, clsx
-- Configuration: `components.json` at project root
-- Component paths: `@/components` alias (maps to `src/components/`)
-
-## Static Resources
-
-**Public Assets:**
-- Location: `public/` directory
-- Favicon: `public/favicon.ico`
-- No external CDN required
-
-## Type Definitions
-
-**DefinitelyTyped:**
-- @types/node 20
-- @types/react 19
-- @types/react-dom 19
-- Provided by package dependencies (no separate registry needed)
+**Browser APIs used:**
+- `localStorage` - Full persistent state management
+- `crypto.randomUUID()` - Generate unique IDs for history entries (native Web Crypto API)
+- `navigator.clipboard.writeText()` - Copy weekly plan to clipboard
+- `Date.toLocaleDateString('sv')` - Format dates as YYYY-MM-DD
 
 ---
 
-*Integration audit: 2026-02-18*
+*Integration audit: 2026-02-19*

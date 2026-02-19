@@ -1,193 +1,267 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-02-18
+**Analysis Date:** 2026-02-19
 
 ## Directory Layout
 
 ```
 what-lunch/
-├── src/                          # Application source code
-│   ├── app/                       # Next.js App Router pages and layouts
-│   │   ├── layout.tsx             # Root layout wrapping all pages
-│   │   ├── page.tsx               # Home page (plan generation)
+├── src/
+│   ├── app/                          # Next.js App Router pages and API routes
+│   │   ├── api/
+│   │   │   └── restaurants/
+│   │   │       └── route.ts          # POST endpoint to persist restaurants to config (dev only)
+│   │   ├── history/
+│   │   │   └── page.tsx              # History management page
 │   │   ├── restaurants/
-│   │   │   └── page.tsx           # Restaurant management page
-│   │   ├── globals.css            # Global Tailwind styles
+│   │   │   └── page.tsx              # Restaurant CRUD management page
+│   │   ├── weekend/
+│   │   │   └── page.tsx              # Weekend single-pick recommendation page
+│   │   ├── layout.tsx                # Root layout, providers, header
+│   │   ├── page.tsx                  # Home page (weekly planner)
+│   │   ├── globals.css               # Global Tailwind CSS imports
 │   │   └── favicon.ico
-│   ├── components/                # React components
-│   │   ├── layout/                # Layout/structural components
-│   │   │   ├── header.tsx         # Top navigation bar
-│   │   │   └── nav-links.tsx      # Navigation menu with active state
-│   │   └── ui/                    # Shadcn primitive UI components
-│   │       ├── button.tsx
-│   │       ├── input.tsx
-│   │       ├── label.tsx
-│   │       ├── select.tsx
-│   │       ├── table.tsx
-│   │       ├── badge.tsx
-│   │       └── navigation-menu.tsx
-│   └── lib/                       # Utilities, types, state, business logic
-│       ├── types.ts               # Type definitions and cuisine metadata
-│       ├── restaurants.ts         # Default restaurant seed data
-│       ├── restaurant-context.tsx # React Context for global state
-│       ├── recommend.ts           # Plan generation algorithm
-│       └── utils.ts               # Utility functions (cn)
-├── __tests__/                     # Test files
-│   └── recommend.test.ts          # Tests for plan generation algorithm
-├── public/                        # Static assets
-├── .planning/                     # GSD planning documents
-├── package.json                   # Dependencies and scripts
-├── tsconfig.json                  # TypeScript configuration
-├── next.config.ts                 # Next.js configuration
-├── vitest.config.mts              # Vitest configuration
-├── postcss.config.mjs             # PostCSS/Tailwind configuration
-└── eslint.config.mjs              # ESLint configuration
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── header.tsx            # Top navigation bar
+│   │   │   ├── nav-links.tsx         # Navigation link list
+│   │   │   └── theme-toggle.tsx      # Dark mode toggle button
+│   │   ├── ui/                       # shadcn-ui primitive components
+│   │   │   ├── button.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── label.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── tabs.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── badge.tsx
+│   │   │   ├── navigation-menu.tsx
+│   │   │   └── sonner.tsx            # Toast notification wrapper
+│   │   └── theme-provider.tsx        # next-themes provider setup
+│   ├── hooks/
+│   │   └── use-slot-animation.ts     # Reusable animation state machine hook
+│   └── lib/
+│       ├── recommend.ts              # Recommendation algorithm (generateWeeklyPlan, rerollSlot, applyFilter)
+│       ├── history.ts                # History utilities (getRecentlyVisitedIds, splitPoolByHistory)
+│       ├── history-context.tsx       # History state provider with localStorage persistence
+│       ├── restaurant-context.tsx    # Restaurant state provider with localStorage persistence
+│       ├── restaurants.ts            # Default restaurant data (weekday + weekend)
+│       ├── types.ts                  # Type definitions (Restaurant, CuisineType, CUISINE_META)
+│       └── utils.ts                  # Helper utilities (cn for Tailwind class merging)
+├── __tests__/                        # Vitest test files
+│   ├── recommend.test.ts
+│   ├── history.test.ts
+│   ├── restaurants.test.tsx
+│   ├── integration.test.tsx
+│   ├── weekend-page.test.tsx
+│   ├── use-slot-animation.test.ts
+│   └── weekend.test.ts
+├── public/                           # Static assets
+├── .next/                            # Next.js build output (not committed)
+├── node_modules/                     # Dependencies (not committed)
+├── package.json
+├── tsconfig.json
+├── next.config.ts
+├── vitest.config.mts
+└── README.md
 ```
 
 ## Directory Purposes
 
 **`src/app/`:**
-- Purpose: Next.js App Router pages and layouts
-- Contains: Page components (`.tsx`), global styles, root layout
-- Key files: `page.tsx` (home), `restaurants/page.tsx` (management), `layout.tsx` (root wrapper)
+- Purpose: Next.js App Router pages and API routes
+- Contains: Page components (page.tsx), route handlers (route.ts), global layout, static assets
+- Key files: `page.tsx` (home), `restaurants/page.tsx`, `history/page.tsx`, `weekend/page.tsx`, `layout.tsx`
+
+**`src/components/`:**
+- Purpose: Reusable React components and layout structure
+- Contains: Layout shell (header, nav), UI primitives from shadcn, providers
+- Key files: `layout/header.tsx`, `ui/button.tsx`, `theme-provider.tsx`
 
 **`src/components/layout/`:**
-- Purpose: Structural/layout components used across pages
-- Contains: Header, navigation menu
-- Key files: `header.tsx`, `nav-links.tsx`
+- Purpose: Application chrome and navigation
+- Contains: Header bar, navigation links, theme toggle
+- Key files: `header.tsx` (sticky top bar), `nav-links.tsx`, `theme-toggle.tsx`
 
 **`src/components/ui/`:**
-- Purpose: Shadcn primitive UI components (buttons, inputs, tables, etc.)
-- Contains: Imported and customized from shadcn/ui package
-- Key files: All files are imported components, used throughout app
+- Purpose: Unstyled, accessible UI primitives from shadcn-ui library
+- Contains: Radix UI-based components with Tailwind CSS styling
+- Key files: Input, Button, Table, Tabs, Select, Badge, etc.
+- Pattern: Minimal wrapper components; styling via className only
+
+**`src/hooks/`:**
+- Purpose: Custom React hooks for component logic
+- Contains: Animation state machines, effects management
+- Key files: `use-slot-animation.ts` (manages cycling animation + interval cleanup)
 
 **`src/lib/`:**
-- Purpose: Core business logic, state management, types, constants
-- Contains: Algorithm code, React Context, type definitions, utilities
-- Key files: `recommend.ts` (algorithm), `restaurant-context.tsx` (state), `types.ts` (domain models)
+- Purpose: Shared business logic, state management, type definitions
+- Contains: Pure functions, React Context providers, type definitions, constants
+- Key files:
+  - `recommend.ts`: Core algorithm (generateWeeklyPlan, rerollSlot)
+  - `history.ts`: History utility functions (no React imports)
+  - `history-context.tsx`: Context provider for history state
+  - `restaurant-context.tsx`: Context provider for restaurant state
+  - `types.ts`: All TypeScript types and constants
+  - `restaurants.ts`: Default data
 
 **`__tests__/`:**
-- Purpose: Unit and integration tests
-- Contains: Test files matching `*.test.ts` pattern
-- Key files: `recommend.test.ts` (algorithm tests)
+- Purpose: Vitest unit and integration tests
+- Contains: Test files matching `*.test.ts` / `*.test.tsx`
+- Structure: One test file per source module (recommend.test.ts → recommend.ts, etc.)
+- Key files: `recommend.test.ts` (algorithm tests), `integration.test.tsx` (context + component tests)
+
+**`public/`:**
+- Purpose: Static assets served directly (favicon, images, etc.)
+- Contains: favicon.ico, potentially future icons/images
 
 ## Key File Locations
 
 **Entry Points:**
-
-- `src/app/layout.tsx`: Root layout; applies fonts, wraps with `RestaurantProvider`, renders `Header`
-- `src/app/page.tsx`: Home page; plan generation UI
-- `src/app/restaurants/page.tsx`: Restaurant management UI
+- `src/app/layout.tsx`: Application root, provider setup, metadata
+- `src/app/page.tsx`: Home page (weekly lunch planner)
+- `src/app/restaurants/page.tsx`: Restaurant management
+- `src/app/history/page.tsx`: History viewing
+- `src/app/weekend/page.tsx`: Weekend random picker
 
 **Configuration:**
-
-- `tsconfig.json`: TypeScript compiler options, path alias `@/*` → `src/*`
-- `next.config.ts`: Next.js build configuration
-- `vitest.config.mts`: Test runner configuration
-- `postcss.config.mjs`: Tailwind CSS build configuration
-- `eslint.config.mjs`: Linting rules
-- `components.json`: Shadcn component configuration
+- `package.json`: Dependencies, scripts
+- `tsconfig.json`: TypeScript compiler options
+- `next.config.ts`: Next.js configuration
+- `vitest.config.mts`: Vitest testing configuration
+- `src/app/globals.css`: Global Tailwind CSS imports and custom classes
 
 **Core Logic:**
+- `src/lib/recommend.ts`: Recommendation algorithm
+- `src/lib/history.ts`: History calculation functions
+- `src/lib/types.ts`: Type definitions and cuisine constants
+- `src/lib/restaurants.ts`: Default restaurant data
 
-- `src/lib/recommend.ts`: Plan generation algorithm (generateWeeklyPlan, rerollSlot, validation functions)
-- `src/lib/restaurant-context.tsx`: Global state provider and hook
-- `src/lib/types.ts`: Type definitions, cuisine metadata constants
-
-**Utilities:**
-
-- `src/lib/utils.ts`: Helper function `cn()` for merging Tailwind class names
-- `src/lib/restaurants.ts`: Default restaurant seed data
+**State Management:**
+- `src/lib/restaurant-context.tsx`: Restaurant state + persistence
+- `src/lib/history-context.tsx`: History state + persistence
 
 **Testing:**
-
-- `__tests__/recommend.test.ts`: Comprehensive tests for algorithm behavior, budget constraints, cuisine diversity
+- `__tests__/recommend.test.ts`: Algorithm tests
+- `__tests__/history.test.ts`: History utility tests
+- `__tests__/restaurants.test.tsx`: Restaurant management component tests
+- `__tests__/integration.test.tsx`: End-to-end context + page flows
 
 ## Naming Conventions
 
 **Files:**
-
-- `.tsx` extension for React components (require JSX)
-- `.ts` extension for pure logic/utilities (no JSX)
-- Page components use `page.tsx` following Next.js convention
-- Kebab-case for component file names: `nav-links.tsx`, `restaurant-context.tsx`
+- Pages: `page.tsx` (Next.js App Router convention)
+- API routes: `route.ts` (Next.js App Router convention)
+- Components: PascalCase with `.tsx` extension (e.g., `Header.tsx`, `RestaurantListPanel`)
+- Utilities/pure functions: camelCase with `.ts` extension (e.g., `recommend.ts`, `history.ts`)
+- Contexts: camelCase with `-context.tsx` suffix (e.g., `restaurant-context.tsx`)
+- Hooks: camelCase with `use-` prefix, `.ts` extension (e.g., `use-slot-animation.ts`)
+- Tests: Same as source + `.test.ts` / `.test.tsx` (e.g., `recommend.test.ts`)
 
 **Directories:**
-
-- Kebab-case for feature/layout directories: `components/layout/`, `components/ui/`
-- Lowercase plural for grouped files: `components/` (contains multiple components)
-
-**React Components:**
-
-- PascalCase for component names: `Header`, `NavLinks`, `RestaurantProvider`
-- `use` prefix for custom hooks: `useRestaurants()`
-- `export` at module level for components (not default export for utilities)
-
-**Types:**
-
-- PascalCase for interfaces and types: `Restaurant`, `WeeklyPlan`, `CuisineType`
-- `Type` suffix typically omitted for type aliases derived from constants: `CuisineType` (not `CuisineTypeType`)
+- Feature pages: kebab-case matching route (e.g., `src/app/restaurants/`, `src/app/weekend/`)
+- Component categories: lowercase descriptive names (e.g., `layout/`, `ui/`)
+- Exported types/utilities: kebab-case with descriptive names (e.g., `use-slot-animation`)
 
 **Functions:**
-
-- camelCase for all functions: `generateWeeklyPlan()`, `rerollSlot()`, `hasCuisineViolation()`
-- Internal helper functions prefixed with lowercase (no special marker): `pickForSlot()`, `cheapestPrice()`
+- Event handlers: `handle*` prefix (e.g., `handleGenerate`, `handleEditSave`)
+- Utility functions: verb-noun (e.g., `applyFilter`, `generateWeeklyPlan`, `getRecentlyVisitedIds`)
+- React Context hooks: `use*` prefix (e.g., `useRestaurants`, `useHistory`)
+- Custom hooks: `use*` prefix (e.g., `useSlotAnimation`)
 
 **Variables:**
+- State: camelCase, descriptive (e.g., `restaurants`, `isHydrated`, `selectedCuisines`)
+- Constants: UPPER_SNAKE_CASE, module-level (e.g., `BUDGET_MIN`, `DEFAULT_BUDGET`, `MAX_HISTORY`)
+- Local state in components: `[state, setState]` React convention (e.g., `[budget, setBudget]`)
 
-- camelCase for all variables: `restaurants`, `weeklyBudget`, `remainingBudget`
-- UPPER_SNAKE_CASE for compile-time constants: `DEFAULT_BUDGET`, `BUDGET_MAX`, `DAY_LABELS`
+**Types:**
+- Interfaces: PascalCase, descriptive (e.g., `Restaurant`, `WeeklyPlan`, `RestaurantContextValue`)
+- Unions: PascalCase or descriptive (e.g., `FilterMode`, `CuisineType`)
+- Props interfaces: `*Props` suffix (e.g., `RestaurantListPanelProps`)
 
 ## Where to Add New Code
 
-**New Feature:**
-
-- Primary code: Add business logic to `src/lib/` (e.g., new algorithm → `src/lib/newfeature.ts`)
-- UI code: Create component in `src/components/` subdirectory (e.g., `src/components/features/newfeature.tsx`)
-- Page route: Add page component in `src/app/` directory (e.g., `src/app/newfeature/page.tsx`)
-- Tests: Add test file in `__tests__/` matching feature name (e.g., `__tests__/newfeature.test.ts`)
+**New Feature (e.g., budget tracking over time):**
+- Algorithm logic: `src/lib/budget-tracker.ts` (pure functions, no React)
+- Context provider: `src/lib/budget-context.tsx` (if global state needed)
+- Page: `src/app/budget/page.tsx` (or tab in existing page)
+- Tests: `__tests__/budget.test.ts`, `__tests__/budget-context.test.tsx`
 
 **New Component/Module:**
+- Layout component: `src/components/layout/[name].tsx`
+- UI primitive: `src/components/ui/[name].tsx`
+- Feature component: Create in `src/components/[feature]/` or directly in page if not reused
+- Always co-locate with feature or category
 
-- Implementation: Place in `src/components/` (layout components) or `src/lib/` (non-UI utilities)
-- Example: New form component → `src/components/forms/myform.tsx`
-- Example: New algorithm → `src/lib/myalgorithm.ts`
+**New Page:**
+- Create `src/app/[route-name]/page.tsx`
+- Import context hooks and components
+- Follow hydration pattern (check isHydrated before interactive UI)
+- Add navigation link in `src/components/layout/nav-links.tsx`
 
 **Utilities:**
+- Shared helpers (Tailwind class merging): `src/lib/utils.ts`
+- Domain-specific utilities (history, filtering): `src/lib/[domain].ts`
+- Pure functions with no side effects (testable, reusable)
 
-- Shared helpers: `src/lib/utils.ts` if simple and general-purpose
-- Feature-specific: Create `src/lib/featurename-utils.ts` if multiple related helpers
+**Hooks:**
+- Reusable component logic: `src/hooks/use-[feature].ts`
+- Encapsulate effect cleanup (intervals, timeouts, event listeners)
+- Export custom hook + types in single file
 
-**Global State:**
-
-- Add to existing `src/lib/restaurant-context.tsx` if restaurant-related
-- Create new context file `src/lib/mynewcontext.tsx` if independent domain (e.g., user preferences)
+**Tests:**
+- Co-locate in `__tests__/` directory with same filename as source
+- Unit tests for pure functions (lib/*.ts)
+- Integration tests for components with hooks/context
+- Use Vitest + React Testing Library for component tests
 
 ## Special Directories
 
 **`.next/`:**
-- Purpose: Build output from Next.js (generated during build)
-- Generated: Yes
-- Committed: No (in `.gitignore`)
-- Note: Contains compiled pages, server-side code, types
-
-**`.planning/`:**
-- Purpose: GSD planning documents and analysis
-- Generated: No (manually created)
-- Committed: Yes
-- Note: Consumed by GSD orchestrator for code generation context
-
-**`public/`:**
-- Purpose: Static assets (favicon, SVGs)
-- Generated: No
-- Committed: Yes
-- Note: Served directly by Next.js without processing
+- Purpose: Next.js build output
+- Generated: Yes (via `npm run build`)
+- Committed: No (in .gitignore)
 
 **`node_modules/`:**
 - Purpose: Installed dependencies
-- Generated: Yes (by npm install)
-- Committed: No (in `.gitignore`)
+- Generated: Yes (via `npm install`)
+- Committed: No (in .gitignore)
+
+**`__tests__/`:**
+- Purpose: Test files
+- Generated: No (manually created)
+- Committed: Yes
+- Pattern: Mirrors src/ structure conceptually (one test per source module)
+
+**`public/`:**
+- Purpose: Static assets served directly by Next.js
+- Generated: No
+- Committed: Yes
+- Usage: Favicon, images, public JSON files
+
+## Import Paths
+
+**Path Aliases (configured in tsconfig.json):**
+- `@/components/*` → `src/components/*`
+- `@/lib/*` → `src/lib/*`
+- `@/hooks/*` → `src/hooks/*`
+
+**Usage Examples:**
+```typescript
+// Good: Use aliases for clarity and easy refactoring
+import { Button } from '@/components/ui/button'
+import { useRestaurants } from '@/lib/restaurant-context'
+import { useSlotAnimation } from '@/hooks/use-slot-animation'
+
+// Avoid: Relative paths when alias available
+import { Button } from '../../../components/ui/button'
+```
+
+**Import Order:**
+1. External packages (React, Next.js, third-party)
+2. Internal alias imports (@/components, @/lib, @/hooks)
+3. Type imports (type { ... } from '...')
+4. Relative imports only when necessary (sibling files)
 
 ---
 
-*Structure analysis: 2026-02-18*
+*Structure analysis: 2026-02-19*

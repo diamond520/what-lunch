@@ -1,176 +1,221 @@
 # Architecture
 
-**Analysis Date:** 2026-02-18
+**Analysis Date:** 2026-02-19
 
 ## Pattern Overview
 
-**Overall:** Next.js 16 full-stack application with client-side state management using React Context API.
+**Overall:** Client-centric React application with Next.js App Router and Context-based state management for client-side persistence.
 
 **Key Characteristics:**
-- Next.js App Router with server-side rendered layouts and client-side interactive pages
-- React Context API for global restaurant state management (no external state library)
-- Separation of concerns: algorithms isolated in pure functions, UI components consume contexts and compose through props
-- Strong type safety via TypeScript with inferred union types from constant definitions
-- Fallback-oriented error handling: graceful degradation rather than throwing errors
+- Fully client-rendered UI with progressive enhancement (no heavy SSR)
+- Separation of business logic (recommendation algorithms) from UI layer
+- Context API for global state (restaurants, history) with localStorage hydration
+- Pure utility functions for domain logic (filtering, planning, history tracking)
+- Component composition via Radix UI + Tailwind CSS
+- Client context providers manage application state across page transitions
 
 ## Layers
 
-**Presentation Layer (UI Components):**
-- Purpose: Render user interface and handle user interactions
-- Location: `src/components/`
-- Contains: Shadcn UI primitive components (`ui/`), layout components (`layout/`)
-- Depends on: Radix UI, Lucide React icons, Tailwind CSS, context hooks from `@/lib`
-- Used by: Page components in `src/app/`
+**Presentation (UI Components):**
+- Purpose: Render application pages and UI elements using React and Tailwind CSS
+- Location: `src/components/`, `src/app/`
+- Contains: Page components, layout components, shadcn UI primitive components
+- Depends on: Context hooks, utility functions, domain logic libraries
+- Used by: Browser rendering layer
 
-**Page Layer (Route Handlers):**
-- Purpose: Top-level page components that coordinate between context and UI components
-- Location: `src/app/page.tsx`, `src/app/restaurants/page.tsx`
-- Contains: Client components marked with `'use client'` directive
-- Depends on: Context hooks (`useRestaurants()`), business logic functions (`generateWeeklyPlan`, `rerollSlot`), UI components
-- Used by: Next.js routing system
+**Business Logic (Pure Functions):**
+- Purpose: Compute recommendations, filter restaurants, manage lunch history without side effects
+- Location: `src/lib/recommend.ts`, `src/lib/history.ts`, `src/lib/restaurants.ts`
+- Contains: Algorithm implementations (weekly plan generation, slot rerolling, cuisine diversity checks), history date calculations
+- Depends on: Type definitions (`src/lib/types.ts`)
+- Used by: Page components and context providers
 
-**State Management Layer (Context):**
-- Purpose: Provide global restaurant data and mutation functions
-- Location: `src/lib/restaurant-context.tsx`
-- Contains: `RestaurantContext` definition, `RestaurantProvider` component, `useRestaurants()` hook
-- Depends on: `Restaurant` type from `@/lib/types`
-- Used by: All client components needing restaurant data
+**State Management (Context + Hooks):**
+- Purpose: Provide global state (restaurants, history) with automatic localStorage persistence
+- Location: `src/lib/restaurant-context.tsx`, `src/lib/history-context.tsx`
+- Contains: React Context providers, hydration logic, state mutation functions
+- Depends on: Business logic (history.ts, restaurants.ts), type definitions
+- Used by: All pages and components requiring shared state
 
-**Business Logic Layer:**
-- Purpose: Pure functions for algorithm implementation (recommendation generation, validation)
-- Location: `src/lib/recommend.ts`
-- Contains: `generateWeeklyPlan()`, `rerollSlot()`, helper functions for budget calculation and cuisine validation
-- Depends on: `Restaurant` type, no external dependencies
-- Used by: Page components (`page.tsx`)
-
-**Data Definition Layer:**
-- Purpose: Type definitions and constant metadata for the domain
-- Location: `src/lib/types.ts`, `src/lib/restaurants.ts`
-- Contains: `CUISINE_META` constant (cuisine metadata), `CuisineType` union type, `Restaurant` interface, `DEFAULT_RESTAURANTS` seed data
-- Depends on: None
+**Types & Constants:**
+- Purpose: Single source of truth for cuisine metadata, restaurant schema, history entry shape
+- Location: `src/lib/types.ts`, `src/lib/restaurants.ts`, `src/lib/history.ts`
+- Contains: TypeScript interfaces, cuisine color/label mapping, default data
+- Depends on: Nothing (zero dependencies)
 - Used by: All other layers
 
-**Root Layout:**
-- Purpose: HTML structure, font configuration, provider wrapping
-- Location: `src/app/layout.tsx`
-- Contains: `RootLayout` component, `Header` component instantiation, `RestaurantProvider` wrapping
-- Depends on: `@/lib/restaurant-context`, `@/components/layout/header`
-- Used by: Next.js as page wrapper
+**Hooks:**
+- Purpose: Encapsulate reusable component logic (animation state machine)
+- Location: `src/hooks/use-slot-animation.ts`
+- Contains: Animation lifecycle management, interval/timeout cleanup
+- Depends on: React hooks only
+- Used by: Weekend page, home page slot animation
+
+**API Routes:**
+- Purpose: Development-only endpoints for persisting restaurant changes to source code
+- Location: `src/app/api/restaurants/route.ts`
+- Contains: File system write logic, duplicate detection, ID auto-increment
+- Depends on: fs/promises, Next.js Response utilities
+- Used by: Restaurants management page (development mode only)
 
 ## Data Flow
 
-**Plan Generation Flow:**
+**Weekly Plan Generation Flow:**
 
-1. User opens home page (`src/app/page.tsx`)
-2. Page component calls `useRestaurants()` hook to access global restaurant state
-3. User adjusts budget input and clicks "產生本週午餐計畫"
-4. Page calls `generateWeeklyPlan(restaurants, budget)` with current state
-5. Algorithm returns `WeeklyPlan` object with 5 days of recommendations
-6. Page renders weekly plan cards with reroll buttons
+1. User clicks "產生本週午餐計畫" on home page (`src/app/page.tsx`)
+2. Handler calls `generateWeeklyPlan(effectivePool, budget)` from `src/lib/recommend.ts`
+3. Algorithm:
+   - Iterates 5 slots (Monday–Friday)
+   - For each slot: calls `pickForSlot()` with cuisine diversity constraints
+   - Validates no 3+ consecutive cuisines of same type (unless diversity relaxed)
+   - Retries up to 10 times to find valid plan
+4. Returns `WeeklyPlan` object with 5 restaurant picks, total cost, ID, timestamp
+5. Component displays plan with animated slot reveal
+6. User can reroll individual slots (calls `rerollSlot()`)
+7. User confirms plan → calls `addEntries()` on HistoryContext
+8. History context persists to localStorage under `what-lunch-history`
 
-**Reroll Flow:**
+**Restaurant Filtering Flow:**
 
-1. User clicks reroll button on a day card
-2. Page calls `rerollSlot(currentPlan, slotIndex, restaurants)`
-3. Algorithm calculates remaining budget for that slot
-4. Algorithm selects new restaurant respecting budget and cuisine constraints
-5. Returns updated `WeeklyPlan` with only that slot changed
-6. Page re-renders with new selection
+1. Home page manages filter state: mode ('exclude'/'lock') and selected cuisines
+2. Calls `applyFilter(restaurants, mode, selected)` from `src/lib/recommend.ts`
+3. Returns filtered pool based on mode:
+   - exclude: removes restaurants with selected cuisine types
+   - lock: keeps only restaurants with selected cuisine types
+4. Calls `splitPoolByHistory(filteredPool, recentIds)` from `src/lib/history.ts`
+5. Returns { primary: unvisited recently, fallback: full pool }
+6. Uses primary pool if available, falls back to full pool if primary depleted
 
-**Restaurant Management Flow:**
+**History-Aware Recommendation:**
 
-1. User navigates to `/restaurants` page
-2. Page displays current restaurants from `useRestaurants()` context
-3. User fills form (name, cuisine type, price, distance, rating)
-4. Form validation on each field change
-5. User submits → page calls `addRestaurant(newRestaurant)`
-6. Context updates global state, all pages re-render
-7. User can delete restaurant by calling `removeRestaurant(id)`
+1. HistoryContext provides `entries` and `lookbackDays`
+2. Home page calls `getRecentlyVisitedIds(entries, lookbackDays)`
+3. Logic counts business days backward (Mon–Fri only)
+4. Returns Set of restaurantIds visited within lookback window
+5. `splitPoolByHistory()` separates pool into visited/unvisited
+6. Planning algorithm prefers unvisited restaurants
 
-**State Management:**
+**State Management Flow:**
 
-- `Restaurant[]` state stored in `RestaurantProvider` via `useState()`
-- Initialized with `DEFAULT_RESTAURANTS` from `src/lib/restaurants.ts`
-- Provider exported as `RestaurantProvider` component, wrapped in `RootLayout`
-- Accessed via `useRestaurants()` hook in client components
-- Mutations: `addRestaurant()`, `removeRestaurant()` update internal state directly
+1. Layout wraps app with RestaurantProvider and HistoryProvider
+2. Providers use `useSyncExternalStore` for hydration detection
+3. On mount: reads localStorage, sets initial state (or defaults if storage fails)
+4. On state change: automatically persists to localStorage (guarded by isHydrated)
+5. Pages check `isHydrated` before rendering interactive UI
+6. Children access state via `useRestaurants()` and `useHistory()` hooks
 
 ## Key Abstractions
 
-**WeeklyPlan:**
-- Purpose: Encapsulates a 5-day lunch recommendation plan
-- Examples: `src/lib/recommend.ts` defines interface, returned by `generateWeeklyPlan()`
-- Pattern: Data transfer object (DTO) containing immutable days array, cost info, budget reference
-
 **Restaurant:**
-- Purpose: Core domain model for a restaurant entry
-- Examples: `src/lib/types.ts` line 20-27
-- Pattern: Strongly typed with compile-time validation of cuisine type through union type
+- Purpose: Core domain entity representing a lunch option
+- Examples: `src/lib/types.ts`, `src/lib/restaurants.ts`
+- Pattern: Immutable data structure with validation at boundary
+- Properties: id, name, type (cuisine), price, distance, rating
+
+**WeeklyPlan:**
+- Purpose: Output of recommendation algorithm; represents one complete week of lunch picks
+- Examples: `src/lib/recommend.ts`
+- Pattern: Immutable snapshot with ID and timestamp for history/comparison
+- Contains: 5 restaurants (days), total cost, remaining budget
+
+**LunchHistoryEntry:**
+- Purpose: Record of a confirmed lunch recommendation with date
+- Examples: `src/lib/history.ts`
+- Pattern: Denormalized (includes restaurantName to survive restaurant deletion)
+- Fields: id (UUID), date (YYYY-MM-DD local), restaurantId, restaurantName
+
+**FilterMode:**
+- Purpose: Encodes two filtering strategies
+- Pattern: Union type ('exclude' | 'lock')
+- exclude: user specifies cuisines to avoid
+- lock: user specifies cuisines to require
 
 **CuisineType:**
-- Purpose: Exhaustive union type for valid cuisine categories
-- Examples: `'chi' | 'jp' | 'kr' | 'tai' | 'west'`
-- Pattern: Derived from `CUISINE_META` keys using `keyof typeof` to ensure type and constants stay in sync
-
-**CUISINE_META:**
-- Purpose: Single source of truth for cuisine metadata (labels, colors)
-- Examples: `src/lib/types.ts` line 6-12
-- Pattern: `as const satisfies Record<>` validates shape at compile time while deriving union type
+- Purpose: Inferred union of valid cuisine keys from CUISINE_META
+- Pattern: `type CuisineType = keyof typeof CUISINE_META`
+- Benefit: Adding new cuisine auto-expands type; forgetting color/label causes compile error
+- Values: 'chi' | 'jp' | 'kr' | 'tai' | 'west'
 
 ## Entry Points
 
-**Root Entry Point:**
+**Application Root (`src/app/layout.tsx`):**
 - Location: `src/app/layout.tsx`
-- Triggers: Every page navigation
-- Responsibilities: Configure fonts, wrap with `RestaurantProvider`, render `Header`
+- Triggers: Browser page load
+- Responsibilities:
+  - Set up RestaurantProvider and HistoryProvider
+  - Render global Header component
+  - Mount ThemeProvider for dark mode
+  - Mount Sonner toast container
+  - Inject fonts and metadata
 
-**Home Page:**
+**Home Page (`src/app/page.tsx`):**
 - Location: `src/app/page.tsx`
-- Triggers: User navigates to `/` or app loads
-- Responsibilities: Render plan generation UI, display weekly recommendations, handle reroll interactions
+- Triggers: User navigates to `/`
+- Responsibilities:
+  - Render weekly planning UI
+  - Manage budget input, filter state, animation state
+  - Call recommendation algorithm on generate
+  - Persist confirmed plans to history
 
-**Restaurant Management Page:**
+**Restaurants Page (`src/app/restaurants/page.tsx`):**
 - Location: `src/app/restaurants/page.tsx`
 - Triggers: User navigates to `/restaurants`
-- Responsibilities: Display restaurant table, handle add/delete forms with validation
+- Responsibilities:
+  - Display weekday and weekend restaurant lists (tabbed)
+  - Handle add/edit/delete restaurant operations
+  - Validate form input
+  - Call API to persist new restaurants to config (dev only)
 
-**Header Navigation:**
-- Location: `src/components/layout/header.tsx` + `src/components/layout/nav-links.tsx`
-- Triggers: Rendered on every page
-- Responsibilities: Display app title, navigation links with active state highlighting
+**History Page (`src/app/history/page.tsx`):**
+- Location: `src/app/history/page.tsx`
+- Triggers: User navigates to `/history`
+- Responsibilities:
+  - Display lunch history grouped by date
+  - Allow per-entry removal and bulk clear
+  - Control lookback window for deduplication
+
+**Weekend Page (`src/app/weekend/page.tsx`):**
+- Location: `src/app/weekend/page.tsx`
+- Triggers: User navigates to `/weekend`
+- Responsibilities:
+  - Render single-pick random selector for weekend
+  - Manage animation state via useSlotAnimation hook
+  - Display restaurant details
 
 ## Error Handling
 
-**Strategy:** Graceful degradation with fallback selection rather than throwing.
+**Strategy:** Silent degradation with user feedback where critical
 
 **Patterns:**
 
-1. **Empty Restaurant Pool:** `generateWeeklyPlan()` throws explicitly when pool is empty (line 143-145 in `recommend.ts`), preventing downstream errors
-
-2. **Impossible Budgets:** Algorithm implements cascading fallbacks instead of throwing:
-   - Fallback 1 (line 64-68): Relax cuisine constraint, maintain budget reserve
-   - Fallback 2 (line 70-75): Relax cuisine + use full remaining budget
-   - Fallback 3 (line 77-78): Use globally cheapest restaurant to minimize overage
-
-3. **Budget Constraint During Reroll:** `pickForSlotReroll()` applies same fallback chain (lines 81-106)
-
-4. **Form Validation:** Input change handlers validate on each keystroke, displaying error messages without throwing (lines 32-63 in `restaurants/page.tsx`)
-
-5. **Context Hook Safety:** `useRestaurants()` throws explicit error if called outside provider (line 35 in `restaurant-context.tsx`)
+- localStorage failures: Try-catch blocks silently ignore quota exceeded or missing storage (mobile private mode)
+- Empty pools: Validation checks at UI entry points (disable generate button, show warning messages)
+- Invalid form input: Client-side validation with error messages in `src/app/restaurants/page.tsx` (validateFields function)
+- API failures: Toast notifications on restaurant save API failure (see `handleSaveToConfig`)
+- Animation interruption: Cleanup refs on unmount or skip action to prevent memory leaks
+- SSR hydration: All contexts detect window === undefined; pages check isHydrated before rendering interactive content
 
 ## Cross-Cutting Concerns
 
-**Logging:** Not implemented. Debug via console during development; consider adding structured logging for errors/analytics in production.
+**Logging:** Console-only, used for debugging. No structured logging or analytics integrated.
 
 **Validation:**
-- Type-level: TypeScript ensures `Restaurant` shape via interface and `CuisineType` via union type
-- Runtime: Algorithm fallbacks handle invalid states gracefully
-- Form-level: User input validated on change with error messages in UI (form validation in `restaurants/page.tsx` lines 32-93)
+- Form validation: `src/app/restaurants/page.tsx` (validateFields function)
+- Type validation: TypeScript enforces CuisineType as union, Restaurant shape, prices as numbers
+- Data validation: Implicit in localStorage error handling (malformed JSON returns defaults)
 
-**Authentication:** Not implemented. App assumes single-user, in-browser state only.
+**Authentication:** Not applicable (single-user, client-only app)
 
-**Styling:** Tailwind CSS utility classes with shadcn component library for consistent design system.
+**Persistence:**
+- localStorage for restaurants (weekday + weekend), history, filter preferences, lookback days
+- SSR-safe reads using `typeof window === 'undefined'` checks
+- Hydration flags on all context providers to prevent flash of stale UI
+
+**Theme Management:**
+- next-themes wrapper in ThemeProvider component
+- ThemeToggle in header
+- Dark mode colors via Tailwind CSS dark: variant
 
 ---
 
-*Architecture analysis: 2026-02-18*
+*Architecture analysis: 2026-02-19*

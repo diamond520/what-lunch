@@ -270,8 +270,8 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center gap-3">
           <Tabs value={filterMode} onValueChange={handleFilterModeChange}>
             <TabsList>
-              <TabsTrigger value="exclude">排除</TabsTrigger>
-              <TabsTrigger value="lock">鎖定</TabsTrigger>
+              <TabsTrigger value="exclude" disabled={isAnyAnimating}>排除</TabsTrigger>
+              <TabsTrigger value="lock" disabled={isAnyAnimating}>鎖定</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -281,6 +281,7 @@ export default function HomePage() {
                 <button
                   key={key}
                   onClick={() => toggleCuisine(key)}
+                  disabled={isAnyAnimating}
                   className={cn(
                     'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-white transition-all',
                     selectedCuisines.has(key)
@@ -302,7 +303,8 @@ export default function HomePage() {
           {selectedCuisines.size > 0 && (
             <button
               onClick={resetFilter}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              disabled={isAnyAnimating}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
             >
               重置
             </button>

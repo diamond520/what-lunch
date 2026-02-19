@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 interface UseSlotAnimationOptions {
   candidates: string[] // names to cycle through during animation
   finalValue: string | null // the pre-computed final pick; null = not yet picked
-  durationMs?: number // total animation time (default 2500)
+  durationMs?: number // total animation time (default 1000)
   intervalMs?: number // cycling speed (default 80ms)
 }
 
@@ -18,7 +18,7 @@ interface UseSlotAnimationResult {
 export function useSlotAnimation({
   candidates,
   finalValue,
-  durationMs = 2500,
+  durationMs = 1000,
   intervalMs = 80,
 }: UseSlotAnimationOptions): UseSlotAnimationResult {
   const [displayValue, setDisplayValue] = useState<string | null>(null)

@@ -28,12 +28,18 @@ interface StoredFilter {
   selected: CuisineType[]
 }
 
+const CUISINE_TYPE_MIGRATIONS: Record<string, CuisineType> = { tai: 'thai' }
+
 function readStoredFilter(): StoredFilter {
   if (typeof window === 'undefined') return { mode: 'exclude', selected: [] }
   try {
     const stored = localStorage.getItem(FILTER_STORAGE_KEY)
     if (!stored) return { mode: 'exclude', selected: [] }
-    return JSON.parse(stored) as StoredFilter
+    const parsed = JSON.parse(stored) as StoredFilter
+    parsed.selected = parsed.selected
+      .map((t) => CUISINE_TYPE_MIGRATIONS[t] ?? t)
+      .filter((t): t is CuisineType => t in CUISINE_META)
+    return parsed
   } catch {
     return { mode: 'exclude', selected: [] }
   }

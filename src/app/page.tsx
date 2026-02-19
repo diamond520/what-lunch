@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRestaurants } from '@/lib/restaurant-context'
-import { generateWeeklyPlan, rerollSlot, type WeeklyPlan } from '@/lib/recommend'
-import { CUISINE_META } from '@/lib/types'
+import { generateWeeklyPlan, rerollSlot, applyFilter, type FilterMode, type WeeklyPlan } from '@/lib/recommend'
+import { CUISINE_META, type CuisineType } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import { RefreshCw } from 'lucide-react'
 
 const DAY_LABELS = ['星期一', '星期二', '星期三', '星期四', '星期五']
@@ -15,25 +17,90 @@ const BUDGET_MIN = 100
 const BUDGET_MAX = 2000
 const BUDGET_STEP = 10
 const MAX_HISTORY = 5
+const FILTER_STORAGE_KEY = 'what-lunch-cuisine-filter'
+const POOL_WARNING_THRESHOLD = 5
+
+interface StoredFilter {
+  mode: FilterMode
+  selected: CuisineType[]
+}
+
+function readStoredFilter(): StoredFilter {
+  if (typeof window === 'undefined') return { mode: 'exclude', selected: [] }
+  try {
+    const stored = localStorage.getItem(FILTER_STORAGE_KEY)
+    if (!stored) return { mode: 'exclude', selected: [] }
+    return JSON.parse(stored) as StoredFilter
+  } catch {
+    return { mode: 'exclude', selected: [] }
+  }
+}
 
 export default function HomePage() {
   const { restaurants, isHydrated } = useRestaurants()
   const [budget, setBudget] = useState<number>(DEFAULT_BUDGET)
   const [history, setHistory] = useState<WeeklyPlan[]>([])
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
+  const [filterMode, setFilterMode] = useState<FilterMode>(() => readStoredFilter().mode)
+  const [selectedCuisines, setSelectedCuisines] = useState<Set<CuisineType>>(
+    () => new Set(readStoredFilter().selected),
+  )
 
   const plan = history.length > 0 ? history[selectedIndex] : null
 
+  const filteredPool = applyFilter(restaurants, filterMode, [...selectedCuisines])
+  const showWarning = isHydrated && selectedCuisines.size > 0 && filteredPool.length < POOL_WARNING_THRESHOLD
+  const relaxDiversity = filterMode === 'lock' && selectedCuisines.size === 1
+
+  useEffect(() => {
+    if (!isHydrated) return
+    try {
+      localStorage.setItem(
+        FILTER_STORAGE_KEY,
+        JSON.stringify({ mode: filterMode, selected: [...selectedCuisines] }),
+      )
+    } catch {
+      // Ignore storage errors
+    }
+  }, [filterMode, selectedCuisines, isHydrated])
+
+  function handleFilterModeChange(newMode: string) {
+    setFilterMode(newMode as FilterMode)
+    setHistory([])
+    setSelectedIndex(0)
+  }
+
+  function toggleCuisine(cuisine: CuisineType) {
+    setSelectedCuisines((prev) => {
+      const next = new Set(prev)
+      if (next.has(cuisine)) {
+        next.delete(cuisine)
+      } else {
+        next.add(cuisine)
+      }
+      return next
+    })
+    setHistory([])
+    setSelectedIndex(0)
+  }
+
+  function resetFilter() {
+    setFilterMode('exclude')
+    setSelectedCuisines(new Set())
+    setHistory([])
+    setSelectedIndex(0)
+  }
+
   function handleGenerate() {
-    if (restaurants.length === 0 || isNaN(budget)) return
-    const newPlan = generateWeeklyPlan(restaurants, budget)
+    if (filteredPool.length === 0 || isNaN(budget)) return
+    const newPlan = generateWeeklyPlan(filteredPool, budget, { relaxDiversity })
     setHistory((prev) => [newPlan, ...prev].slice(0, MAX_HISTORY))
     setSelectedIndex(0)
   }
 
   function handleReroll(index: number) {
     if (!plan) return
-    const updated = rerollSlot(plan, index, restaurants)
+    const updated = rerollSlot(plan, index, filteredPool, { relaxDiversity })
     setHistory((prev) => prev.map((p, i) => (i === selectedIndex ? updated : p)))
   }
 
@@ -61,11 +128,64 @@ export default function HomePage() {
           onChange={(e) => setBudget(e.target.valueAsNumber)}
           className="w-32"
         />
-        <Button onClick={handleGenerate} disabled={restaurants.length === 0}>
+        <Button onClick={handleGenerate} disabled={restaurants.length === 0 || filteredPool.length === 0}>
           產生本週午餐計畫
         </Button>
         {restaurants.length === 0 && (
           <span className="text-sm text-muted-foreground">（請先新增餐廳）</span>
+        )}
+      </div>
+
+      {/* Cuisine filter section */}
+      <div className="mb-6 space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Tabs value={filterMode} onValueChange={handleFilterModeChange}>
+            <TabsList>
+              <TabsTrigger value="exclude">排除</TabsTrigger>
+              <TabsTrigger value="lock">鎖定</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {(Object.entries(CUISINE_META) as [CuisineType, { label: string; color: string }][]).map(
+              ([key, meta]) => (
+                <button
+                  key={key}
+                  onClick={() => toggleCuisine(key)}
+                  className={cn(
+                    'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-white transition-all',
+                    selectedCuisines.has(key)
+                      ? 'opacity-100 ring-2 ring-offset-2 ring-offset-background'
+                      : 'opacity-40 hover:opacity-60',
+                  )}
+                  style={{
+                    backgroundColor: meta.color,
+                    ...(selectedCuisines.has(key) ? ({ '--tw-ring-color': meta.color } as React.CSSProperties) : {}),
+                  }}
+                  aria-pressed={selectedCuisines.has(key)}
+                >
+                  {meta.label}
+                </button>
+              ),
+            )}
+          </div>
+
+          {selectedCuisines.size > 0 && (
+            <button
+              onClick={resetFilter}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              重置
+            </button>
+          )}
+        </div>
+
+        {showWarning && (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            {filteredPool.length === 0
+              ? '目前篩選條件下沒有符合的餐廳，請調整篩選條件'
+              : `目前篩選條件下只有 ${filteredPool.length} 家餐廳，可能無法填滿 5 天`}
+          </p>
         )}
       </div>
 

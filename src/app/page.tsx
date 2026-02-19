@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Copy } from 'lucide-react'
+import { toast } from 'sonner'
 
 const DAY_LABELS = ['星期一', '星期二', '星期三', '星期四', '星期五']
 const DEFAULT_BUDGET = 750
@@ -36,6 +37,13 @@ function readStoredFilter(): StoredFilter {
   } catch {
     return { mode: 'exclude', selected: [] }
   }
+}
+
+function formatWeeklyPlan(plan: WeeklyPlan): string {
+  const lines = plan.days.map(
+    (r, i) => `${DAY_LABELS[i]}｜${r.name} ${CUISINE_META[r.type].label} NT$${r.price}`,
+  )
+  return ['本週午餐計畫 🍱', ...lines, `總花費：NT$${plan.totalCost}`].join('\n')
 }
 
 export default function HomePage() {
@@ -124,6 +132,20 @@ export default function HomePage() {
       restaurantName: r.name,
     }))
     addEntries(newEntries)
+  }
+
+  async function handleCopy() {
+    if (!plan) return
+    if (!navigator.clipboard) {
+      toast.error('複製失敗，請手動複製')
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(formatWeeklyPlan(plan))
+      toast('已複製到剪貼簿 ✓')
+    } catch {
+      toast.error('複製失敗，請手動複製')
+    }
   }
 
   if (!ready) {
@@ -235,9 +257,15 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            本週總花費：NT$ {plan.totalCost}　剩餘預算：NT$ {plan.weeklyBudget - plan.totalCost}
-          </p>
+          <div className="mt-4 flex items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              本週總花費：NT$ {plan.totalCost}　剩餘預算：NT$ {plan.weeklyBudget - plan.totalCost}
+            </p>
+            <Button variant="outline" size="sm" onClick={handleCopy}>
+              <Copy className="size-4 mr-1" />
+              複製計畫
+            </Button>
+          </div>
           <div className="mt-4 space-y-1">
             <Button variant="outline" onClick={handleConfirmPlan}>
               確認本週計畫

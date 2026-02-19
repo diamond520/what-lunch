@@ -299,7 +299,7 @@ describe('applyFilter', () => {
     { id: 'chi1', name: 'CHI1', type: 'chi', price: 80, distance: 100, rating: 4.0 },
     { id: 'jp1', name: 'JP1', type: 'jp', price: 90, distance: 200, rating: 4.2 },
     { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 150, rating: 4.1 },
-    { id: 'tai1', name: 'TAI1', type: 'tai', price: 70, distance: 300, rating: 3.9 },
+    { id: 'thai1', name: 'THAI1', type: 'thai', price: 70, distance: 300, rating: 3.9 },
     { id: 'west1', name: 'WEST1', type: 'west', price: 120, distance: 250, rating: 4.5 },
   ]
 

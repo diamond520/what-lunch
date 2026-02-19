@@ -28,7 +28,7 @@ describe('pickRandomRestaurant', () => {
       { id: 'w2', name: '假日餐廳B', type: 'jp', price: 350, distance: 800, rating: 4.3 },
       { id: 'w3', name: '假日餐廳C', type: 'chi', price: 200, distance: 600, rating: 4.0 },
       { id: 'w4', name: '假日餐廳D', type: 'kr', price: 300, distance: 500, rating: 4.1 },
-      { id: 'w5', name: '假日餐廳E', type: 'tai', price: 250, distance: 700, rating: 3.9 },
+      { id: 'w5', name: '假日餐廳E', type: 'thai', price: 250, distance: 700, rating: 3.9 },
     ]
     const seenIds = new Set<string>()
     for (let i = 0; i < 50; i++) {

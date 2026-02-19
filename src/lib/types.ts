@@ -7,11 +7,12 @@ export const CUISINE_META = {
   chi: { label: '中式', color: '#67C23A' },
   jp: { label: '日式', color: '#E6A23C' },
   kr: { label: '韓式', color: '#F56C6C' },
-  tai: { label: '泰式', color: '#909399' },
+  tw: { label: '台式', color: '#8B5CF6' },
+  thai: { label: '泰式', color: '#909399' },
   west: { label: '西式', color: '#109399' },
 } as const satisfies Record<string, { label: string; color: string }>
 
-// CuisineType is inferred as: 'chi' | 'jp' | 'kr' | 'tai' | 'west'
+// CuisineType is inferred as: 'chi' | 'jp' | 'kr' | 'tw' | 'thai' | 'west'
 // This union is derived from CUISINE_META keys — adding a new cuisine here
 // automatically expands the type, and forgetting to add a color/label causes
 // a TypeScript error at the definition site, not at the usage site.

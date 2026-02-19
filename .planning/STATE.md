@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 8 - Cuisine Filter (Phase 7 Dark Mode complete)
+**Current focus:** Phase 8 - Cuisine Filter (Plan 01 complete, Plan 02 pending)
 
 ## Current Position
 
-Phase: 7 of 11 (Dark Mode)
-Plan: 1 of 1 in phase 07-dark-mode — COMPLETE
-Status: Phase complete — ready for Phase 8 (Cuisine Filter)
-Last activity: 2026-02-19 — Completed 07-01-PLAN.md fully (human verification approved)
+Phase: 8 of 11 (Cuisine Filter)
+Plan: 1 of 2 in phase 08-cuisine-filter — COMPLETE
+Status: Plan 08-01 complete — ready for Plan 08-02 (Cuisine Filter UI)
+Last activity: 2026-02-19 — Completed 08-01-PLAN.md (applyFilter + relaxDiversity via TDD)
 
-Progress: [████████░░░] 71% (12 plans complete of ~17 planned)
+Progress: [████████░░░] 76% (13 plans complete of ~17 planned)
 
 ## Performance Metrics
 
@@ -34,6 +34,7 @@ Progress: [████████░░░] 71% (12 plans complete of ~17 plan
 | 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
 | 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
 | 07-dark-mode | 1 completed | ~2 min | ~2 min |
+| 08-cuisine-filter | 1 of 2 completed | 13 min | 13 min |
 
 **Recent Trend:**
 - Last 5 plans: ~1 min (05-01), ~2 min (06-01), ~2 min (06-02), ~1 min (06-03), ~2 min (07-01)
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - attribute='class' in ThemeProvider: aligns with existing @custom-variant dark (&:is(.dark *)) — no CSS changes needed
 - mounted guard in ThemeToggle: useTheme() returns undefined on server; guard prevents hydration mismatch
 - suppressHydrationWarning on html element: next-themes modifies class attribute client-side
+- relaxDiversity uses early-return in hasCuisineViolation (if relaxDiversity return false) rather than conditional branches throughout
+- generateWeeklyPlan/rerollSlot accept options object ({ relaxDiversity?: boolean }) for forward-compatible extensibility
+- applyFilter with empty selected array returns pool unchanged in both modes — no-op semantics match UI use case where unselected means "all allowed"
 
 ### Roadmap Evolution
 
@@ -116,6 +120,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T00:32:28Z
-Stopped at: Completed 07-01-PLAN.md fully (human verify approved)
+Last session: 2026-02-19T01:31:00Z
+Stopped at: Completed 08-01-PLAN.md (applyFilter + relaxDiversity via TDD)
 Resume file: None

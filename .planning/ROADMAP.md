@@ -178,10 +178,12 @@ Plans:
   3. The recommendation algorithm deprioritizes restaurants visited in the last N days (configurable, default 5 business days)
   4. Users can clear history or remove individual entries
   5. History persists across page reloads
-**Plans**: 0 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 9 to break down)
+- [ ] 09-01-PLAN.md — History lib (types, localStorage, business day logic, pool-split) and HistoryContext provider
+- [ ] 09-02-PLAN.md — History page, confirm plan button, history-aware pool deprioritization, nav link
+- [ ] 09-03-PLAN.md — TDD unit tests for getRecentlyVisitedIds and splitPoolByHistory
 
 ---
 
@@ -210,10 +212,11 @@ Plans:
   3. The animation runs for 2-3 seconds before settling on the final result
   4. The animation works on both the weekday picker and weekend picker pages
   5. Users can skip the animation by clicking again or pressing a key
-**Plans**: 0 plans
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 11 to break down)
+- [ ] 11-01-PLAN.md — useSlotAnimation hook + weekend page animation + hook tests + updated weekend tests
+- [ ] 11-02-PLAN.md — Weekday page multi-slot animation + integration test updates + human verification
 
 ---
 
@@ -232,10 +235,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
 | 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
 | 8. Cuisine Filter | 0/2 | Planned | - |
-| 9. Lunch History | 0/0 | Not planned | - |
+| 9. Lunch History | 0/3 | Planned | - |
 | 10. Share Plan | 0/1 | Planned | - |
-| 11. Wheel Animation | 0/0 | Not planned | - |
+| 11. Wheel Animation | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-19 after Phase 10 planned*
+*Last updated: 2026-02-19 after Phase 11 planned*

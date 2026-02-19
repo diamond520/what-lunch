@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 11 - Wheel Animation (plan 1 of 2 done)
+**Current focus:** Phase 11 - Wheel Animation (complete, 2 of 2 plans done)
 
 ## Current Position
 
 Phase: 11 of 11 (Wheel Animation)
-Plan: 1 of 2 in phase 11-wheel-animation
-Status: Active — 11-01 complete, 1 of 2 plans in phase 11 done
-Last activity: 2026-02-19 — Completed 11-01-PLAN.md (weekend slot animation)
+Plan: 2 of 2 in phase 11-wheel-animation
+Status: Complete — all 11 phases done, 20 of 20 plans complete
+Last activity: 2026-02-19 — Completed 11-02-PLAN.md (weekday multi-slot animation)
 
-Progress: [███████████] 95% (19 plans complete of ~20 planned)
+Progress: [████████████] 100% (20 plans complete of 20 planned)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19 fully
+- Total plans completed: 20 fully
 - Average duration: ~2 min
-- Total execution time: ~31 min
+- Total execution time: ~34 min
 
 **By Phase:**
 
@@ -37,10 +37,10 @@ Progress: [███████████] 95% (19 plans complete of ~20 plan
 | 08-cuisine-filter | 2 of 2 completed | 28 min | 14 min |
 | 09-lunch-history | 3 of 3 completed | 5 min | ~1.7 min |
 | 10-share-plan | 1 of 1 completed | 2 min | 2 min |
-| 11-wheel-animation | 1 of 2 completed | 3 min | 3 min |
+| 11-wheel-animation | 2 of 2 completed | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: ~1 min (09-01), ~2 min (09-02), ~2 min (09-03), ~2 min (10-01), ~3 min (11-01)
+- Last 5 plans: ~2 min (09-02), ~2 min (09-03), ~2 min (10-01), ~3 min (11-01), ~3 min (11-02)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -123,6 +123,9 @@ Recent decisions affecting current work:
 - stopAnimation accepts optional settledValue parameter: single helper for both cleanup-only and settle-with-value cases
 - fireEvent instead of userEvent in animation tests: userEvent with fake timers causes timeout hangs due to internal pointer event delays
 - useEffect deps [finalValue] only with eslint-disable: candidates/options are stable parent refs, not re-animation triggers
+- Inline timer state (not useSlotAnimation hook) for weekday page: hooks cannot be called in a loop per Rules of Hooks
+- fireEvent instead of userEvent in integration tests: userEvent with fake timers causes timeout hangs (same finding as 11-01)
+- HistoryProvider wraps RestaurantProvider in renderHomePage(): matches layout.tsx nesting order
 
 ### Roadmap Evolution
 
@@ -147,6 +150,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T02:15:52Z
-Stopped at: Completed 11-01-PLAN.md (weekend slot animation)
+Last session: 2026-02-19T02:22:03Z
+Stopped at: Completed 11-02-PLAN.md (weekday multi-slot animation) — ALL PHASES COMPLETE
 Resume file: None

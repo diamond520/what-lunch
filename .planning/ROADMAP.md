@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Cuisine Filter** - Exclude or lock specific cuisine types when generating weekly plans (completed 2026-02-19)
 - [x] **Phase 9: Lunch History** - Track daily lunch picks and avoid recommending recently visited restaurants
 - [x] **Phase 10: Share Plan** - One-click copy weekly plan as formatted text for LINE/clipboard (completed 2026-02-19)
-- [ ] **Phase 11: Wheel Animation** - Spinning wheel animation for restaurant picks to add fun
+- [x] **Phase 11: Wheel Animation** - Spinning wheel animation for restaurant picks to add fun
 
 ## Phase Details
 
@@ -216,7 +216,7 @@ Plans:
 
 Plans:
 - [x] 11-01-PLAN.md — useSlotAnimation hook + weekend page animation + hook tests + updated weekend tests
-- [ ] 11-02-PLAN.md — Weekday page multi-slot animation + integration test updates + human verification
+- [x] 11-02-PLAN.md — Weekday page multi-slot animation + integration test updates + human verification
 
 ---
 
@@ -237,8 +237,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. Cuisine Filter | 2/2 | Complete   | 2026-02-19 |
 | 9. Lunch History | 3/3 | Complete | 2026-02-19 |
 | 10. Share Plan | 1/1 | Complete   | 2026-02-19 |
-| 11. Wheel Animation | 1/2 | In Progress | - |
+| 11. Wheel Animation | 2/2 | Complete | 2026-02-19 |
 
 ---
 *Roadmap created: 2026-02-18*
-*Last updated: 2026-02-19 after 11-01 complete*
+*Last updated: 2026-02-19 after 11-02 complete (Phase 11 complete)*

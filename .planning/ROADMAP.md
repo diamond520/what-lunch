@@ -181,9 +181,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — History lib (types, localStorage, business day logic, pool-split) and HistoryContext provider
+- [x] 09-01-PLAN.md — History lib (types, localStorage, business day logic, pool-split) and HistoryContext provider
 - [ ] 09-02-PLAN.md — History page, confirm plan button, history-aware pool deprioritization, nav link
-- [ ] 09-03-PLAN.md — TDD unit tests for getRecentlyVisitedIds and splitPoolByHistory
+- [x] 09-03-PLAN.md — TDD unit tests for getRecentlyVisitedIds and splitPoolByHistory
 
 ---
 
@@ -235,7 +235,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
 | 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
 | 8. Cuisine Filter | 2/2 | Complete   | 2026-02-19 |
-| 9. Lunch History | 0/3 | Planned | - |
+| 9. Lunch History | 2/3 | In Progress| - |
 | 10. Share Plan | 0/1 | Planned | - |
 | 11. Wheel Animation | 0/2 | Planned | - |
 

@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 9 - Lunch History (plan 1 of 3 done)
+**Current focus:** Phase 9 - Lunch History (plan 3 of 3 done)
 
 ## Current Position
 
 Phase: 9 of 11 (Lunch History)
-Plan: 1 of 3 in phase 09-lunch-history
-Status: Active — 09-01 complete, ready for 09-02 (wire HistoryProvider into app)
-Last activity: 2026-02-19 — Completed 09-01-PLAN.md (history lib and context)
+Plan: 3 of 3 in phase 09-lunch-history
+Status: Active — 09-02 and 09-03 complete, all 3 plans in phase 09 done
+Last activity: 2026-02-19 — Completed 09-02-PLAN.md (wire history into app)
 
-Progress: [████████░░░] 85% (15 plans complete of ~17 planned)
+Progress: [██████████░] 94% (17 plans complete of ~17 planned)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15 fully
+- Total plans completed: 17 fully
 - Average duration: ~2 min
-- Total execution time: ~22 min
+- Total execution time: ~26 min
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [████████░░░] 85% (15 plans complete of ~17 plan
 | 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
 | 07-dark-mode | 1 completed | ~2 min | ~2 min |
 | 08-cuisine-filter | 2 of 2 completed | 28 min | 14 min |
-| 09-lunch-history | 1 of 3 completed | 1 min | 1 min |
+| 09-lunch-history | 3 of 3 completed | 5 min | ~1.7 min |
 
 **Recent Trend:**
-- Last 5 plans: ~2 min (06-02), ~1 min (06-03), ~2 min (07-01), ~14 min (08-02), ~1 min (09-01)
+- Last 5 plans: ~1 min (06-03), ~2 min (07-01), ~14 min (08-02), ~1 min (09-01), ~2 min (09-03)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -108,6 +108,7 @@ Recent decisions affecting current work:
 - addEntries accepts array (not single): enables bulk add when confirming 5-day weekly plan
 - setLookbackDays clamps to min 1 in HistoryProvider — prevents degenerate 0-day lookback
 - lookbackDays persisted as String(n) in localStorage (not JSON) — simpler for single integer
+- Weekend entries within date range ARE counted as recent visits — cutoff is date-based via >= comparison, not business-day-based for entry filtering
 
 ### Roadmap Evolution
 
@@ -132,6 +133,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T01:57:22Z
-Stopped at: Completed 09-01-PLAN.md (history lib and context)
+Last session: 2026-02-19T02:03:11Z
+Stopped at: Completed 09-03-PLAN.md (history unit tests)
 Resume file: None

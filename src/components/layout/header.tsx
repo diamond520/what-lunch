@@ -38,7 +38,7 @@ export function Header() {
           <Menu className="size-5" />
         </Button>
 
-        <span className="mr-6 font-semibold text-foreground">What Lunch? <span className="text-xs text-muted-foreground font-normal">v2.0</span></span>
+        <span className="mr-6 font-semibold text-foreground">What Lunch?</span>
         <NavLinks />
         <div className="ml-auto">
           <ThemeToggle />

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/header'
 import { RestaurantProvider } from '@/lib/restaurant-context'
+import { HistoryProvider } from '@/lib/history-context'
 import { ThemeProvider } from '@/components/theme-provider'
 
 const geistSans = Geist({
@@ -35,9 +36,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <RestaurantProvider>
-            <main className="min-h-screen">{children}</main>
-          </RestaurantProvider>
+          <HistoryProvider>
+            <RestaurantProvider>
+              <main className="min-h-screen">{children}</main>
+            </RestaurantProvider>
+          </HistoryProvider>
         </ThemeProvider>
       </body>
     </html>

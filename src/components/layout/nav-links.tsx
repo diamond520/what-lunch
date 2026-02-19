@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: '/', label: '今日推薦' },
   { href: '/restaurants', label: '餐廳管理' },
   { href: '/weekend', label: '假日推薦' },
+  { href: '/history', label: '午餐歷史' },
 ] as const
 
 export function NavLinks() {

@@ -1,7 +1,8 @@
-import { describe, test, expect, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RestaurantProvider } from '@/lib/restaurant-context'
+import { HistoryProvider } from '@/lib/history-context'
 import RestaurantsPage from '@/app/restaurants/page'
 import HomePage from '@/app/page'
 
@@ -28,6 +29,10 @@ beforeEach(() => {
   localStorageMock.clear()
 })
 
+afterEach(() => {
+  vi.useRealTimers()
+})
+
 function renderRestaurantsPage() {
   return render(
     <RestaurantProvider>
@@ -38,9 +43,11 @@ function renderRestaurantsPage() {
 
 function renderHomePage() {
   return render(
-    <RestaurantProvider>
-      <HomePage />
-    </RestaurantProvider>,
+    <HistoryProvider>
+      <RestaurantProvider>
+        <HomePage />
+      </RestaurantProvider>
+    </HistoryProvider>,
   )
 }
 
@@ -85,10 +92,11 @@ describe('Integration: RestaurantsPage', () => {
 
 describe('Integration: HomePage', () => {
   test('generates a plan', async () => {
-    const user = userEvent.setup()
+    vi.useFakeTimers()
     renderHomePage()
 
-    await user.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    fireEvent.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    act(() => { vi.advanceTimersByTime(3000) })
 
     // Day labels should appear
     expect(screen.getByText('星期一')).toBeInTheDocument()
@@ -98,32 +106,36 @@ describe('Integration: HomePage', () => {
   })
 
   test('reroll changes a day', async () => {
-    const user = userEvent.setup()
+    vi.useFakeTimers()
     renderHomePage()
 
-    await user.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    fireEvent.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    act(() => { vi.advanceTimersByTime(3000) })
 
     // Get all reroll buttons
     const rerollButtons = screen.getAllByRole('button', { name: /重抽/ })
     expect(rerollButtons).toHaveLength(5)
 
     // Click first reroll — this should not crash and plan should still be visible
-    await user.click(rerollButtons[0])
+    fireEvent.click(rerollButtons[0])
+    act(() => { vi.advanceTimersByTime(3000) })
     expect(screen.getByText('星期一')).toBeInTheDocument()
     expect(screen.getByText(/本週總花費/)).toBeInTheDocument()
   })
 
   test('plan history appears after 2nd generate', async () => {
-    const user = userEvent.setup()
+    vi.useFakeTimers()
     renderHomePage()
 
     // Generate first plan
-    await user.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    fireEvent.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    act(() => { vi.advanceTimersByTime(3000) })
     // No history section yet (only 1 plan)
     expect(screen.queryByText('歷史計畫')).not.toBeInTheDocument()
 
     // Generate second plan
-    await user.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    fireEvent.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    act(() => { vi.advanceTimersByTime(3000) })
     // History section should appear
     expect(screen.getByText('歷史計畫')).toBeInTheDocument()
 
@@ -133,12 +145,14 @@ describe('Integration: HomePage', () => {
   })
 
   test('clicking history entry switches displayed plan', async () => {
-    const user = userEvent.setup()
+    vi.useFakeTimers()
     renderHomePage()
 
     // Generate two plans
-    await user.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
-    await user.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    fireEvent.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    act(() => { vi.advanceTimersByTime(3000) })
+    fireEvent.click(screen.getByRole('button', { name: '產生本週午餐計畫' }))
+    act(() => { vi.advanceTimersByTime(3000) })
 
     // The "目前檢視" marker should be on the first history entry (most recent)
     const currentLabel = screen.getByText('（目前檢視）')
@@ -149,7 +163,7 @@ describe('Integration: HomePage', () => {
       .getByText('歷史計畫')
       .closest('div')!
       .querySelectorAll('button')
-    await user.click(historyButtons[1])
+    fireEvent.click(historyButtons[1])
 
     // The displayed plan should still show day labels
     expect(screen.getByText('星期一')).toBeInTheDocument()

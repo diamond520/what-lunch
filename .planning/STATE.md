@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 8 - Cuisine Filter (Plan 01 complete, Plan 02 pending)
+**Current focus:** Phase 8 - Cuisine Filter (COMPLETE — both plans done)
 
 ## Current Position
 
 Phase: 8 of 11 (Cuisine Filter)
-Plan: 1 of 2 in phase 08-cuisine-filter — COMPLETE
-Status: Plan 08-01 complete — ready for Plan 08-02 (Cuisine Filter UI)
-Last activity: 2026-02-19 — Completed 08-01-PLAN.md (applyFilter + relaxDiversity via TDD)
+Plan: 2 of 2 in phase 08-cuisine-filter — COMPLETE
+Status: Phase 08 complete — ready for Phase 09 (Lunch History)
+Last activity: 2026-02-19 — Completed 08-02-PLAN.md (cuisine filter UI on picker page)
 
-Progress: [████████░░░] 76% (13 plans complete of ~17 planned)
+Progress: [████████░░░] 82% (14 plans complete of ~17 planned)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12 fully
+- Total plans completed: 14 fully
 - Average duration: ~2 min
 - Total execution time: ~21 min
 
@@ -34,7 +34,7 @@ Progress: [████████░░░] 76% (13 plans complete of ~17 plan
 | 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
 | 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
 | 07-dark-mode | 1 completed | ~2 min | ~2 min |
-| 08-cuisine-filter | 1 of 2 completed | 13 min | 13 min |
+| 08-cuisine-filter | 2 of 2 completed | 28 min | 14 min |
 
 **Recent Trend:**
 - Last 5 plans: ~1 min (05-01), ~2 min (06-01), ~2 min (06-02), ~1 min (06-03), ~2 min (07-01)
@@ -96,6 +96,11 @@ Recent decisions affecting current work:
 - relaxDiversity uses early-return in hasCuisineViolation (if relaxDiversity return false) rather than conditional branches throughout
 - generateWeeklyPlan/rerollSlot accept options object ({ relaxDiversity?: boolean }) for forward-compatible extensibility
 - applyFilter with empty selected array returns pool unchanged in both modes — no-op semantics match UI use case where unselected means "all allowed"
+- Cuisine filter selections preserved when switching 排除/鎖定 mode — user may want to compare behavior without re-selecting
+- Plan auto-clears on any filter change — consistent with existing budget-change behavior (setHistory([]))
+- Generate button disabled when filteredPool.length === 0 (in addition to restaurants.length === 0)
+- relaxDiversity only true in lock mode with exactly 1 cuisine type selected — single-cuisine lock makes diversity constraint impossible to satisfy
+- readStoredFilter() called only in useState lazy initializer — avoids repeated localStorage reads on re-render
 
 ### Roadmap Evolution
 
@@ -120,6 +125,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T01:31:00Z
-Stopped at: Completed 08-01-PLAN.md (applyFilter + relaxDiversity via TDD)
+Last session: 2026-02-19T01:50:37Z
+Stopped at: Completed 08-02-PLAN.md (cuisine filter UI on picker page)
 Resume file: None

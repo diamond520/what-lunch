@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header'
 import { RestaurantProvider } from '@/lib/restaurant-context'
 import { HistoryProvider } from '@/lib/history-context'
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,6 +42,7 @@ export default function RootLayout({
               <main className="min-h-screen">{children}</main>
             </RestaurantProvider>
           </HistoryProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

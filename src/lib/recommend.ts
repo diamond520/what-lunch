@@ -24,7 +24,10 @@ function hasCuisineViolation(
   plan: Restaurant[],
   slotIndex: number,
   candidate: Restaurant,
+  relaxDiversity = false,
 ): boolean {
+  if (relaxDiversity) return false
+
   const prev1 = plan[slotIndex - 1]
   const prev2 = plan[slotIndex - 2]
   const next1 = plan[slotIndex + 1]
@@ -58,6 +61,7 @@ function pickForSlot(
   planSoFar: Restaurant[],
   slotIndex: number,
   slotsRemaining: number,
+  relaxDiversity = false,
 ): Restaurant {
   // Reserve budget for future slots (each future slot needs at least cheapest price)
   const futureSlots = slotsRemaining - 1
@@ -66,7 +70,7 @@ function pickForSlot(
 
   // Filter to eligible: affordable (leaving enough for future) AND no cuisine violation
   const eligible = pool.filter(
-    (r) => r.price <= spendableNow && !hasCuisineViolation(planSoFar, slotIndex, r),
+    (r) => r.price <= spendableNow && !hasCuisineViolation(planSoFar, slotIndex, r, relaxDiversity),
   )
 
   if (eligible.length > 0) {
@@ -93,10 +97,11 @@ function pickForSlotReroll(
   remaining: number,
   fullPlan: Restaurant[],
   slotIndex: number,
+  relaxDiversity = false,
 ): Restaurant {
   // Filter to eligible: affordable AND no cuisine violation (using full plan for neighbor checks)
   const eligible = pool.filter(
-    (r) => r.price <= remaining && !hasCuisineViolation(fullPlan, slotIndex, r),
+    (r) => r.price <= remaining && !hasCuisineViolation(fullPlan, slotIndex, r, relaxDiversity),
   )
 
   if (eligible.length > 0) {
@@ -120,14 +125,18 @@ function hasConsecutiveCuisineViolation(days: Restaurant[]): boolean {
   return false
 }
 
-function generatePlanAttempt(pool: Restaurant[], weeklyBudget: number): WeeklyPlan {
+function generatePlanAttempt(
+  pool: Restaurant[],
+  weeklyBudget: number,
+  relaxDiversity = false,
+): WeeklyPlan {
   const DAYS = 5
   const days: Restaurant[] = []
   let remainingBudget = weeklyBudget
 
   for (let i = 0; i < DAYS; i++) {
     const slotsRemaining = DAYS - i
-    const pick = pickForSlot(pool, remainingBudget, days, i, slotsRemaining)
+    const pick = pickForSlot(pool, remainingBudget, days, i, slotsRemaining, relaxDiversity)
     days.push(pick)
     remainingBudget -= pick.price
   }
@@ -141,9 +150,20 @@ function generatePlanAttempt(pool: Restaurant[], weeklyBudget: number): WeeklyPl
   }
 }
 
-export function generateWeeklyPlan(pool: Restaurant[], weeklyBudget: number): WeeklyPlan {
+export function generateWeeklyPlan(
+  pool: Restaurant[],
+  weeklyBudget: number,
+  options?: { relaxDiversity?: boolean },
+): WeeklyPlan {
   if (pool.length === 0) {
     throw new Error('Restaurant pool cannot be empty')
+  }
+
+  const relaxDiversity = options?.relaxDiversity ?? false
+
+  // When diversity is relaxed, all plans are valid — skip retry loop
+  if (relaxDiversity) {
+    return generatePlanAttempt(pool, weeklyBudget, true)
   }
 
   // Retry to find a plan without cuisine violations (different random picks each attempt)
@@ -157,13 +177,20 @@ export function generateWeeklyPlan(pool: Restaurant[], weeklyBudget: number): We
   return generatePlanAttempt(pool, weeklyBudget)
 }
 
-export function rerollSlot(plan: WeeklyPlan, slotIndex: number, pool: Restaurant[]): WeeklyPlan {
+export function rerollSlot(
+  plan: WeeklyPlan,
+  slotIndex: number,
+  pool: Restaurant[],
+  options?: { relaxDiversity?: boolean },
+): WeeklyPlan {
+  const relaxDiversity = options?.relaxDiversity ?? false
+
   // Calculate budget available for the new pick (total budget minus cost of all other days)
   const othersCost = plan.days.reduce((sum, r, i) => (i === slotIndex ? sum : sum + r.price), 0)
   const remaining = plan.weeklyBudget - othersCost
 
   // Pick a new restaurant for this slot using the full plan for bidirectional cuisine checking
-  const pick = pickForSlotReroll(pool, remaining, plan.days, slotIndex)
+  const pick = pickForSlotReroll(pool, remaining, plan.days, slotIndex, relaxDiversity)
 
   const newDays = [...plan.days]
   newDays[slotIndex] = pick

@@ -339,3 +339,38 @@ describe('applyFilter', () => {
     expect(result).toEqual(testPool)
   })
 })
+
+describe('relaxDiversity', () => {
+  const chiPool: Restaurant[] = [
+    { id: 'chi1', name: 'CHI1', type: 'chi', price: 80, distance: 100, rating: 4.0 },
+    { id: 'chi2', name: 'CHI2', type: 'chi', price: 90, distance: 120, rating: 4.1 },
+    { id: 'chi3', name: 'CHI3', type: 'chi', price: 70, distance: 130, rating: 3.9 },
+    { id: 'chi4', name: 'CHI4', type: 'chi', price: 85, distance: 140, rating: 4.2 },
+    { id: 'chi5', name: 'CHI5', type: 'chi', price: 75, distance: 150, rating: 4.0 },
+  ]
+
+  test('generateWeeklyPlan with relaxDiversity returns valid plan from single-cuisine pool', () => {
+    const plan = generateWeeklyPlan(chiPool, 1000, { relaxDiversity: true })
+    expect(plan.days).toHaveLength(5)
+    expect(plan.totalCost).toBeLessThanOrEqual(1000)
+  })
+
+  test('rerollSlot with relaxDiversity returns valid plan from single-cuisine pool', () => {
+    const plan = generateWeeklyPlan(chiPool, 1000, { relaxDiversity: true })
+    const updated = rerollSlot(plan, 2, chiPool, { relaxDiversity: true })
+    expect(updated.days).toHaveLength(5)
+    expect(updated.totalCost).toBeLessThanOrEqual(1000)
+  })
+
+  test('existing behavior unchanged — mixed pool without relaxDiversity still avoids 3-consecutive violations', () => {
+    for (let i = 0; i < 20; i++) {
+      const plan = generateWeeklyPlan(DEFAULT_RESTAURANTS, 1000)
+      for (let j = 2; j < plan.days.length; j++) {
+        const triple =
+          plan.days[j].type === plan.days[j - 1].type &&
+          plan.days[j].type === plan.days[j - 2].type
+        expect(triple, `3-consecutive violation at index ${j}`).toBe(false)
+      }
+    }
+  })
+})

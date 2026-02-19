@@ -1,6 +1,5 @@
-import { describe, test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { describe, test, expect, vi, afterEach } from 'vitest'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import { RestaurantContext } from '@/lib/restaurant-context'
 import WeekendPage from '@/app/weekend/page'
 import type { Restaurant } from '@/lib/types'
@@ -31,6 +30,10 @@ function renderWeekendPage(weekendRestaurants: Restaurant[] = mockWeekendRestaur
 }
 
 describe('WeekendPage', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   test('shows page title "假日推薦"', () => {
     renderWeekendPage()
     expect(screen.getByRole('heading', { name: '假日推薦' })).toBeInTheDocument()
@@ -42,27 +45,33 @@ describe('WeekendPage', () => {
     expect(screen.getByRole('link', { name: /餐廳管理/ })).toHaveAttribute('href', '/restaurants')
   })
 
-  test('roll button picks a restaurant from the pool', async () => {
+  test('roll button picks a restaurant from the pool', () => {
+    vi.useFakeTimers()
     renderWeekendPage()
-    const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: /隨機推薦/ }))
+    fireEvent.click(screen.getByRole('button', { name: /隨機推薦/ }))
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
     const names = mockWeekendRestaurants.map((r) => r.name)
     const displayed = names.find((n) => screen.queryByText(n))
     expect(displayed).toBeDefined()
   })
 
-  test('re-roll button appears after first pick but not before', async () => {
+  test('re-roll button appears after first pick but not before', () => {
+    vi.useFakeTimers()
     renderWeekendPage()
-    const user = userEvent.setup()
     expect(screen.queryByRole('button', { name: /換一間/ })).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /隨機推薦/ }))
+    fireEvent.click(screen.getByRole('button', { name: /隨機推薦/ }))
     expect(screen.getByRole('button', { name: /換一間/ })).toBeInTheDocument()
   })
 
-  test('result card shows restaurant price after rolling', async () => {
+  test('result card shows restaurant price after rolling', () => {
+    vi.useFakeTimers()
     renderWeekendPage()
-    const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: /隨機推薦/ }))
+    fireEvent.click(screen.getByRole('button', { name: /隨機推薦/ }))
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
     const priceVisible = screen.queryByText(/500/) || screen.queryByText(/350/)
     expect(priceVisible).toBeInTheDocument()
   })

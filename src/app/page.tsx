@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRestaurants } from '@/lib/restaurant-context'
 import { useHistory } from '@/lib/history-context'
-import { generateWeeklyPlan, rerollSlot, applyFilter, type FilterMode, type WeeklyPlan } from '@/lib/recommend'
+import {
+  generateWeeklyPlan,
+  rerollSlot,
+  applyFilter,
+  type FilterMode,
+  type WeeklyPlan,
+} from '@/lib/recommend'
 import { getRecentlyVisitedIds, splitPoolByHistory, type LunchHistoryEntry } from '@/lib/history'
 import { CUISINE_META, type CuisineType } from '@/lib/types'
 import { Button } from '@/components/ui/button'
@@ -80,10 +86,11 @@ export default function HomePage() {
   const { primary, fallback } = splitPoolByHistory(filteredPool, recentIds)
   const effectivePool = primary.length > 0 ? primary : fallback
 
-  const allRestaurantNames = useMemo(() => restaurants.map(r => r.name), [restaurants])
+  const allRestaurantNames = useMemo(() => restaurants.map((r) => r.name), [restaurants])
 
   const ready = isHydrated && historyHydrated
-  const showWarning = isHydrated && selectedCuisines.size > 0 && filteredPool.length < POOL_WARNING_THRESHOLD
+  const showWarning =
+    isHydrated && selectedCuisines.size > 0 && filteredPool.length < POOL_WARNING_THRESHOLD
   const relaxDiversity = filterMode === 'lock' && selectedCuisines.size === 1
 
   useEffect(() => {
@@ -154,9 +161,10 @@ export default function HomePage() {
     genIntervalRef.current = setInterval(() => {
       idx++
       setDisplayNames(
-        Array.from({ length: 5 }, (_, i) =>
-          allRestaurantNames[(idx + i * 3) % allRestaurantNames.length] ?? null
-        )
+        Array.from(
+          { length: 5 },
+          (_, i) => allRestaurantNames[(idx + i * 3) % allRestaurantNames.length] ?? null,
+        ),
       )
     }, 80)
 
@@ -164,7 +172,7 @@ export default function HomePage() {
       stopGenAnimation()
       setDisplayNames(Array(5).fill(null))
       setAnimatingSlots(new Set())
-    }, 2500)
+    }, 1000)
   }
 
   function handleReroll(index: number) {
@@ -193,7 +201,7 @@ export default function HomePage() {
         return next
       })
       setAnimatingSlots(new Set())
-    }, 2500)
+    }, 1000)
   }
 
   function handleConfirmPlan() {
@@ -241,17 +249,17 @@ export default function HomePage() {
 
   if (!ready) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">每週午餐推薦</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-8">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-6">每週午餐推薦</h1>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">每週午餐推薦</h1>
+    <div className="container mx-auto px-3 sm:px-4 py-8">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-6">每週午餐推薦</h1>
 
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6">
         <Label htmlFor="budget">每週預算 (NT$)</Label>
         <Input
           id="budget"
@@ -261,9 +269,13 @@ export default function HomePage() {
           step={BUDGET_STEP}
           value={budget}
           onChange={(e) => setBudget(e.target.valueAsNumber)}
-          className="w-32"
+          className="w-full sm:w-32"
         />
-        <Button onClick={handleGenerate} disabled={restaurants.length === 0 || effectivePool.length === 0 || isAnyAnimating}>
+        <Button
+          onClick={handleGenerate}
+          disabled={restaurants.length === 0 || effectivePool.length === 0 || isAnyAnimating}
+          className="w-full sm:w-auto"
+        >
           產生本週午餐計畫
         </Button>
         {restaurants.length === 0 && (
@@ -276,34 +288,40 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center gap-3">
           <Tabs value={filterMode} onValueChange={handleFilterModeChange}>
             <TabsList>
-              <TabsTrigger value="exclude" disabled={isAnyAnimating}>排除</TabsTrigger>
-              <TabsTrigger value="lock" disabled={isAnyAnimating}>鎖定</TabsTrigger>
+              <TabsTrigger value="exclude" disabled={isAnyAnimating}>
+                排除
+              </TabsTrigger>
+              <TabsTrigger value="lock" disabled={isAnyAnimating}>
+                鎖定
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="flex flex-wrap items-center gap-2">
-            {(Object.entries(CUISINE_META) as [CuisineType, { label: string; color: string }][]).map(
-              ([key, meta]) => (
-                <button
-                  key={key}
-                  onClick={() => toggleCuisine(key)}
-                  disabled={isAnyAnimating}
-                  className={cn(
-                    'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-white transition-all',
-                    selectedCuisines.has(key)
-                      ? 'opacity-100 ring-2 ring-offset-2 ring-offset-background'
-                      : 'opacity-40 hover:opacity-60',
-                  )}
-                  style={{
-                    backgroundColor: meta.color,
-                    ...(selectedCuisines.has(key) ? ({ '--tw-ring-color': meta.color } as React.CSSProperties) : {}),
-                  }}
-                  aria-pressed={selectedCuisines.has(key)}
-                >
-                  {meta.label}
-                </button>
-              ),
-            )}
+            {(
+              Object.entries(CUISINE_META) as [CuisineType, { label: string; color: string }][]
+            ).map(([key, meta]) => (
+              <button
+                key={key}
+                onClick={() => toggleCuisine(key)}
+                disabled={isAnyAnimating}
+                className={cn(
+                  'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-white transition-all',
+                  selectedCuisines.has(key)
+                    ? 'opacity-100 ring-2 ring-offset-2 ring-offset-background'
+                    : 'opacity-40 hover:opacity-60',
+                )}
+                style={{
+                  backgroundColor: meta.color,
+                  ...(selectedCuisines.has(key)
+                    ? ({ '--tw-ring-color': meta.color } as React.CSSProperties)
+                    : {}),
+                }}
+                aria-pressed={selectedCuisines.has(key)}
+              >
+                {meta.label}
+              </button>
+            ))}
           </div>
 
           {selectedCuisines.size > 0 && (
@@ -328,12 +346,11 @@ export default function HomePage() {
 
       {plan !== null && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {plan.days.map((r, i) => {
               const slotIsAnimating = animatingSlots.has(i)
-              const nameToShow = slotIsAnimating && displayNames[i] !== null
-                ? displayNames[i]!
-                : r.name
+              const nameToShow =
+                slotIsAnimating && displayNames[i] !== null ? displayNames[i]! : r.name
               return (
                 <div
                   key={i}
@@ -341,12 +358,16 @@ export default function HomePage() {
                     'rounded-lg border bg-card p-4 flex flex-col gap-2',
                     slotIsAnimating && 'cursor-pointer',
                   )}
-                  onClick={slotIsAnimating ? () => {
-                    stopGenAnimation()
-                    stopRerollAnimation()
-                    setDisplayNames(Array(5).fill(null))
-                    setAnimatingSlots(new Set())
-                  } : undefined}
+                  onClick={
+                    slotIsAnimating
+                      ? () => {
+                          stopGenAnimation()
+                          stopRerollAnimation()
+                          setDisplayNames(Array(5).fill(null))
+                          setAnimatingSlots(new Set())
+                        }
+                      : undefined
+                  }
                 >
                   <p className="text-sm font-medium text-muted-foreground">{DAY_LABELS[i]}</p>
                   <p className="font-semibold">{nameToShow}</p>
@@ -365,10 +386,17 @@ export default function HomePage() {
                         {CUISINE_META[r.type].label}
                       </span>
                       <p className="text-sm">NT$ {r.price}</p>
-                      <p className="text-sm text-muted-foreground">{r.distance} m・⭐ {r.rating}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {r.distance} m・⭐ {r.rating}
+                      </p>
                     </div>
                   )}
-                  <Button variant="outline" size="sm" onClick={() => handleReroll(i)} disabled={isAnyAnimating}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleReroll(i)}
+                    disabled={isAnyAnimating}
+                  >
                     <RefreshCw className="size-3 mr-1" />
                     重抽
                   </Button>
@@ -379,11 +407,11 @@ export default function HomePage() {
               )
             })}
           </div>
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <p className="text-sm text-muted-foreground">
               本週總花費：NT$ {plan.totalCost}　剩餘預算：NT$ {plan.weeklyBudget - plan.totalCost}
             </p>
-            <Button variant="outline" size="sm" onClick={handleCopy}>
+            <Button variant="outline" size="sm" onClick={handleCopy} className="w-full sm:w-auto">
               <Copy className="size-4 mr-1" />
               複製計畫
             </Button>

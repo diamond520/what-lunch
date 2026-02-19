@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: '/', label: '今日推薦' },
   { href: '/restaurants', label: '餐廳管理' },
   { href: '/weekend', label: '假日推薦' },
@@ -22,7 +22,7 @@ export function NavLinks() {
   const pathname = usePathname() ?? '/'
 
   return (
-    <NavigationMenu>
+    <NavigationMenu className="hidden md:flex">
       <NavigationMenuList>
         {NAV_ITEMS.map(({ href, label }) => (
           <NavigationMenuItem key={href}>

@@ -39,16 +39,16 @@ export default function WeekendPage() {
 
   if (!isHydrated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">假日推薦</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-8">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-6">假日推薦</h1>
       </div>
     )
   }
 
   if (weekendRestaurants.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">假日推薦</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-8">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-6">假日推薦</h1>
         <p className="text-muted-foreground mb-4">尚未新增假日餐廳</p>
         <Link href="/restaurants" className="text-primary underline underline-offset-4">
           前往餐廳管理新增假日餐廳（切換至「假日餐廳」分頁）
@@ -90,17 +90,17 @@ export default function WeekendPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">假日推薦</h1>
+    <div className="container mx-auto px-3 sm:px-4 py-8">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-6">假日推薦</h1>
 
-      <div className="flex gap-3 mb-8">
-        <Button onClick={handleRoll} disabled={isAnimating}>隨機推薦</Button>
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-8">
+        <Button onClick={handleRoll} disabled={isAnimating} className="w-full sm:w-auto">隨機推薦</Button>
         {current !== null && (
           <>
-            <Button variant="outline" onClick={handleReroll} disabled={isAnimating}>
+            <Button variant="outline" onClick={handleReroll} disabled={isAnimating} className="w-full sm:w-auto">
               換一間
             </Button>
-            <Button variant="outline" onClick={handleCopyWeekend}>
+            <Button variant="outline" onClick={handleCopyWeekend} className="w-full sm:w-auto">
               <Copy className="size-4 mr-1" />
               複製
             </Button>
@@ -110,7 +110,7 @@ export default function WeekendPage() {
 
       {current !== null && (
         <div
-          className={`rounded-lg border bg-card p-6 shadow-sm max-w-sm${isAnimating ? ' cursor-pointer' : ''}`}
+          className={`rounded-lg border bg-card p-4 sm:p-6 shadow-sm w-full max-w-sm${isAnimating ? ' cursor-pointer' : ''}`}
           onClick={isAnimating ? skip : undefined}
         >
           <h2 className="text-xl font-semibold mb-3">

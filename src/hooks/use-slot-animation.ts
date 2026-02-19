@@ -3,16 +3,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface UseSlotAnimationOptions {
-  candidates: string[]       // names to cycle through during animation
-  finalValue: string | null  // the pre-computed final pick; null = not yet picked
-  durationMs?: number        // total animation time (default 2500)
-  intervalMs?: number        // cycling speed (default 80ms)
+  candidates: string[] // names to cycle through during animation
+  finalValue: string | null // the pre-computed final pick; null = not yet picked
+  durationMs?: number // total animation time (default 2500)
+  intervalMs?: number // cycling speed (default 80ms)
 }
 
 interface UseSlotAnimationResult {
-  displayValue: string | null  // what to render in the slot
+  displayValue: string | null // what to render in the slot
   isAnimating: boolean
-  skip: () => void             // stop immediately and show finalValue
+  skip: () => void // stop immediately and show finalValue
 }
 
 export function useSlotAnimation({

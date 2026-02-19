@@ -197,19 +197,19 @@ function RestaurantListPanel({
   return (
     <>
       {/* Search & Filter */}
-      <div className="flex items-center gap-4 mb-4 mt-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-4 mt-4">
         <Input
           placeholder="搜尋餐廳名稱…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
+          className="w-full sm:max-w-xs"
           aria-label="搜尋餐廳"
         />
         <Select
           value={filterCuisine}
           onValueChange={(v) => setFilterCuisine(v as CuisineType | 'all')}
         >
-          <SelectTrigger className="w-36" aria-label="篩選料理類型">
+          <SelectTrigger className="w-full sm:w-36" aria-label="篩選料理類型">
             <SelectValue placeholder="所有類型" />
           </SelectTrigger>
           <SelectContent>
@@ -225,6 +225,7 @@ function RestaurantListPanel({
         </Select>
       </div>
 
+      <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -398,6 +399,7 @@ function RestaurantListPanel({
           )}
         </TableBody>
       </Table>
+      </div>
 
       <h2 className="text-lg font-semibold mt-8 mb-4">新增餐廳</h2>
       <form onSubmit={handleSubmit}>
@@ -492,15 +494,15 @@ export default function RestaurantsPage() {
 
   if (!isHydrated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-8">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-6">餐廳管理</h1>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">餐廳管理</h1>
+    <div className="container mx-auto px-3 sm:px-4 py-8">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-6">餐廳管理</h1>
 
       <Tabs defaultValue="weekday">
         <TabsList>

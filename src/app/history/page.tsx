@@ -11,8 +11,8 @@ export default function HistoryPage() {
 
   if (!isHydrated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">午餐歷史</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-8">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-6">午餐歷史</h1>
       </div>
     )
   }
@@ -27,11 +27,11 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">午餐歷史</h1>
+    <div className="container mx-auto px-3 sm:px-4 py-8">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-6">午餐歷史</h1>
 
       {/* Lookback days setting */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-6">
         <Label htmlFor="lookback">最近</Label>
         <Input
           id="lookback"
@@ -44,7 +44,7 @@ export default function HistoryPage() {
             const v = e.target.valueAsNumber
             setLookbackDays(isNaN(v) ? 1 : v)
           }}
-          className="w-20"
+          className="w-full sm:w-20"
         />
         <span className="text-sm text-muted-foreground">個工作天內不重複推薦</span>
       </div>
@@ -55,7 +55,7 @@ export default function HistoryPage() {
         <>
           {/* Clear all button */}
           <div className="mb-4">
-            <Button variant="outline" onClick={clearHistory}>
+            <Button variant="outline" onClick={clearHistory} className="w-full sm:w-auto">
               清除全部歷史
             </Button>
           </div>
@@ -67,7 +67,7 @@ export default function HistoryPage() {
                 <h2 className="text-sm font-medium text-muted-foreground mb-2">{date}</h2>
                 <div className="divide-y rounded-lg border">
                   {group.map((entry) => (
-                    <div key={entry.id} className="flex items-center justify-between px-4 py-3">
+                    <div key={entry.id} className="flex items-center justify-between px-3 sm:px-4 py-3">
                       <div>
                         <span className="font-medium">{entry.restaurantName}</span>
                       </div>

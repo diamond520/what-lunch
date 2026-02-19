@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Quickly answer "what should we eat for lunch?" with a random, budget-aware recommendation from nearby restaurants
-**Current focus:** Phase 10 - Share Plan (plan 1 of 1 done)
+**Current focus:** Phase 11 - Wheel Animation (plan 1 of 2 done)
 
 ## Current Position
 
-Phase: 10 of 11 (Share Plan)
-Plan: 1 of 1 in phase 10-share-plan
-Status: Active — 10-01 complete, all 1 plan in phase 10 done
-Last activity: 2026-02-19 — Completed 10-01-PLAN.md (share plan copy-to-clipboard)
+Phase: 11 of 11 (Wheel Animation)
+Plan: 1 of 2 in phase 11-wheel-animation
+Status: Active — 11-01 complete, 1 of 2 plans in phase 11 done
+Last activity: 2026-02-19 — Completed 11-01-PLAN.md (weekend slot animation)
 
-Progress: [███████████] 97% (18 plans complete of ~18 planned)
+Progress: [███████████] 95% (19 plans complete of ~20 planned)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18 fully
+- Total plans completed: 19 fully
 - Average duration: ~2 min
-- Total execution time: ~28 min
+- Total execution time: ~31 min
 
 **By Phase:**
 
@@ -37,9 +37,10 @@ Progress: [███████████] 97% (18 plans complete of ~18 plan
 | 08-cuisine-filter | 2 of 2 completed | 28 min | 14 min |
 | 09-lunch-history | 3 of 3 completed | 5 min | ~1.7 min |
 | 10-share-plan | 1 of 1 completed | 2 min | 2 min |
+| 11-wheel-animation | 1 of 2 completed | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: ~14 min (08-02), ~1 min (09-01), ~2 min (09-02), ~2 min (09-03), ~2 min (10-01)
+- Last 5 plans: ~1 min (09-01), ~2 min (09-02), ~2 min (09-03), ~2 min (10-01), ~3 min (11-01)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -118,6 +119,10 @@ Recent decisions affecting current work:
 - Toaster placed as last child inside ThemeProvider: inherits active theme for dark-mode-aware toasts
 - Full-width vertical bar (U+FF5C) separators in copied plan text: readable in LINE/Slack without markdown artifacts
 - navigator.clipboard guard before writeText: handles insecure contexts gracefully with toast.error fallback
+- useRef for intervalRef/timeoutRef/prevFinalRef in useSlotAnimation: avoids stale closure bugs with clearInterval/clearTimeout
+- stopAnimation accepts optional settledValue parameter: single helper for both cleanup-only and settle-with-value cases
+- fireEvent instead of userEvent in animation tests: userEvent with fake timers causes timeout hangs due to internal pointer event delays
+- useEffect deps [finalValue] only with eslint-disable: candidates/options are stable parent refs, not re-animation triggers
 
 ### Roadmap Evolution
 
@@ -142,6 +147,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T02:10:14Z
-Stopped at: Completed 10-01-PLAN.md (share plan copy-to-clipboard)
+Last session: 2026-02-19T02:15:52Z
+Stopped at: Completed 11-01-PLAN.md (weekend slot animation)
 Resume file: None

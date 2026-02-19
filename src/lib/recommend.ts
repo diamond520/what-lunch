@@ -1,4 +1,16 @@
-import type { Restaurant } from './types'
+import type { CuisineType, Restaurant } from './types'
+
+export type FilterMode = 'exclude' | 'lock'
+
+export function applyFilter(
+  pool: Restaurant[],
+  mode: FilterMode,
+  selected: CuisineType[],
+): Restaurant[] {
+  if (selected.length === 0) return pool
+  if (mode === 'exclude') return pool.filter((r) => !selected.includes(r.type))
+  return pool.filter((r) => selected.includes(r.type))
+}
 
 export interface WeeklyPlan {
   id: string

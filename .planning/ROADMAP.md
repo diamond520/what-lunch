@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Weekend Recommendation** - Independent weekend restaurant list, random pick page, tab switching in restaurant management
 - [x] **Phase 7: Dark Mode** - Tailwind CSS variable theme toggle with system preference detection
 - [x] **Phase 8: Cuisine Filter** - Exclude or lock specific cuisine types when generating weekly plans (completed 2026-02-19)
-- [ ] **Phase 9: Lunch History** - Track daily lunch picks and avoid recommending recently visited restaurants
+- [x] **Phase 9: Lunch History** - Track daily lunch picks and avoid recommending recently visited restaurants
 - [ ] **Phase 10: Share Plan** - One-click copy weekly plan as formatted text for LINE/clipboard
 - [ ] **Phase 11: Wheel Animation** - Spinning wheel animation for restaurant picks to add fun
 
@@ -182,7 +182,7 @@ Plans:
 
 Plans:
 - [x] 09-01-PLAN.md — History lib (types, localStorage, business day logic, pool-split) and HistoryContext provider
-- [ ] 09-02-PLAN.md — History page, confirm plan button, history-aware pool deprioritization, nav link
+- [x] 09-02-PLAN.md — History page, confirm plan button, history-aware pool deprioritization, nav link
 - [x] 09-03-PLAN.md — TDD unit tests for getRecentlyVisitedIds and splitPoolByHistory
 
 ---
@@ -235,7 +235,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
 | 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
 | 8. Cuisine Filter | 2/2 | Complete   | 2026-02-19 |
-| 9. Lunch History | 2/3 | In Progress| - |
+| 9. Lunch History | 3/3 | Complete | 2026-02-19 |
 | 10. Share Plan | 0/1 | Planned | - |
 | 11. Wheel Animation | 0/2 | Planned | - |
 

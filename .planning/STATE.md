@@ -38,7 +38,7 @@ Progress: [██████████░] 94% (17 plans complete of ~17 plan
 | 09-lunch-history | 3 of 3 completed | 5 min | ~1.7 min |
 
 **Recent Trend:**
-- Last 5 plans: ~1 min (06-03), ~2 min (07-01), ~14 min (08-02), ~1 min (09-01), ~2 min (09-03)
+- Last 5 plans: ~2 min (07-01), ~14 min (08-02), ~1 min (09-01), ~2 min (09-02), ~2 min (09-03)
 - Trend: Stable and fast
 
 *Updated after each plan completion*
@@ -109,6 +109,11 @@ Recent decisions affecting current work:
 - setLookbackDays clamps to min 1 in HistoryProvider — prevents degenerate 0-day lookback
 - lookbackDays persisted as String(n) in localStorage (not JSON) — simpler for single integer
 - Weekend entries within date range ARE counted as recent visits — cutoff is date-based via >= comparison, not business-day-based for entry filtering
+- HistoryProvider wraps RestaurantProvider (outside) — both picker and history pages need history, no dependency on RestaurantProvider
+- Renamed local history/setHistory to planHistory/setPlanHistory in picker page — avoids shadowing persistent lunch history entries
+- effectivePool = primary.length > 0 ? primary : fallback — falls back to full filtered pool when all recently visited
+- handleConfirmPlan uses crypto.randomUUID() and new Date().toLocaleDateString('sv') for consistent YYYY-MM-DD date format
+- History page groups entries by date descending using Map<string, entries[]>
 
 ### Roadmap Evolution
 
@@ -133,6 +138,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19T02:03:11Z
-Stopped at: Completed 09-03-PLAN.md (history unit tests)
+Last session: 2026-02-19T02:03:47Z
+Stopped at: Completed 09-02-PLAN.md (wire history into app)
 Resume file: None

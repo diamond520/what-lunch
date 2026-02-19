@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { generateWeeklyPlan, rerollSlot, type WeeklyPlan } from '@/lib/recommend'
+import { generateWeeklyPlan, rerollSlot, applyFilter, type FilterMode, type WeeklyPlan } from '@/lib/recommend'
 import { DEFAULT_RESTAURANTS } from '@/lib/restaurants'
 import type { Restaurant } from '@/lib/types'
 
@@ -291,5 +291,51 @@ describe('rerollSlot', () => {
         expect(triple).toBe(false)
       }
     }
+  })
+})
+
+describe('applyFilter', () => {
+  const testPool: Restaurant[] = [
+    { id: 'chi1', name: 'CHI1', type: 'chi', price: 80, distance: 100, rating: 4.0 },
+    { id: 'jp1', name: 'JP1', type: 'jp', price: 90, distance: 200, rating: 4.2 },
+    { id: 'kr1', name: 'KR1', type: 'kr', price: 75, distance: 150, rating: 4.1 },
+    { id: 'tai1', name: 'TAI1', type: 'tai', price: 70, distance: 300, rating: 3.9 },
+    { id: 'west1', name: 'WEST1', type: 'west', price: 120, distance: 250, rating: 4.5 },
+  ]
+
+  test("exclude mode removes Japanese restaurants", () => {
+    const result = applyFilter(testPool, 'exclude', ['jp'])
+    expect(result).toHaveLength(4)
+    expect(result.every(r => r.type !== 'jp')).toBe(true)
+  })
+
+  test("exclude mode removes multiple cuisine types", () => {
+    const result = applyFilter(testPool, 'exclude', ['jp', 'kr'])
+    expect(result).toHaveLength(3)
+    expect(result.every(r => r.type !== 'jp' && r.type !== 'kr')).toBe(true)
+  })
+
+  test("lock mode keeps only Chinese restaurants", () => {
+    const result = applyFilter(testPool, 'lock', ['chi'])
+    expect(result).toHaveLength(1)
+    expect(result.every(r => r.type === 'chi')).toBe(true)
+  })
+
+  test("lock mode keeps Chinese and Western restaurants", () => {
+    const result = applyFilter(testPool, 'lock', ['chi', 'west'])
+    expect(result).toHaveLength(2)
+    expect(result.every(r => r.type === 'chi' || r.type === 'west')).toBe(true)
+  })
+
+  test("exclude mode with empty selected returns full pool", () => {
+    const result = applyFilter(testPool, 'exclude', [])
+    expect(result).toHaveLength(5)
+    expect(result).toEqual(testPool)
+  })
+
+  test("lock mode with empty selected returns full pool", () => {
+    const result = applyFilter(testPool, 'lock', [])
+    expect(result).toHaveLength(5)
+    expect(result).toEqual(testPool)
   })
 })

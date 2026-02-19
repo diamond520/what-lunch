@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRestaurants } from '@/lib/restaurant-context'
+import { useHistory } from '@/lib/history-context'
 import { generateWeeklyPlan, rerollSlot, applyFilter, type FilterMode, type WeeklyPlan } from '@/lib/recommend'
+import { getRecentlyVisitedIds, splitPoolByHistory, type LunchHistoryEntry } from '@/lib/history'
 import { CUISINE_META, type CuisineType } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,17 +40,25 @@ function readStoredFilter(): StoredFilter {
 
 export default function HomePage() {
   const { restaurants, isHydrated } = useRestaurants()
+  const { entries, addEntries, lookbackDays, isHydrated: historyHydrated } = useHistory()
   const [budget, setBudget] = useState<number>(DEFAULT_BUDGET)
-  const [history, setHistory] = useState<WeeklyPlan[]>([])
+  const [planHistory, setPlanHistory] = useState<WeeklyPlan[]>([])
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [filterMode, setFilterMode] = useState<FilterMode>(() => readStoredFilter().mode)
   const [selectedCuisines, setSelectedCuisines] = useState<Set<CuisineType>>(
     () => new Set(readStoredFilter().selected),
   )
 
-  const plan = history.length > 0 ? history[selectedIndex] : null
+  const plan = planHistory.length > 0 ? planHistory[selectedIndex] : null
 
   const filteredPool = applyFilter(restaurants, filterMode, [...selectedCuisines])
+
+  // History-aware pool: deprioritize recently visited restaurants
+  const recentIds = getRecentlyVisitedIds(entries, lookbackDays)
+  const { primary, fallback } = splitPoolByHistory(filteredPool, recentIds)
+  const effectivePool = primary.length > 0 ? primary : fallback
+
+  const ready = isHydrated && historyHydrated
   const showWarning = isHydrated && selectedCuisines.size > 0 && filteredPool.length < POOL_WARNING_THRESHOLD
   const relaxDiversity = filterMode === 'lock' && selectedCuisines.size === 1
 
@@ -66,7 +76,7 @@ export default function HomePage() {
 
   function handleFilterModeChange(newMode: string) {
     setFilterMode(newMode as FilterMode)
-    setHistory([])
+    setPlanHistory([])
     setSelectedIndex(0)
   }
 
@@ -80,31 +90,43 @@ export default function HomePage() {
       }
       return next
     })
-    setHistory([])
+    setPlanHistory([])
     setSelectedIndex(0)
   }
 
   function resetFilter() {
     setFilterMode('exclude')
     setSelectedCuisines(new Set())
-    setHistory([])
+    setPlanHistory([])
     setSelectedIndex(0)
   }
 
   function handleGenerate() {
-    if (filteredPool.length === 0 || isNaN(budget)) return
-    const newPlan = generateWeeklyPlan(filteredPool, budget, { relaxDiversity })
-    setHistory((prev) => [newPlan, ...prev].slice(0, MAX_HISTORY))
+    if (effectivePool.length === 0 || isNaN(budget)) return
+    const newPlan = generateWeeklyPlan(effectivePool, budget, { relaxDiversity })
+    setPlanHistory((prev) => [newPlan, ...prev].slice(0, MAX_HISTORY))
     setSelectedIndex(0)
   }
 
   function handleReroll(index: number) {
     if (!plan) return
-    const updated = rerollSlot(plan, index, filteredPool, { relaxDiversity })
-    setHistory((prev) => prev.map((p, i) => (i === selectedIndex ? updated : p)))
+    const updated = rerollSlot(plan, index, effectivePool, { relaxDiversity })
+    setPlanHistory((prev) => prev.map((p, i) => (i === selectedIndex ? updated : p)))
   }
 
-  if (!isHydrated) {
+  function handleConfirmPlan() {
+    if (!plan) return
+    const today = new Date().toLocaleDateString('sv') // 'sv' locale gives YYYY-MM-DD in local time
+    const newEntries: LunchHistoryEntry[] = plan.days.map((r) => ({
+      id: crypto.randomUUID(),
+      date: today,
+      restaurantId: r.id,
+      restaurantName: r.name,
+    }))
+    addEntries(newEntries)
+  }
+
+  if (!ready) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-semibold mb-6">每週午餐推薦</h1>
@@ -128,7 +150,7 @@ export default function HomePage() {
           onChange={(e) => setBudget(e.target.valueAsNumber)}
           className="w-32"
         />
-        <Button onClick={handleGenerate} disabled={restaurants.length === 0 || filteredPool.length === 0}>
+        <Button onClick={handleGenerate} disabled={restaurants.length === 0 || effectivePool.length === 0}>
           產生本週午餐計畫
         </Button>
         {restaurants.length === 0 && (
@@ -216,14 +238,22 @@ export default function HomePage() {
           <p className="mt-4 text-sm text-muted-foreground">
             本週總花費：NT$ {plan.totalCost}　剩餘預算：NT$ {plan.weeklyBudget - plan.totalCost}
           </p>
+          <div className="mt-4 space-y-1">
+            <Button variant="outline" onClick={handleConfirmPlan}>
+              確認本週計畫
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              確認後，本週餐廳將加入歷史，未來推薦將避免重複
+            </p>
+          </div>
         </>
       )}
 
-      {history.length > 1 && (
+      {planHistory.length > 1 && (
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-3">歷史計畫</h2>
           <ul className="space-y-2">
-            {history.map((h, i) => (
+            {planHistory.map((h, i) => (
               <li key={h.id}>
                 <button
                   className={`w-full text-left px-4 py-2 rounded-md border text-sm ${

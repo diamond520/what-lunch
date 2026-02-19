@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRestaurants } from '@/lib/restaurant-context'
 import { useHistory } from '@/lib/history-context'
 import { generateWeeklyPlan, rerollSlot, applyFilter, type FilterMode, type WeeklyPlan } from '@/lib/recommend'
@@ -57,6 +57,14 @@ export default function HomePage() {
     () => new Set(readStoredFilter().selected),
   )
 
+  // Animation state — separate from plan (never mutate plan for animation display)
+  const [displayNames, setDisplayNames] = useState<(string | null)[]>(Array(5).fill(null))
+  const [animatingSlots, setAnimatingSlots] = useState<Set<number>>(new Set())
+  const genIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const genTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rerollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const rerollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const plan = planHistory.length > 0 ? planHistory[selectedIndex] : null
 
   const filteredPool = applyFilter(restaurants, filterMode, [...selectedCuisines])
@@ -65,6 +73,8 @@ export default function HomePage() {
   const recentIds = getRecentlyVisitedIds(entries, lookbackDays)
   const { primary, fallback } = splitPoolByHistory(filteredPool, recentIds)
   const effectivePool = primary.length > 0 ? primary : fallback
+
+  const allRestaurantNames = useMemo(() => restaurants.map(r => r.name), [restaurants])
 
   const ready = isHydrated && historyHydrated
   const showWarning = isHydrated && selectedCuisines.size > 0 && filteredPool.length < POOL_WARNING_THRESHOLD
@@ -109,17 +119,75 @@ export default function HomePage() {
     setSelectedIndex(0)
   }
 
+  function stopGenAnimation() {
+    if (genIntervalRef.current) clearInterval(genIntervalRef.current)
+    if (genTimeoutRef.current) clearTimeout(genTimeoutRef.current)
+    genIntervalRef.current = null
+    genTimeoutRef.current = null
+  }
+
+  function stopRerollAnimation() {
+    if (rerollIntervalRef.current) clearInterval(rerollIntervalRef.current)
+    if (rerollTimeoutRef.current) clearTimeout(rerollTimeoutRef.current)
+    rerollIntervalRef.current = null
+    rerollTimeoutRef.current = null
+  }
+
   function handleGenerate() {
     if (effectivePool.length === 0 || isNaN(budget)) return
+    if (allRestaurantNames.length === 0) return
     const newPlan = generateWeeklyPlan(effectivePool, budget, { relaxDiversity })
     setPlanHistory((prev) => [newPlan, ...prev].slice(0, MAX_HISTORY))
     setSelectedIndex(0)
+
+    stopGenAnimation()
+    stopRerollAnimation()
+    setAnimatingSlots(new Set([0, 1, 2, 3, 4]))
+
+    let idx = 0
+    genIntervalRef.current = setInterval(() => {
+      idx++
+      setDisplayNames(
+        Array.from({ length: 5 }, (_, i) =>
+          allRestaurantNames[(idx + i * 3) % allRestaurantNames.length] ?? null
+        )
+      )
+    }, 80)
+
+    genTimeoutRef.current = setTimeout(() => {
+      stopGenAnimation()
+      setDisplayNames(Array(5).fill(null))
+      setAnimatingSlots(new Set())
+    }, 2500)
   }
 
   function handleReroll(index: number) {
     if (!plan) return
     const updated = rerollSlot(plan, index, effectivePool, { relaxDiversity })
     setPlanHistory((prev) => prev.map((p, i) => (i === selectedIndex ? updated : p)))
+
+    stopRerollAnimation()
+    setAnimatingSlots(new Set([index]))
+
+    let idx = 0
+    rerollIntervalRef.current = setInterval(() => {
+      idx++
+      setDisplayNames((prev) => {
+        const next = [...prev]
+        next[index] = allRestaurantNames[idx % allRestaurantNames.length] ?? null
+        return next
+      })
+    }, 80)
+
+    rerollTimeoutRef.current = setTimeout(() => {
+      stopRerollAnimation()
+      setDisplayNames((prev) => {
+        const next = [...prev]
+        next[index] = null
+        return next
+      })
+      setAnimatingSlots(new Set())
+    }, 2500)
   }
 
   function handleConfirmPlan() {
@@ -148,6 +216,23 @@ export default function HomePage() {
     }
   }
 
+  const isAnyAnimating = animatingSlots.size > 0
+
+  useEffect(() => {
+    if (!isAnyAnimating) return
+    const handler = (e: KeyboardEvent) => {
+      if (['Space', 'Enter', 'Escape'].includes(e.code)) {
+        e.preventDefault()
+        stopGenAnimation()
+        stopRerollAnimation()
+        setDisplayNames(Array(5).fill(null))
+        setAnimatingSlots(new Set())
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [isAnyAnimating])
+
   if (!ready) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -172,7 +257,7 @@ export default function HomePage() {
           onChange={(e) => setBudget(e.target.valueAsNumber)}
           className="w-32"
         />
-        <Button onClick={handleGenerate} disabled={restaurants.length === 0 || effectivePool.length === 0}>
+        <Button onClick={handleGenerate} disabled={restaurants.length === 0 || effectivePool.length === 0 || isAnyAnimating}>
           產生本週午餐計畫
         </Button>
         {restaurants.length === 0 && (
@@ -236,26 +321,55 @@ export default function HomePage() {
       {plan !== null && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
-            {plan.days.map((r, i) => (
-              <div key={i} className="rounded-lg border bg-card p-4 flex flex-col gap-2">
-                <p className="text-sm font-medium text-muted-foreground">{DAY_LABELS[i]}</p>
-                <p className="font-semibold">{r.name}</p>
-                <span
-                  className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white w-fit"
-                  style={{ backgroundColor: CUISINE_META[r.type].color }}
+            {plan.days.map((r, i) => {
+              const slotIsAnimating = animatingSlots.has(i)
+              const nameToShow = slotIsAnimating && displayNames[i] !== null
+                ? displayNames[i]!
+                : r.name
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    'rounded-lg border bg-card p-4 flex flex-col gap-2',
+                    slotIsAnimating && 'cursor-pointer',
+                  )}
+                  onClick={slotIsAnimating ? () => {
+                    stopGenAnimation()
+                    stopRerollAnimation()
+                    setDisplayNames(Array(5).fill(null))
+                    setAnimatingSlots(new Set())
+                  } : undefined}
                 >
-                  {CUISINE_META[r.type].label}
-                </span>
-                <p className="text-sm">NT$ {r.price}</p>
-                <p className="text-sm text-muted-foreground">
-                  {r.distance} m・⭐ {r.rating}
-                </p>
-                <Button variant="outline" size="sm" onClick={() => handleReroll(i)}>
-                  <RefreshCw className="size-3 mr-1" />
-                  重抽
-                </Button>
-              </div>
-            ))}
+                  <p className="text-sm font-medium text-muted-foreground">{DAY_LABELS[i]}</p>
+                  <p className="font-semibold">{nameToShow}</p>
+                  {slotIsAnimating ? (
+                    <>
+                      <div className="h-5 w-16 bg-muted animate-pulse rounded" />
+                      <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                      <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                    </>
+                  ) : (
+                    <div className="animate-in fade-in zoom-in-95 duration-300">
+                      <span
+                        className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white w-fit"
+                        style={{ backgroundColor: CUISINE_META[r.type].color }}
+                      >
+                        {CUISINE_META[r.type].label}
+                      </span>
+                      <p className="text-sm">NT$ {r.price}</p>
+                      <p className="text-sm text-muted-foreground">{r.distance} m・⭐ {r.rating}</p>
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => handleReroll(i)} disabled={isAnyAnimating}>
+                    <RefreshCw className="size-3 mr-1" />
+                    重抽
+                  </Button>
+                  {slotIsAnimating && (
+                    <p className="text-xs text-muted-foreground text-center">點擊跳過</p>
+                  )}
+                </div>
+              )
+            })}
           </div>
           <div className="mt-4 flex items-center gap-4">
             <p className="text-sm text-muted-foreground">

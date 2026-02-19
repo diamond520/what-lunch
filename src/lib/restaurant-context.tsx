@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useSyncExternalStore } from 'react'
-import type { Restaurant } from './types'
+import { CUISINE_META, type CuisineType, type Restaurant } from './types'
 import { DEFAULT_RESTAURANTS, DEFAULT_WEEKEND_RESTAURANTS } from './restaurants'
 
 const STORAGE_KEY = 'what-lunch-restaurants'
@@ -21,11 +21,22 @@ interface RestaurantContextValue {
 
 export const RestaurantContext = createContext<RestaurantContextValue | null>(null)
 
+const CUISINE_TYPE_MIGRATIONS: Record<string, CuisineType> = { tai: 'thai' }
+
+function migrateRestaurants(list: Restaurant[]): Restaurant[] {
+  return list.map((r) => {
+    const migrated = CUISINE_TYPE_MIGRATIONS[r.type]
+    if (migrated) return { ...r, type: migrated }
+    if (!(r.type in CUISINE_META)) return { ...r, type: 'chi' as CuisineType }
+    return r
+  })
+}
+
 function readStoredRestaurantsFromKey(key: string, defaults: Restaurant[]): Restaurant[] {
   if (typeof window === 'undefined') return defaults
   try {
     const stored = localStorage.getItem(key)
-    return stored ? JSON.parse(stored) : defaults
+    return stored ? migrateRestaurants(JSON.parse(stored)) : defaults
   } catch {
     return defaults
   }

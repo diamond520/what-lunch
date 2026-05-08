@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { MapPin } from 'lucide-react'
 import { useRestaurants } from '@/lib/restaurant-context'
 import { CUISINE_META } from '@/lib/types'
+import { getGoogleMapsSearchUrl } from '@/lib/google-maps'
 import type { CuisineType } from '@/lib/types'
 import {
   Table,
@@ -90,7 +92,21 @@ function ReadOnlyPanel({ restaurants }: { restaurants: Restaurant[] }) {
             ) : (
               filtered.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell>{r.name}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1.5">
+                      {r.name}
+                      <a
+                        href={getGoogleMapsSearchUrl(r.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="在 Google Maps 開啟"
+                        aria-label="在 Google Maps 開啟"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <MapPin className="size-3.5" />
+                      </a>
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <span
                       className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white"

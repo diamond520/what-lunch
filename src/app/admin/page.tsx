@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trash2, Check, Pencil, X, LogOut, Plus } from 'lucide-react'
+import { Trash2, Check, Pencil, X, LogOut, Plus, MapPin } from 'lucide-react'
 import { useRestaurants } from '@/lib/restaurant-context'
 import { CUISINE_META } from '@/lib/types'
+import { getGoogleMapsSearchUrl } from '@/lib/google-maps'
 import type { CuisineType, Restaurant } from '@/lib/types'
 import {
   Table,
@@ -449,7 +450,21 @@ export function RestaurantListPanel({
                   </TableRow>
                 ) : (
                   <TableRow key={r.id}>
-                    <TableCell>{r.name}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center gap-1.5">
+                        {r.name}
+                        <a
+                          href={getGoogleMapsSearchUrl(r.name)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="在 Google Maps 開啟"
+                          aria-label="在 Google Maps 開啟"
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <MapPin className="size-3.5" />
+                        </a>
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <span
                         className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-white"

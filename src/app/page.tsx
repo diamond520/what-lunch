@@ -17,8 +17,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { RefreshCw, Copy } from 'lucide-react'
+import { RefreshCw, Copy, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
+import { getGoogleMapsSearchUrl } from '@/lib/google-maps'
 
 const DAY_LABELS = ['星期一', '星期二', '星期三', '星期四', '星期五']
 const DEFAULT_BUDGET = 750
@@ -370,7 +371,21 @@ export default function HomePage() {
                   }
                 >
                   <p className="text-sm font-medium text-muted-foreground">{DAY_LABELS[i]}</p>
-                  <p className="font-semibold">{nameToShow}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-semibold">{nameToShow}</p>
+                    {!slotIsAnimating && (
+                      <a
+                        href={getGoogleMapsSearchUrl(r.name)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="在 Google Maps 開啟"
+                        aria-label="在 Google Maps 開啟"
+                        className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                      >
+                        <MapPin className="size-4" />
+                      </a>
+                    )}
+                  </div>
                   {slotIsAnimating ? (
                     <>
                       <div className="h-5 w-16 bg-muted animate-pulse rounded" />

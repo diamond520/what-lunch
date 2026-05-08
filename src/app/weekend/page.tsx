@@ -7,9 +7,10 @@ import { pickRandomRestaurant } from '@/lib/recommend'
 import { CUISINE_META } from '@/lib/types'
 import type { Restaurant } from '@/lib/types'
 import { Button } from '@/components/ui/button'
-import { Copy } from 'lucide-react'
+import { Copy, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 import { useSlotAnimation } from '@/hooks/use-slot-animation'
+import { getGoogleMapsSearchUrl } from '@/lib/google-maps'
 
 export default function WeekendPage() {
   const { weekendRestaurants, isHydrated } = useRestaurants()
@@ -115,9 +116,24 @@ export default function WeekendPage() {
           className={`rounded-lg border bg-card p-4 sm:p-6 shadow-sm w-full max-w-sm${isAnimating ? ' cursor-pointer' : ''}`}
           onClick={isAnimating ? skip : undefined}
         >
-          <h2 className="text-xl font-semibold mb-3">
-            {isAnimating ? (displayValue ?? '...') : current.name}
-          </h2>
+          <div className="flex items-start justify-between gap-2 mb-3">
+            <h2 className="text-xl font-semibold">
+              {isAnimating ? (displayValue ?? '...') : current.name}
+            </h2>
+            {!isAnimating && (
+              <a
+                href={getGoogleMapsSearchUrl(current.name)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="在 Google Maps 開啟"
+                aria-label="在 Google Maps 開啟"
+                className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mt-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MapPin className="size-5" />
+              </a>
+            )}
+          </div>
           {isAnimating ? (
             <div className="space-y-2">
               <div className="h-5 w-16 bg-muted animate-pulse rounded" />

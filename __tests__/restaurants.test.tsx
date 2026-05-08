@@ -11,23 +11,25 @@ const mockRestaurants: Restaurant[] = [
   { id: '3', name: '測試韓食', type: 'kr', price: 150, distance: 300, rating: 3.8 },
 ]
 
+type AsyncMutator<T> = (arg: T) => Promise<void>
+
 function renderWithContext(
   restaurants: Restaurant[] = mockRestaurants,
   overrides: Partial<{
-    addRestaurant: (r: Restaurant) => void
-    removeRestaurant: (id: string) => void
-    updateRestaurant: (r: Restaurant) => void
-    addWeekendRestaurant: (r: Restaurant) => void
-    removeWeekendRestaurant: (id: string) => void
-    updateWeekendRestaurant: (r: Restaurant) => void
+    addRestaurant: AsyncMutator<Restaurant>
+    removeRestaurant: AsyncMutator<string>
+    updateRestaurant: AsyncMutator<Restaurant>
+    addWeekendRestaurant: AsyncMutator<Restaurant>
+    removeWeekendRestaurant: AsyncMutator<string>
+    updateWeekendRestaurant: AsyncMutator<Restaurant>
   }> = {},
 ) {
-  const addRestaurant = overrides.addRestaurant ?? vi.fn()
-  const removeRestaurant = overrides.removeRestaurant ?? vi.fn()
-  const updateRestaurant = overrides.updateRestaurant ?? vi.fn()
-  const addWeekendRestaurant = overrides.addWeekendRestaurant ?? vi.fn()
-  const removeWeekendRestaurant = overrides.removeWeekendRestaurant ?? vi.fn()
-  const updateWeekendRestaurant = overrides.updateWeekendRestaurant ?? vi.fn()
+  const addRestaurant = overrides.addRestaurant ?? vi.fn(async () => {})
+  const removeRestaurant = overrides.removeRestaurant ?? vi.fn(async () => {})
+  const updateRestaurant = overrides.updateRestaurant ?? vi.fn(async () => {})
+  const addWeekendRestaurant = overrides.addWeekendRestaurant ?? vi.fn(async () => {})
+  const removeWeekendRestaurant = overrides.removeWeekendRestaurant ?? vi.fn(async () => {})
+  const updateWeekendRestaurant = overrides.updateWeekendRestaurant ?? vi.fn(async () => {})
 
   return {
     addRestaurant,
@@ -42,6 +44,8 @@ function renderWithContext(
           restaurants,
           weekendRestaurants: [],
           isHydrated: true,
+          editToken: 'test-token',
+          setEditToken: vi.fn(),
           addRestaurant,
           removeRestaurant,
           updateRestaurant,

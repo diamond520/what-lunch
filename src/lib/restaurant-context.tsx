@@ -1,22 +1,23 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useSyncExternalStore } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { CUISINE_META, type CuisineType, type Restaurant } from './types'
-import { DEFAULT_RESTAURANTS, DEFAULT_WEEKEND_RESTAURANTS } from './restaurants'
 
-const STORAGE_KEY = 'what-lunch-restaurants'
-const WEEKEND_STORAGE_KEY = 'what-lunch-weekend-restaurants'
+const TOKEN_STORAGE_KEY = 'what-lunch-edit-token'
 
 interface RestaurantContextValue {
   restaurants: Restaurant[]
   weekendRestaurants: Restaurant[]
   isHydrated: boolean
-  addRestaurant: (r: Restaurant) => void
-  removeRestaurant: (id: string) => void
-  updateRestaurant: (r: Restaurant) => void
-  addWeekendRestaurant: (r: Restaurant) => void
-  removeWeekendRestaurant: (id: string) => void
-  updateWeekendRestaurant: (r: Restaurant) => void
+  editToken: string
+  setEditToken: (token: string) => void
+  addRestaurant: (r: Restaurant) => Promise<void>
+  removeRestaurant: (id: string) => Promise<void>
+  updateRestaurant: (r: Restaurant) => Promise<void>
+  addWeekendRestaurant: (r: Restaurant) => Promise<void>
+  removeWeekendRestaurant: (id: string) => Promise<void>
+  updateWeekendRestaurant: (r: Restaurant) => Promise<void>
 }
 
 export const RestaurantContext = createContext<RestaurantContextValue | null>(null)
@@ -32,74 +33,115 @@ function migrateRestaurants(list: Restaurant[]): Restaurant[] {
   })
 }
 
-function readStoredRestaurantsFromKey(key: string, defaults: Restaurant[]): Restaurant[] {
-  if (typeof window === 'undefined') return defaults
+function readStoredToken(): string {
+  if (typeof window === 'undefined') return ''
   try {
-    const stored = localStorage.getItem(key)
-    return stored ? migrateRestaurants(JSON.parse(stored)) : defaults
+    return localStorage.getItem(TOKEN_STORAGE_KEY) ?? ''
   } catch {
-    return defaults
+    return ''
   }
-}
-
-function readStoredRestaurants(): Restaurant[] {
-  return readStoredRestaurantsFromKey(STORAGE_KEY, DEFAULT_RESTAURANTS)
 }
 
 export function RestaurantProvider({ children }: { children: React.ReactNode }) {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(readStoredRestaurants)
-  const [weekendRestaurants, setWeekendRestaurants] = useState<Restaurant[]>(
-    () => readStoredRestaurantsFromKey(WEEKEND_STORAGE_KEY, DEFAULT_WEEKEND_RESTAURANTS),
-  )
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  )
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [weekendRestaurants, setWeekendRestaurants] = useState<Restaurant[]>([])
+  const [isHydrated, setIsHydrated] = useState(false)
+  const [editToken, setEditTokenState] = useState<string>(readStoredToken)
 
-  // Persist weekday restaurants to localStorage on changes
   useEffect(() => {
-    if (!isHydrated) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(restaurants))
-    } catch {
-      // Ignore storage errors (quota exceeded, etc.)
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch('/api/restaurants')
+        if (!res.ok) throw new Error('failed to load')
+        const data = (await res.json()) as { weekday: Restaurant[]; weekend: Restaurant[] }
+        if (cancelled) return
+        setRestaurants(migrateRestaurants(data.weekday))
+        setWeekendRestaurants(migrateRestaurants(data.weekend))
+      } catch {
+        if (cancelled) return
+        toast.error('餐廳資料載入失敗,請重新整理')
+      } finally {
+        if (!cancelled) setIsHydrated(true)
+      }
     }
-  }, [restaurants, isHydrated])
-
-  // Persist weekend restaurants to localStorage on changes
-  useEffect(() => {
-    if (!isHydrated) return
-    try {
-      localStorage.setItem(WEEKEND_STORAGE_KEY, JSON.stringify(weekendRestaurants))
-    } catch {
-      // Ignore storage errors (quota exceeded, etc.)
+    load()
+    return () => {
+      cancelled = true
     }
-  }, [weekendRestaurants, isHydrated])
+  }, [])
 
-  function addRestaurant(r: Restaurant) {
-    setRestaurants((prev) => [...prev, r])
+  function setEditToken(token: string) {
+    setEditTokenState(token)
+    try {
+      if (token) localStorage.setItem(TOKEN_STORAGE_KEY, token)
+      else localStorage.removeItem(TOKEN_STORAGE_KEY)
+    } catch {
+      // Ignore storage errors
+    }
   }
 
-  function removeRestaurant(id: string) {
-    setRestaurants((prev) => prev.filter((r) => r.id !== id))
+  async function persist(kind: 'weekday' | 'weekend', list: Restaurant[]): Promise<void> {
+    const res = await fetch('/api/restaurants', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${editToken}`,
+      },
+      body: JSON.stringify({ kind, restaurants: list }),
+    })
+    if (!res.ok) {
+      if (res.status === 401) throw new Error('編輯密碼錯誤或未輸入')
+      throw new Error('儲存失敗,請稍後再試')
+    }
   }
 
-  function updateRestaurant(r: Restaurant) {
-    setRestaurants((prev) => prev.map((x) => (x.id === r.id ? r : x)))
+  // Optimistic update + revert on failure. Each handler captures `prev` at call
+  // time, applies the change locally, then PUTs the new full list. On error,
+  // restore `prev` and surface the message via toast (no rethrow — fire-and-forget).
+  async function mutate(
+    kind: 'weekday' | 'weekend',
+    next: Restaurant[],
+    prev: Restaurant[],
+    setList: (list: Restaurant[]) => void,
+  ): Promise<void> {
+    setList(next)
+    try {
+      await persist(kind, next)
+    } catch (e) {
+      setList(prev)
+      const message = e instanceof Error ? e.message : '儲存失敗'
+      toast.error(message)
+    }
   }
 
-  function addWeekendRestaurant(r: Restaurant) {
-    setWeekendRestaurants((prev) => [...prev, r])
-  }
-
-  function removeWeekendRestaurant(id: string) {
-    setWeekendRestaurants((prev) => prev.filter((r) => r.id !== id))
-  }
-
-  function updateWeekendRestaurant(r: Restaurant) {
-    setWeekendRestaurants((prev) => prev.map((x) => (x.id === r.id ? r : x)))
-  }
+  const addRestaurant = (r: Restaurant) =>
+    mutate('weekday', [...restaurants, r], restaurants, setRestaurants)
+  const removeRestaurant = (id: string) =>
+    mutate('weekday', restaurants.filter((x) => x.id !== id), restaurants, setRestaurants)
+  const updateRestaurant = (r: Restaurant) =>
+    mutate(
+      'weekday',
+      restaurants.map((x) => (x.id === r.id ? r : x)),
+      restaurants,
+      setRestaurants,
+    )
+  const addWeekendRestaurant = (r: Restaurant) =>
+    mutate('weekend', [...weekendRestaurants, r], weekendRestaurants, setWeekendRestaurants)
+  const removeWeekendRestaurant = (id: string) =>
+    mutate(
+      'weekend',
+      weekendRestaurants.filter((x) => x.id !== id),
+      weekendRestaurants,
+      setWeekendRestaurants,
+    )
+  const updateWeekendRestaurant = (r: Restaurant) =>
+    mutate(
+      'weekend',
+      weekendRestaurants.map((x) => (x.id === r.id ? r : x)),
+      weekendRestaurants,
+      setWeekendRestaurants,
+    )
 
   return (
     <RestaurantContext
@@ -107,6 +149,8 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
         restaurants,
         weekendRestaurants,
         isHydrated,
+        editToken,
+        setEditToken,
         addRestaurant,
         removeRestaurant,
         updateRestaurant,

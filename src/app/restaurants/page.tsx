@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, Save, Check, Pencil, X } from 'lucide-react'
+import { Trash2, Check, Pencil, X } from 'lucide-react'
 import { useRestaurants } from '@/lib/restaurant-context'
-import { DEFAULT_RESTAURANTS, DEFAULT_WEEKEND_RESTAURANTS } from '@/lib/restaurants'
 import { CUISINE_META } from '@/lib/types'
 import type { CuisineType, Restaurant } from '@/lib/types'
 import {
@@ -109,24 +108,19 @@ function restaurantToForm(r: Restaurant): FormState {
 
 interface RestaurantListPanelProps {
   restaurants: Restaurant[]
-  defaultRestaurants: Restaurant[]
-  addRestaurant: (r: Restaurant) => void
-  removeRestaurant: (id: string) => void
-  updateRestaurant: (r: Restaurant) => void
-  showSaveToConfig?: boolean
+  addRestaurant: (r: Restaurant) => Promise<void> | void
+  removeRestaurant: (id: string) => Promise<void> | void
+  updateRestaurant: (r: Restaurant) => Promise<void> | void
 }
 
 function RestaurantListPanel({
   restaurants,
-  defaultRestaurants,
   addRestaurant,
   removeRestaurant,
   updateRestaurant,
-  showSaveToConfig = false,
 }: RestaurantListPanelProps) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [errors, setErrors] = useState<FormErrors>(EMPTY_ERRORS)
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<FormState>(EMPTY_FORM)
@@ -135,31 +129,11 @@ function RestaurantListPanel({
   const [search, setSearch] = useState('')
   const [filterCuisine, setFilterCuisine] = useState<CuisineType | 'all'>('all')
 
-  const defaultNames = new Set(defaultRestaurants.map((r) => r.name))
-
   const filteredRestaurants = restaurants.filter((r) => {
     const nameMatch = r.name.toLowerCase().includes(search.toLowerCase())
     const cuisineMatch = filterCuisine === 'all' || r.type === filterCuisine
     return nameMatch && cuisineMatch
   })
-
-  async function handleSaveToConfig(r: Restaurant) {
-    try {
-      const res = await fetch('/api/restaurants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ restaurant: r }),
-      })
-      if (res.ok) {
-        setSavedIds((prev) => new Set(prev).add(r.id))
-      } else {
-        const data = await res.json()
-        alert(data.error ?? '儲存失敗')
-      }
-    } catch {
-      alert('無法連線到 API，請確認 dev server 正在執行')
-    }
-  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -371,24 +345,6 @@ function RestaurantListPanel({
                     >
                       <Pencil className="size-4" />
                     </Button>
-                    {showSaveToConfig && (
-                      <>
-                        {defaultNames.has(r.name) || savedIds.has(r.id) ? (
-                          <Button variant="ghost" size="icon" disabled title="已儲存至 config">
-                            <Check className="size-4 text-green-500" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleSaveToConfig(r)}
-                            title="儲存至 restaurants.ts"
-                          >
-                            <Save className="size-4" />
-                          </Button>
-                        )}
-                      </>
-                    )}
                     <Button variant="ghost" size="icon" onClick={() => removeRestaurant(r.id)}>
                       <Trash2 className="size-4" />
                     </Button>
@@ -484,6 +440,8 @@ export default function RestaurantsPage() {
     restaurants,
     weekendRestaurants,
     isHydrated,
+    editToken,
+    setEditToken,
     addRestaurant,
     removeRestaurant,
     updateRestaurant,
@@ -504,6 +462,24 @@ export default function RestaurantsPage() {
     <div className="container mx-auto px-3 sm:px-4 py-8">
       <h1 className="text-xl sm:text-2xl font-semibold mb-6">餐廳管理</h1>
 
+      <div className="mb-6 rounded-lg border bg-card p-4">
+        <Label htmlFor="edit-token" className="mb-2 block">
+          編輯密碼
+        </Label>
+        <Input
+          id="edit-token"
+          type="password"
+          value={editToken}
+          onChange={(e) => setEditToken(e.target.value)}
+          placeholder="輸入編輯密碼,新增/編輯/刪除餐廳才會生效"
+          autoComplete="off"
+          className="max-w-md"
+        />
+        <p className="mt-2 text-xs text-muted-foreground">
+          密碼只存在你的瀏覽器,送 API 時驗證後才能寫入 KV
+        </p>
+      </div>
+
       <Tabs defaultValue="weekday">
         <TabsList>
           <TabsTrigger value="weekday">平日餐廳</TabsTrigger>
@@ -512,21 +488,17 @@ export default function RestaurantsPage() {
         <TabsContent value="weekday">
           <RestaurantListPanel
             restaurants={restaurants}
-            defaultRestaurants={DEFAULT_RESTAURANTS}
             addRestaurant={addRestaurant}
             removeRestaurant={removeRestaurant}
             updateRestaurant={updateRestaurant}
-            showSaveToConfig={true}
           />
         </TabsContent>
         <TabsContent value="weekend">
           <RestaurantListPanel
             restaurants={weekendRestaurants}
-            defaultRestaurants={DEFAULT_WEEKEND_RESTAURANTS}
             addRestaurant={addWeekendRestaurant}
             removeRestaurant={removeWeekendRestaurant}
             updateRestaurant={updateWeekendRestaurant}
-            showSaveToConfig={false}
           />
         </TabsContent>
       </Tabs>

@@ -16,12 +16,14 @@ function renderWeekendPage(weekendRestaurants: Restaurant[] = mockWeekendRestaur
         restaurants: [],
         weekendRestaurants,
         isHydrated: true,
-        addRestaurant: vi.fn(),
-        removeRestaurant: vi.fn(),
-        updateRestaurant: vi.fn(),
-        addWeekendRestaurant: vi.fn(),
-        removeWeekendRestaurant: vi.fn(),
-        updateWeekendRestaurant: vi.fn(),
+        editToken: '',
+        setEditToken: vi.fn(),
+        addRestaurant: vi.fn(async () => {}),
+        removeRestaurant: vi.fn(async () => {}),
+        updateRestaurant: vi.fn(async () => {}),
+        addWeekendRestaurant: vi.fn(async () => {}),
+        removeWeekendRestaurant: vi.fn(async () => {}),
+        updateWeekendRestaurant: vi.fn(async () => {}),
       }}
     >
       <WeekendPage />

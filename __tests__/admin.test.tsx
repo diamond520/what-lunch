@@ -1,9 +1,12 @@
 import { describe, test, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RestaurantContext } from '@/lib/restaurant-context'
 import type { Restaurant } from '@/lib/types'
-import RestaurantsPage from '@/app/restaurants/page'
+import { RestaurantListPanel } from '@/app/admin/page'
+
+// Tests target the CRUD panel directly, bypassing the password gate.
+// The gate is exercised via the live admin page; here we focus on the
+// add/edit/delete/search behaviour that hasn't changed across the refactor.
 
 const mockRestaurants: Restaurant[] = [
   { id: '1', name: '測試中餐', type: 'chi', price: 100, distance: 200, rating: 4.0 },
@@ -13,94 +16,99 @@ const mockRestaurants: Restaurant[] = [
 
 type AsyncMutator<T> = (arg: T) => Promise<void>
 
-function renderWithContext(
+function renderPanel(
   restaurants: Restaurant[] = mockRestaurants,
   overrides: Partial<{
     addRestaurant: AsyncMutator<Restaurant>
     removeRestaurant: AsyncMutator<string>
     updateRestaurant: AsyncMutator<Restaurant>
-    addWeekendRestaurant: AsyncMutator<Restaurant>
-    removeWeekendRestaurant: AsyncMutator<string>
-    updateWeekendRestaurant: AsyncMutator<Restaurant>
   }> = {},
 ) {
   const addRestaurant = overrides.addRestaurant ?? vi.fn(async () => {})
   const removeRestaurant = overrides.removeRestaurant ?? vi.fn(async () => {})
   const updateRestaurant = overrides.updateRestaurant ?? vi.fn(async () => {})
-  const addWeekendRestaurant = overrides.addWeekendRestaurant ?? vi.fn(async () => {})
-  const removeWeekendRestaurant = overrides.removeWeekendRestaurant ?? vi.fn(async () => {})
-  const updateWeekendRestaurant = overrides.updateWeekendRestaurant ?? vi.fn(async () => {})
 
   return {
     addRestaurant,
     removeRestaurant,
     updateRestaurant,
-    addWeekendRestaurant,
-    removeWeekendRestaurant,
-    updateWeekendRestaurant,
     ...render(
-      <RestaurantContext
-        value={{
-          restaurants,
-          weekendRestaurants: [],
-          isHydrated: true,
-          editToken: 'test-token',
-          setEditToken: vi.fn(),
-          addRestaurant,
-          removeRestaurant,
-          updateRestaurant,
-          addWeekendRestaurant,
-          removeWeekendRestaurant,
-          updateWeekendRestaurant,
-        }}
-      >
-        <RestaurantsPage />
-      </RestaurantContext>,
+      <RestaurantListPanel
+        restaurants={restaurants}
+        addRestaurant={addRestaurant}
+        removeRestaurant={removeRestaurant}
+        updateRestaurant={updateRestaurant}
+      />,
     ),
   }
 }
 
-describe('RestaurantsPage', () => {
-  test('renders the page title and table', () => {
-    renderWithContext()
-    expect(screen.getByText('餐廳管理')).toBeInTheDocument()
+async function openAddDialog(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /新增餐廳/ }))
+}
+
+describe('RestaurantListPanel (admin CRUD)', () => {
+  test('renders the table with restaurant data', () => {
+    renderPanel()
     expect(screen.getByText('測試中餐')).toBeInTheDocument()
     expect(screen.getByText('測試日料')).toBeInTheDocument()
     expect(screen.getByText('測試韓食')).toBeInTheDocument()
   })
 
-  test('renders the add form', () => {
-    renderWithContext()
+  test('add button opens dialog with form fields', async () => {
+    const user = userEvent.setup()
+    renderPanel()
+    expect(screen.queryByLabelText('名稱')).not.toBeInTheDocument()
+
+    await openAddDialog(user)
+
     expect(screen.getByLabelText('名稱')).toBeInTheDocument()
     expect(screen.getByLabelText('價格 (NT$)')).toBeInTheDocument()
-    expect(screen.getByLabelText('距離 (m)')).toBeInTheDocument()
+    expect(screen.getByLabelText('距離 (m,選填)')).toBeInTheDocument()
     expect(screen.getByLabelText('評分')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '新增' })).toBeInTheDocument()
   })
 
   test('shows empty state when no restaurants', () => {
-    renderWithContext([])
+    renderPanel([])
     expect(screen.getByText('尚無餐廳資料')).toBeInTheDocument()
   })
 
-  test('shows validation errors for empty form submission', async () => {
+  test('shows validation errors for empty form submission (distance is optional)', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
+    await openAddDialog(user)
     await user.click(screen.getByRole('button', { name: '新增' }))
 
     expect(screen.getByText('請輸入有效的價格')).toBeInTheDocument()
-    expect(screen.getByText('請輸入有效的距離')).toBeInTheDocument()
+    expect(screen.queryByText('請輸入有效的距離')).not.toBeInTheDocument()
     expect(screen.getByText('請輸入有效的評分')).toBeInTheDocument()
+  })
+
+  test('allows submit without distance', async () => {
+    const user = userEvent.setup()
+    const { addRestaurant } = renderPanel()
+
+    await openAddDialog(user)
+    await user.type(screen.getByLabelText('名稱'), '無距離店')
+    await user.type(screen.getByLabelText('價格 (NT$)'), '120')
+    await user.type(screen.getByLabelText('評分'), '4.0')
+    await user.click(screen.getByRole('button', { name: '新增' }))
+
+    expect(addRestaurant).toHaveBeenCalledOnce()
+    const arg = (addRestaurant as ReturnType<typeof vi.fn>).mock.calls[0][0]
+    expect(arg.distance).toBeUndefined()
   })
 
   test('shows range validation error for price <= 0', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
+    await openAddDialog(user)
     await user.type(screen.getByLabelText('名稱'), '新餐廳')
     await user.type(screen.getByLabelText('價格 (NT$)'), '-10')
-    await user.type(screen.getByLabelText('距離 (m)'), '100')
+    await user.type(screen.getByLabelText('距離 (m,選填)'), '100')
     await user.type(screen.getByLabelText('評分'), '4.0')
     await user.click(screen.getByRole('button', { name: '新增' }))
 
@@ -109,11 +117,12 @@ describe('RestaurantsPage', () => {
 
   test('shows range validation error for negative distance', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
+    await openAddDialog(user)
     await user.type(screen.getByLabelText('名稱'), '新餐廳')
     await user.type(screen.getByLabelText('價格 (NT$)'), '100')
-    await user.type(screen.getByLabelText('距離 (m)'), '-50')
+    await user.type(screen.getByLabelText('距離 (m,選填)'), '-50')
     await user.type(screen.getByLabelText('評分'), '4.0')
     await user.click(screen.getByRole('button', { name: '新增' }))
 
@@ -122,24 +131,26 @@ describe('RestaurantsPage', () => {
 
   test('shows range validation error for rating out of 1.0-5.0', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
+    await openAddDialog(user)
     await user.type(screen.getByLabelText('名稱'), '新餐廳')
     await user.type(screen.getByLabelText('價格 (NT$)'), '100')
-    await user.type(screen.getByLabelText('距離 (m)'), '100')
+    await user.type(screen.getByLabelText('距離 (m,選填)'), '100')
     await user.type(screen.getByLabelText('評分'), '6.0')
     await user.click(screen.getByRole('button', { name: '新增' }))
 
     expect(screen.getByText('評分必須介於 1.0 與 5.0 之間')).toBeInTheDocument()
   })
 
-  test('calls addRestaurant and resets form on valid submit', async () => {
+  test('calls addRestaurant and closes dialog on valid submit', async () => {
     const user = userEvent.setup()
-    const { addRestaurant } = renderWithContext()
+    const { addRestaurant } = renderPanel()
 
+    await openAddDialog(user)
     await user.type(screen.getByLabelText('名稱'), '好吃餐廳')
     await user.type(screen.getByLabelText('價格 (NT$)'), '150')
-    await user.type(screen.getByLabelText('距離 (m)'), '300')
+    await user.type(screen.getByLabelText('距離 (m,選填)'), '300')
     await user.type(screen.getByLabelText('評分'), '4.5')
     await user.click(screen.getByRole('button', { name: '新增' }))
 
@@ -150,16 +161,25 @@ describe('RestaurantsPage', () => {
     expect(arg.distance).toBe(300)
     expect(arg.rating).toBe(4.5)
 
-    // Form should reset
-    expect(screen.getByLabelText('名稱')).toHaveValue('')
-    expect(screen.getByLabelText('價格 (NT$)')).toHaveValue(null)
-    expect(screen.getByLabelText('距離 (m)')).toHaveValue(null)
-    expect(screen.getByLabelText('評分')).toHaveValue(null)
+    // Dialog closed → form fields no longer in DOM
+    expect(screen.queryByLabelText('名稱')).not.toBeInTheDocument()
+  })
+
+  test('cancel button closes dialog without calling addRestaurant', async () => {
+    const user = userEvent.setup()
+    const { addRestaurant } = renderPanel()
+
+    await openAddDialog(user)
+    await user.type(screen.getByLabelText('名稱'), '新店')
+    await user.click(screen.getByRole('button', { name: '取消' }))
+
+    expect(addRestaurant).not.toHaveBeenCalled()
+    expect(screen.queryByLabelText('名稱')).not.toBeInTheDocument()
   })
 
   test('search filters restaurants by name', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
     const searchInput = screen.getByLabelText('搜尋餐廳')
     await user.type(searchInput, '日料')
@@ -171,7 +191,7 @@ describe('RestaurantsPage', () => {
 
   test('search shows no-match message when nothing found', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
     const searchInput = screen.getByLabelText('搜尋餐廳')
     await user.type(searchInput, '不存在的餐廳')
@@ -181,7 +201,7 @@ describe('RestaurantsPage', () => {
 
   test('edit mode: clicking pencil shows inline inputs', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
     const editButtons = screen.getAllByLabelText('編輯')
     await user.click(editButtons[0])
@@ -194,7 +214,7 @@ describe('RestaurantsPage', () => {
 
   test('edit mode: cancel discards changes', async () => {
     const user = userEvent.setup()
-    renderWithContext()
+    renderPanel()
 
     const editButtons = screen.getAllByLabelText('編輯')
     await user.click(editButtons[0])
@@ -205,14 +225,13 @@ describe('RestaurantsPage', () => {
 
     await user.click(screen.getByLabelText('取消編輯'))
 
-    // Should show original name, no edit inputs
     expect(screen.getByText('測試中餐')).toBeInTheDocument()
     expect(screen.queryByLabelText('編輯名稱')).not.toBeInTheDocument()
   })
 
   test('edit mode: save calls updateRestaurant', async () => {
     const user = userEvent.setup()
-    const { updateRestaurant } = renderWithContext()
+    const { updateRestaurant } = renderPanel()
 
     const editButtons = screen.getAllByLabelText('編輯')
     await user.click(editButtons[0])
@@ -231,7 +250,7 @@ describe('RestaurantsPage', () => {
 
   test('edit mode: save with invalid data shows errors', async () => {
     const user = userEvent.setup()
-    const { updateRestaurant } = renderWithContext()
+    const { updateRestaurant } = renderPanel()
 
     const editButtons = screen.getAllByLabelText('編輯')
     await user.click(editButtons[0])
@@ -248,11 +267,9 @@ describe('RestaurantsPage', () => {
 
   test('delete button calls removeRestaurant', async () => {
     const user = userEvent.setup()
-    const { removeRestaurant } = renderWithContext()
+    const { removeRestaurant } = renderPanel()
 
-    // Find all delete buttons (Trash2 icons)
     const rows = screen.getAllByRole('row')
-    // First data row (index 1 because of header)
     const firstDataRow = rows[1]
     const deleteButton = within(firstDataRow).getAllByRole('button').at(-1)!
     await user.click(deleteButton)

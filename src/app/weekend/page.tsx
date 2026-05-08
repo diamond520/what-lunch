@@ -79,7 +79,9 @@ export default function WeekendPage() {
     const text = [
       '假日推薦 🍽️',
       `${current.name} ${CUISINE_META[current.type].label} NT$${current.price}`,
-      `距離：${current.distance}m｜評分：${current.rating}`,
+      current.distance != null
+        ? `距離：${current.distance}m｜評分：${current.rating}`
+        : `評分：${current.rating}`,
     ].join('\n')
     try {
       await navigator.clipboard.writeText(text)
@@ -140,7 +142,7 @@ export default function WeekendPage() {
                 </div>
                 <div className="flex gap-2">
                   <dt className="font-medium text-foreground">距離</dt>
-                  <dd>{current.distance}m</dd>
+                  <dd>{current.distance != null ? `${current.distance}m` : '—'}</dd>
                 </div>
                 <div className="flex gap-2">
                   <dt className="font-medium text-foreground">評分</dt>

@@ -1,6 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, act, fireEvent, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { RestaurantProvider } from '@/lib/restaurant-context'
 import { HistoryProvider } from '@/lib/history-context'
 import { DEFAULT_RESTAURANTS, DEFAULT_WEEKEND_RESTAURANTS } from '@/lib/restaurants'
@@ -67,41 +66,18 @@ function renderHomePage() {
   )
 }
 
-describe('Integration: RestaurantsPage', () => {
+describe('Integration: RestaurantsPage (read-only)', () => {
   test('renders default restaurants from provider', async () => {
     renderRestaurantsPage()
     expect(await screen.findByText('三多屋爸爸嘴')).toBeInTheDocument()
     expect(screen.getByText('福珍排骨酥麵')).toBeInTheDocument()
   })
 
-  test('add a restaurant via form', async () => {
-    const user = userEvent.setup()
+  test('does not expose edit/add controls', async () => {
     renderRestaurantsPage()
     await screen.findByText('三多屋爸爸嘴')
-
-    await user.type(screen.getByLabelText('名稱'), '整合測試餐廳')
-    await user.type(screen.getByLabelText('價格 (NT$)'), '200')
-    await user.type(screen.getByLabelText('距離 (m)'), '400')
-    await user.type(screen.getByLabelText('評分'), '4.2')
-    await user.click(screen.getByRole('button', { name: '新增' }))
-
-    expect(await screen.findByText('整合測試餐廳')).toBeInTheDocument()
-  })
-
-  test('delete a restaurant', async () => {
-    const user = userEvent.setup()
-    renderRestaurantsPage()
-    await screen.findByText('三多屋爸爸嘴')
-
-    const rows = screen.getAllByRole('row')
-    const firstDataRow = rows[1]
-    const buttons = firstDataRow.querySelectorAll('button')
-    const deleteButton = buttons[buttons.length - 1]
-    await user.click(deleteButton)
-
-    await waitFor(() => {
-      expect(screen.queryByText('三多屋爸爸嘴')).not.toBeInTheDocument()
-    })
+    expect(screen.queryByRole('button', { name: '新增' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('編輯')).not.toBeInTheDocument()
   })
 })
 

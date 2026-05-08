@@ -387,7 +387,7 @@ export default function HomePage() {
                       </span>
                       <p className="text-sm">NT$ {r.price}</p>
                       <p className="text-sm text-muted-foreground">
-                        {r.distance} m・⭐ {r.rating}
+                        {r.distance != null ? `${r.distance} m` : '—'}・⭐ {r.rating}
                       </p>
                     </div>
                   )}

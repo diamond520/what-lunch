@@ -5,6 +5,12 @@ import { toast } from 'sonner'
 import { CUISINE_META, type CuisineType, type Restaurant } from './types'
 
 const TOKEN_STORAGE_KEY = 'what-lunch-edit-token'
+const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
+interface StoredToken {
+  token: string
+  expiresAt: number // ms since epoch
+}
 
 interface RestaurantContextValue {
   restaurants: Restaurant[]
@@ -36,7 +42,26 @@ function migrateRestaurants(list: Restaurant[]): Restaurant[] {
 function readStoredToken(): string {
   if (typeof window === 'undefined') return ''
   try {
-    return localStorage.getItem(TOKEN_STORAGE_KEY) ?? ''
+    const raw = localStorage.getItem(TOKEN_STORAGE_KEY)
+    if (!raw) return ''
+
+    // Old format (plain string from before expiry was added) — drop it,
+    // user has to re-enter password once.
+    if (!raw.startsWith('{')) {
+      localStorage.removeItem(TOKEN_STORAGE_KEY)
+      return ''
+    }
+
+    const parsed = JSON.parse(raw) as Partial<StoredToken>
+    if (
+      typeof parsed.token !== 'string' ||
+      typeof parsed.expiresAt !== 'number' ||
+      Date.now() >= parsed.expiresAt
+    ) {
+      localStorage.removeItem(TOKEN_STORAGE_KEY)
+      return ''
+    }
+    return parsed.token
   } catch {
     return ''
   }
@@ -74,8 +99,12 @@ export function RestaurantProvider({ children }: { children: React.ReactNode }) 
   function setEditToken(token: string) {
     setEditTokenState(token)
     try {
-      if (token) localStorage.setItem(TOKEN_STORAGE_KEY, token)
-      else localStorage.removeItem(TOKEN_STORAGE_KEY)
+      if (token) {
+        const stored: StoredToken = { token, expiresAt: Date.now() + TOKEN_TTL_MS }
+        localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(stored))
+      } else {
+        localStorage.removeItem(TOKEN_STORAGE_KEY)
+      }
     } catch {
       // Ignore storage errors
     }

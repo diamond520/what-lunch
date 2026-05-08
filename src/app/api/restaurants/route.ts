@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Redis } from '@upstash/redis'
 import { DEFAULT_RESTAURANTS, DEFAULT_WEEKEND_RESTAURANTS } from '@/lib/restaurants'
+import { isAuthorized } from '@/lib/api-auth'
 import type { Restaurant } from '@/lib/types'
 
 const redis = new Redis({
@@ -11,24 +12,6 @@ const redis = new Redis({
 const KEY_WEEKDAY = 'restaurants:weekday'
 const KEY_WEEKEND = 'restaurants:weekend'
 
-// Collect all valid edit tokens from env vars matching EDIT_TOKEN or EDIT_TOKEN_*
-// so the team can have multiple shared passwords without code changes.
-function getValidTokens(): string[] {
-  return Object.entries(process.env)
-    .filter(([k, v]) => /^EDIT_TOKEN(_.+)?$/.test(k) && typeof v === 'string' && v.length > 0)
-    .map(([, v]) => v as string)
-}
-
-function isAuthorized(req: Request): boolean {
-  const auth = req.headers.get('authorization') ?? ''
-  const match = auth.match(/^Bearer (.+)$/)
-  if (!match) return false
-  const provided = match[1]
-  const valid = getValidTokens()
-  if (valid.length === 0) return false
-  return valid.some((t) => t === provided)
-}
-
 function isValidRestaurant(r: unknown): r is Restaurant {
   if (typeof r !== 'object' || r === null) return false
   const o = r as Record<string, unknown>
@@ -37,7 +20,7 @@ function isValidRestaurant(r: unknown): r is Restaurant {
     typeof o.name === 'string' &&
     typeof o.type === 'string' &&
     typeof o.price === 'number' &&
-    typeof o.distance === 'number' &&
+    (o.distance === undefined || typeof o.distance === 'number') &&
     typeof o.rating === 'number'
   )
 }

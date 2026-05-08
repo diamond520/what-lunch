@@ -23,6 +23,6 @@ export interface Restaurant {
   name: string
   type: CuisineType // enforced as union — 'chinese' would be a compile error
   price: number // TWD, integer — explicit number fixes the old Vue 2 string coercion bug
-  distance: number // meters, integer
+  distance?: number // meters, integer; optional — display falls back to "—"
   rating: number // Google Maps rating (1.0–5.0)
 }

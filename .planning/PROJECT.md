@@ -22,7 +22,7 @@ Quickly answer "what should we eat for lunch?" with a random, budget-aware recom
 
 - [ ] Rewrite entire app from Vue 2 to Next.js (React)
 - [ ] Brand new UI design (not replicating old Element UI look)
-- [ ] Deploy to Vercel
+- [x] Deploy to Vercel — live at https://what-lunch-lac.vercel.app (auto-deployed from GitHub master)
 - [ ] Maintain all existing features in new stack
 - [ ] Restaurant data as hardcoded defaults (no database)
 

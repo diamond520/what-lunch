@@ -31,7 +31,7 @@ Progress: [████████████] 100% (20 plans complete of 20 p
 | 02-app-shell | 2 completed | ~3 min | ~1.5 min |
 | 03-recommendation-algorithm | 3 of 3 completed | ~6 min | ~2 min |
 | 04-restaurant-management | 2 of 2 completed | ~3.5 min | ~1.75 min |
-| 05-picker-page-and-deployment | 1 of 2 completed | ~1 min | ~1 min |
+| 05-picker-page-and-deployment | 2 of 2 completed | ~1 min | ~1 min |
 | 06-weekend-recommendation | 3 of 3 completed | ~5 min | ~1.7 min |
 | 07-dark-mode | 1 completed | ~2 min | ~2 min |
 | 08-cuisine-filter | 2 of 2 completed | 28 min | 14 min |
@@ -146,7 +146,7 @@ None.
 
 ### Backlog
 
-- Phase 5 Plan 02: Vercel deployment — `npx vercel login` then `npx vercel --prod`, or connect repo in Vercel dashboard
+None.
 
 ## Session Continuity
 

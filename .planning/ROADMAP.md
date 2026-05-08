@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: App Shell** - Navigation, layouts, global design system, and static page shells
 - [x] **Phase 3: Recommendation Algorithm** - Pure-function algorithm with budget enforcement and cuisine diversity
 - [x] **Phase 4: Restaurant Management** - Restaurant list view, add form, remove, and cuisine type tags
-- [ ] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
+- [x] **Phase 5: Picker Page and Deployment** - Weekly plan UI, per-slot re-roll cards, and Vercel deployment
 - [x] **Phase 6: Weekend Recommendation** - Independent weekend restaurant list, random pick page, tab switching in restaurant management
 - [x] **Phase 7: Dark Mode** - Tailwind CSS variable theme toggle with system preference detection
 - [x] **Phase 8: Cuisine Filter** - Exclude or lock specific cuisine types when generating weekly plans (completed 2026-02-19)
@@ -111,7 +111,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Build weekly lunch picker page with budget input, 5-day cards, and per-card re-roll
-- [ ] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL (backlog: manual deploy when ready)
+- [x] 05-02-PLAN.md — Deploy to Vercel production and verify all features work on the live URL (live at https://what-lunch-lac.vercel.app, GitHub-integrated auto-deploy from `master`)
 
 ---
 
@@ -231,7 +231,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 2. App Shell | 2/2 | Complete | 2026-02-18 |
 | 3. Recommendation Algorithm | 3/3 | Complete | 2026-02-18 |
 | 4. Restaurant Management | 2/2 | Complete | 2026-02-18 |
-| 5. Picker Page and Deployment | 1/2 | Backlog (deployment) | - |
+| 5. Picker Page and Deployment | 2/2 | Complete | 2026-03-06 |
 | 6. Weekend Recommendation | 3/3 | Complete | 2026-02-18 |
 | 7. Dark Mode | 1/1 | Complete | 2026-02-19 |
 | 8. Cuisine Filter | 2/2 | Complete   | 2026-02-19 |

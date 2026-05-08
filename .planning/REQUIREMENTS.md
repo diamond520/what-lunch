@@ -40,7 +40,7 @@ Requirements for the Next.js rewrite. Feature parity with existing app, all know
 
 ### Deployment
 
-- [ ] **DEPLOY-01**: Static export / SSG deployment to Vercel
+- [x] **DEPLOY-01**: Static export / SSG deployment to Vercel
 - [x] **DEPLOY-02**: Production build with no errors or warnings
 
 ## v2 Requirements
@@ -100,7 +100,7 @@ Updated during roadmap creation.
 | REST-04 | Phase 4 | Complete |
 | REST-05 | Phase 4 | Complete |
 | RECO-06 | Phase 5 | Complete |
-| DEPLOY-01 | Phase 5 | Pending |
+| DEPLOY-01 | Phase 5 | Complete |
 | DEPLOY-02 | Phase 5 | Complete |
 
 **Coverage:**

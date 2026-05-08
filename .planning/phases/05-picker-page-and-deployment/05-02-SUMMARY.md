@@ -1,8 +1,9 @@
 # Plan 05-02 Summary: Deploy to Vercel
 
-**Status:** Partial — build verified, deployment requires user auth
+**Status:** Complete
 **Started:** 2026-02-18
-**Duration:** ~1 min
+**Deployed:** 2026-03-06 (Option B — GitHub + Vercel Dashboard)
+**Duration:** ~1 min build verification; deployment via dashboard integration
 
 ## What Was Done
 
@@ -14,37 +15,26 @@
 - `npx vitest run` — 22/22 tests pass
 - ESLint — zero warnings
 
-**Deployment — BLOCKED on auth:**
-- Vercel CLI v50.18.2 is installed
-- `vercel whoami` returns "No existing credentials found"
-- `vercel login` requires browser interaction — cannot be done autonomously
-
-**Alternative path available:**
-- GitHub auth IS configured (`gh auth status` confirms `diamond520` logged in)
-- Remote: `https://github.com/diamond520/what-lunch.git`
-- User can push to GitHub and connect Vercel via dashboard for auto-deploy
+**Deployment — DONE via GitHub integration (Option B):**
+- Repo `diamond520/what-lunch` connected in Vercel dashboard
+- Auto-deploy from `master` on every push
+- Production URL: **https://what-lunch-lac.vercel.app**
+- Vercel CLI was not used; no `.vercel/` link directory in repo (expected for dashboard-integrated projects)
 
 ### Task 2: Human verification checkpoint
 
-Deferred — requires live deployment URL to verify.
+Verified live: production URL serves home (`/`), `/restaurants`, `/weekend`, and `/history` with all interactive features working.
 
-## Deployment Options
+## Deployment Setup
 
-### Option A: Vercel CLI (requires one-time login)
-```bash
-npx vercel login    # opens browser for auth
-npx vercel --prod   # deploys to production
-```
-
-### Option B: GitHub + Vercel Dashboard
-```bash
-git push origin master   # push all code to GitHub
-```
-Then connect `diamond520/what-lunch` repo in [Vercel Dashboard](https://vercel.com/new) for auto-deploy on push.
+- **Method:** GitHub + Vercel Dashboard (Option B from original plan)
+- **Trigger:** Push to `master` → automatic production deploy
+- **Latest deploy at audit time:** Mar 6, 2026 — commit "fix: update hono to 4.12.5 to resolve CVE-2026-29..."
+- **Note:** `/api/restaurants` (POST) is gated by `NODE_ENV !== 'development'` and returns 403 in production, so the dev-only file-write route is harmless on Vercel.
 
 ## Commits
 
-None (no source files modified in this plan).
+None (no source files modified in this plan; deployment is a meta-action).
 
 ## Verification Status
 
@@ -53,5 +43,5 @@ None (no source files modified in this plan).
 | Production build clean | ✅ |
 | All 22 tests pass | ✅ |
 | ESLint zero warnings | ✅ |
-| Vercel deployment | ⏳ Requires user auth |
-| Live URL verification | ⏳ Pending deployment |
+| Vercel deployment | ✅ Live |
+| Live URL verification | ✅ https://what-lunch-lac.vercel.app |
